@@ -42,23 +42,4 @@ include/Interface/
    VGUI2Extension.dll
    ```
 
-5. 将它放在依赖它的 CaptionMod、BulletPhysics、SCModelDownloader 等插件之前，
-   并通过 MetaHook 启动游戏。
-
-更新时一并更新 DLL、资源与 `metahook/gamedata/vgui2extension/`。
-旧 catalog 可能缺少插件所需的私有符号，详见 [gamedata 要求](gamedata.md#运行要求)。
-
-## 公共接口
-
-公共接口以本仓库的 `include/Interface/` 和 `include/Interface/VGUI/` 为准。
-使用接口的工程应将这两个 include 目录放在 MetaHook 历史副本之前；其他 SDK 头仍由 MetaHook 提供。
-
-| 接口 | 头文件 |
-| --- | --- |
-| VGUI2 回调 | [IVGUI2Extension.h](../../include/Interface/IVGUI2Extension.h) |
-| DPI 管理 | [IDpiManager.h](../../include/Interface/IDpiManager.h) |
-| 扩展输入 | [IInput2.h](../../include/Interface/VGUI/IInput2.h) |
-| 扩展 scheme | [IScheme2.h](../../include/Interface/VGUI/IScheme2.h) |
-| 扩展 surface 与字体 | [ISurface2.h](../../include/Interface/VGUI/ISurface2.h) |
-
-独立工程保留原有接口版本和插件导出约定。
+5. 通过 MetaHook 启动游戏。

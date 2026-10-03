@@ -4,7 +4,7 @@
 
 本页涵盖 VGUI2Extension 的构建、依赖、gamedata 与回归测试。
 安装目录布局与启用插件见[安装说明](installation.md)；兼容性与启动参数见[功能说明](features.md)。
-CI 工作流与发布归档见[自动化构建](ci.md)。
+CI 工作流与发布归档见[自动化构建](ci-cd.md)。
 
 ## 依赖要求
 
@@ -102,7 +102,3 @@ Python unittest 覆盖 gamedata 连续编号补丁的条件裁剪。
 
 本地构建和测试记录见 [memory/build_and_verification.md](../../memory/build_and_verification.md)。
 编译与模拟测试不等同于游戏内插件加载、HiDPI 和实际 IME 输入验证。
-
-## 许可证
-
-许可证见 [LICENSE](../../LICENSE)；各依赖保留自己的许可证。

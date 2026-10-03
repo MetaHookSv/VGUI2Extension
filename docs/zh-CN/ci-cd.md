@@ -1,4 +1,4 @@
-[返回 README](../../README.zh-CN.md) | [English](../en/ci.md)
+[返回 README](../../README.zh-CN.md) | [English](../en/ci-cd.md)
 
 # 自动化构建
 

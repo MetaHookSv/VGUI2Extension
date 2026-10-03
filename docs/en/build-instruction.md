@@ -5,7 +5,7 @@
 This page covers the build, dependencies, gamedata and regression tests of VGUI2Extension.
 For the install layout and enabling the plugin, see [Installation](installation.md);
 for compatibility and launch parameters, see [Features](features.md).
-CI workflows and release archives are described in [Automated builds](ci.md).
+CI workflows and release archives are described in [Automated builds](ci-cd.md).
 
 ## Requirements
 
@@ -113,7 +113,3 @@ covers conditional pruning of numbered gamedata patches.
 Local build and test records are in
 [memory/build_and_verification.md](../../memory/build_and_verification.md).
 Compilation and simulated tests do not verify in-game loading, HiDPI or actual IME input.
-
-## License
-
-See [LICENSE](../../LICENSE); each dependency keeps its own license.

@@ -44,25 +44,4 @@ Public interface headers are installed for development and are not included in t
    VGUI2Extension.dll
    ```
 
-5. Place it before plugins that depend on it, such as CaptionMod, BulletPhysics and
-   SCModelDownloader, and launch the game through MetaHook.
-
-Update the DLL, resources and `metahook/gamedata/vgui2extension/` together. Older catalogs
-may lack the private symbols required by the plugin; see
-[gamedata requirements](gamedata.md#runtime-requirements).
-
-## Public interfaces
-
-The authoritative headers are in this repository's `include/Interface/` and
-`include/Interface/VGUI/`. Consumers should place these include directories before
-MetaHook's historical copies; other SDK headers still come from MetaHook.
-
-| Interface | Header |
-| --- | --- |
-| VGUI2 callbacks | [IVGUI2Extension.h](../../include/Interface/IVGUI2Extension.h) |
-| DPI management | [IDpiManager.h](../../include/Interface/IDpiManager.h) |
-| Extended input | [IInput2.h](../../include/Interface/VGUI/IInput2.h) |
-| Extended schemes | [IScheme2.h](../../include/Interface/VGUI/IScheme2.h) |
-| Extended surface and fonts | [ISurface2.h](../../include/Interface/VGUI/ISurface2.h) |
-
-The standalone project retains the original interface versions and plugin export conventions.
+5. Launch the game through MetaHook.

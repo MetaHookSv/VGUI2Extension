@@ -40,7 +40,7 @@ through MetaHook. See [Installation](docs/en/installation.md) for the directory 
 - [Installation: install layout, plugin order and public interfaces](docs/en/installation.md)
 - [Features: compatibility, UI extensions, HiDPI and launch parameters](docs/en/features.md)
 - [gamedata: catalog requirements and the plugin's GameSymbols](docs/en/gamedata.md)
-- [Automated builds: CI workflows and release archives](docs/en/ci.md)
+- [Automated builds: CI workflows and release archives](docs/en/ci-cd.md)
 
 ## License
 
