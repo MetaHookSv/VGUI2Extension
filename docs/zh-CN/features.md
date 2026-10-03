@@ -2,7 +2,7 @@
 
 # 功能说明
 
-VGUI2Extension 扩展游戏的 VGUI2 接口，并为其他 MetaHook 插件提供回调。
+VGUI2Extension 扩展游戏的 VGUI2 接口，并为其他 MetaHook 插件提供VGUI2相关回调。
 构建与启用方式见[构建说明](build-instruction.md)和[安装说明](installation.md)。
 
 ## 兼容性
@@ -52,11 +52,6 @@ HiDPI 支持为 VGUI2 控件应用 HDProportional 缩放，并通过文件系统
    例如：`\Sven Co-op\svencoop_dpi150` 或 `\Half-Life\valve_dpi200`。
 2. `(GameDirectory)\(ModDirectory)_hidpi`
    例如：`\Sven Co-op\svencoop_hidpi` 或 `\Half-Life\valve_hidpi`。
-
-## 输入法处理
-
-扩展输入接口处理 Windows IME 语言与转换模式、组合输入、候选列表和取消组合输入。
-窗口消息处理涵盖 Win32 和 SDL 输入路径。实际 IME 行为需要在目标游戏中验证。
 
 ## 启动参数
 

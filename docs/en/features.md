@@ -60,12 +60,6 @@ When enabled, the following resource directories are added with the `SKIN` tag:
 2. `(GameDirectory)\(ModDirectory)_hidpi`
    For example: `\Sven Co-op\svencoop_hidpi` or `\Half-Life\valve_hidpi`.
 
-## Input method handling
-
-The extended input interface handles Windows IME language and conversion modes,
-composition, candidate lists and cancellation. Window message handling covers the
-Win32 and SDL input paths. Actual IME behavior requires testing in the target game.
-
 ## Launch parameters
 
 | Parameter | Effect |

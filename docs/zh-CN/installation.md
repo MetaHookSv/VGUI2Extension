@@ -32,8 +32,7 @@ include/Interface/
 
 ## 启用插件
 
-1. 安装提供 API 115 或更新版本、支持合并嵌套 gamedata catalog 的 MetaHook。
-   其 API 版本还须不低于编译插件时使用的 SDK 版本。
+1. 安装最新版本的MetaHook
 2. 将 `svencoop/` 的内容合并到目标 mod 目录，例如 `valve/`、`cstrike/` 或 `svencoop/`。
 3. 将 `platform/` 合并到游戏的 platform 目录。
 4. 在 `<mod>/metahook/configs/plugins.lst` 中添加：

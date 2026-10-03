@@ -33,8 +33,7 @@ Public interface headers are installed for development and are not included in t
 
 ## Enable the plugin
 
-1. Install MetaHook with API 115 or newer and support for merging nested gamedata catalogs.
-   Its API version must also be at least the SDK version used to build the plugin.
+1. Install latest version of MetaHook.
 2. Merge the contents of `svencoop/` into the target mod directory, such as `valve/`,
    `cstrike/` or `svencoop/`.
 3. Merge `platform/` into the game's platform directory.
