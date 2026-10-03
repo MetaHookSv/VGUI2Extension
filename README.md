@@ -36,11 +36,11 @@ through MetaHook. See [Installation](docs/en/installation.md) for the directory 
 
 ## Documentation
 
-- [Build instruction: build, dependencies, gamedata and regression tests](docs/en/build-instruction.md)
-- [Installation: install layout, plugin order and public interfaces](docs/en/installation.md)
-- [Features: compatibility, UI extensions, HiDPI and launch parameters](docs/en/features.md)
-- [gamedata: catalog requirements and the plugin's GameSymbols](docs/en/gamedata.md)
-- [Automated builds: CI workflows and release archives](docs/en/ci-cd.md)
+- [Build instruction](docs/en/build-instruction.md)
+- [Installation](docs/en/installation.md)
+- [Features](docs/en/features.md)
+- [gamedata](docs/en/gamedata.md)
+- [CI/CD](docs/en/ci-cd.md)
 
 ## License
 

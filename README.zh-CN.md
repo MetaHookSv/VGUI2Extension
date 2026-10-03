@@ -32,11 +32,11 @@ VGUI2Extension 是 MetaHook 的 UI 扩展插件，为其他插件提供修改 Go
 
 ## 文档
 
-- [构建说明：构建、依赖、gamedata 与回归测试](docs/zh-CN/build-instruction.md)
-- [安装说明：安装目录布局、加载顺序与公共接口](docs/zh-CN/installation.md)
-- [功能说明：兼容性、UI 扩展、HiDPI 与启动参数](docs/zh-CN/features.md)
-- [gamedata：catalog 要求与插件使用的 GameSymbols](docs/zh-CN/gamedata.md)
-- [自动化构建：CI 工作流与发布归档](docs/zh-CN/ci-cd.md)
+- [构建说明](docs/zh-CN/build-instruction.md)
+- [安装说明](docs/zh-CN/installation.md)
+- [功能说明](docs/zh-CN/features.md)
+- [gamedata](docs/zh-CN/gamedata.md)
+- [自动化构建与发布](docs/zh-CN/ci-cd.md)
 
 ## 许可证
 
