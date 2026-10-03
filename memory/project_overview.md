@@ -6,9 +6,7 @@ permalink: vgui2extension/project-overview
 
 # VGUI2Extension
 
-独立 Windows x86 插件，源码迁自 MetaHookSv `fe80b6d60bfb487b52aed7ea7ec0492e7b27a5d2`。
-参考独立 Renderer 的 CMake、SDK 消费、安装和 gamedata 打包结构。
-原 MetaHookSv 与其他参考仓库未改动。
+VGUI2Extension 是 MetaHook 的 UI 扩展插件，为其他插件提供修改 GoldSrc VGUI2 组件的能力，并提供字体与 HiDPI 支持、游戏语言覆盖和输入法处理。
 
 ## 职责与入口
 
@@ -34,12 +32,6 @@ CaptionMod、BulletPhysics、Renderer、SCModelDownloader 是主要消费者。
 编译显式保留 129 个单元，共享 SDK 文件来自外部 MetaHook。
 资源来自原 `Build/svencoop/vgui2ext/` 与 `Build/platform/` 的两份中文本地化文件。
 测试包含语言注册表、IME 消息以及条件编号补丁裁剪。
-
-## 当前代码优先于旧笔记
-
-原 MetaHookSv memory 中声称 IInput2 已升为 006，但本次源提交的头和注册代码仍为
-`VGUI_Input2_005`，且含 `CancelIMEComposition`。本次迁移原样保留这一状态；
-未引入接口版本变更，也不复制旧笔记中有关 006 别名的错误结论。
 
 ## 对外文档
 
