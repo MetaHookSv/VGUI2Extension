@@ -41,4 +41,12 @@ CaptionMod、BulletPhysics、Renderer、SCModelDownloader 是主要消费者。
 `VGUI_Input2_005`，且含 `CancelIMEComposition`。本次迁移原样保留这一状态；
 未引入接口版本变更，也不复制旧笔记中有关 006 别名的错误结论。
 
-更多信息见 `README.md`、`docs/VGUI2Extension.md`、`memory/build_and_verification.md`。
+## 对外文档
+
+`README.md` 为英文首页，`README.zh-CN.md` 为中文首页；结构对齐独立 Renderer 与 MetaHook。
+详细文档按构建、安装、功能、gamedata 和 CI 分页，双语分别位于 `docs/en/` 与 `docs/zh-CN/`，
+页首提供返回对应 README 和语言切换的相对链接。原 `docs/VGUI2Extension*.md` 保留为旧链接入口。
+gamedata 页面集中维护运行要求及按 module/kind/版本条件列出的符号清单，包含 92 条显式记录
+和 5 组连续编号补丁；manifest 发布条件与源码运行条件分别说明，不能把清单豁免当作运行时可选。
+
+更多信息见 `README.md`、`docs/zh-CN/features.md`、`memory/build_and_verification.md`。
