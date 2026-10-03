@@ -3,10 +3,9 @@
 [English README](README.md)
 
 VGUI2Extension 是 MetaHook 的 UI 扩展插件，为其他插件提供修改 GoldSrc VGUI2 组件的能力，
-并提供字体与 HiDPI 支持、游戏语言覆盖和输入法处理。
+并提供字体与 HiDPI 支持、多语言支持和输入法处理。
 
-* 需要 Windows x86 和 MetaHook API 115 或更新版本。宿主还须满足编译插件时使用的 API 版本。
-* BugFixedHL 使用不同的 VGUI2 对象布局，与本插件不兼容。
+* BugFixedHL 使用不同的 VGUI2 对象布局，因此与本插件不兼容。
 
 ## 兼容性
 
