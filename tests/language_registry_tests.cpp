@@ -1,4 +1,4 @@
-#include "../LanguageRegistry.h"
+#include "../src/LanguageRegistry.h"
 
 #include <cassert>
 #include <cstdio>

@@ -1,4 +1,4 @@
-#include "../IMEWindowMessage.h"
+#include "../src/IMEWindowMessage.h"
 #include <cassert>
 #include <string>
 

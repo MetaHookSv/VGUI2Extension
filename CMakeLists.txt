@@ -76,7 +76,7 @@ option(VGUI2EXTENSION_BUILD_TESTS "Build existing language and IME regression te
 if(VGUI2EXTENSION_BUILD_TESTS)
     enable_testing()
     foreach(test language_registry_tests ime_window_message_test)
-        add_executable(${test} "src/tests/${test}.cpp")
+        add_executable(${test} "tests/${test}.cpp")
         target_compile_features(${test} PRIVATE cxx_std_17)
         target_compile_options(${test} PRIVATE /W4 /WX /UNDEBUG)
         add_test(NAME ${test} COMMAND ${test})
