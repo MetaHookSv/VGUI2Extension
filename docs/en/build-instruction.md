@@ -32,33 +32,29 @@ code. Build directories are `build/x86/<Debug|Release>` and install directories 
 
 ## Specifying source paths manually
 
-`METAHOOK_SOURCE_PATH` points to the **MetaHook repository root** containing
-`include/metahook.h`, `include/HLSDK/`, `include/SourceSDK/` and `include/vgui_controls/`.
-With a valid explicit path, the SDK download is skipped.
+The MetaHook SDK is downloaded automatically at a fixed version. To reuse a local
+checkout, set `METAHOOK_SOURCE_PATH`. Both SDL header paths are always required:
 
-SDL headers can also come directly from MetaHook's initialized dependency source trees:
+| Parameter | Directory |
+| --- | --- |
+| `METAHOOK_SOURCE_PATH` (optional) | MetaHook repository root with `include/metahook.h` and the HLSDK, SourceSDK and VGUI sources |
+| `SDL2_INCLUDE_DIRS` (required) | Include directory containing `SDL2/SDL_syswm.h` |
+| `SDL3_INCLUDE_DIRS` (required) | Include directory containing `SDL3/SDL_events.h` |
 
-```bat
-scripts\build-VGUI2Extension-x86-Release.bat "-DMETAHOOK_SOURCE_PATH=D:/MetaHook" "-DSDL2_INCLUDE_DIRS=D:/MetaHook/thirdparty/sdl2-compat-fork/include" "-DSDL3_INCLUDE_DIRS=D:/MetaHook/thirdparty/SDL3_fork/include"
-```
-
-`METAHOOK_SOURCE_PATH`, `SDL2_INCLUDE_DIRS` and `SDL3_INCLUDE_DIRS` accept same-named
-environment variables on first configure. Explicit `-D` arguments take precedence;
-environment variables only seed the CMake cache. `-DMETAHOOK_SOURCE_PATH=` restores
-the FetchContent fetch. For offline builds, supply a local SDK or reuse a populated build
-directory and dependency caches.
-
-Both SDL parameters are required and accept semicolon-separated directory lists. SDL2
-must provide `SDL2/SDL_syswm.h`, and SDL3 must provide `SDL3/SDL_events.h`. CMake normalizes
-the include paths and rejects missing directories or required headers at configure time.
-This project consumes the headers; MetaHook provides the SDL runtime.
-
-Calling CMake directly:
+SDL headers can come from MetaHook's install tree, as shown above, or its initialized
+dependency source trees:
 
 ```bat
-cmake -S . -B build/x86/Release -G "Visual Studio 17 2022" -A Win32 -DCMAKE_INSTALL_PREFIX=install/x86/Release -DMETAHOOK_SOURCE_PATH=D:/MetaHook -DSDL2_INCLUDE_DIRS=D:/MetaHook/install/x86/Release/include -DSDL3_INCLUDE_DIRS=D:/MetaHook/install/x86/Release/include
-cmake --build build/x86/Release --config Release --target install --parallel
+scripts\build-VGUI2Extension-x86-Release.bat ^
+  "-DMETAHOOK_SOURCE_PATH=D:/MetaHook" ^
+  "-DSDL2_INCLUDE_DIRS=D:/MetaHook/thirdparty/sdl2-compat-fork/include" ^
+  "-DSDL3_INCLUDE_DIRS=D:/MetaHook/thirdparty/SDL3_fork/include"
 ```
+
+All three parameters accept same-named environment variables on first configure.
+Use `-DNAME=value` to change a cached value; `-DMETAHOOK_SOURCE_PATH=` restores automatic
+SDK downloading. SDL paths accept semicolon-separated directory lists; quote the entire
+`-D` argument. MetaHook provides the SDL runtime.
 
 ## Build options
 
@@ -89,25 +85,14 @@ conditions, see [gamedata](gamedata.md). Update the manifest when symbol require
 
 ## Dependencies and build conventions
 
-| Dependency | Source | Version | Purpose |
-| --- | --- | --- | --- |
-| MetaHookSv/MetaHook | Local source path or FetchContent | `1d23fe946e6f0f09a1a892aa2156c3b462774026` when fetched | Public API, HLSDK/SourceSDK and VGUI sources |
-| SDL2 / SDL3 | External include directories | Provided by MetaHook | Input and window declarations |
-| VC-LTL | Verified binary cache | 5.3.1 | CRT compatibility |
-
-MetaHook is consumed as an SDK: the FetchContent path does not build the host or initialize
-its submodules. This repository has no third-party submodules and does not build, link or
-install SDL, Capstone or GLEW.
-
-VC-LTL comes from `Chuyu-Team/VC-LTL5` v5.3.1 `VC-LTL-Binary.7z`, verified with SHA-256:
-`7a18799ed3aa84a225610a5447a56bc534c5c98ccb8dec05caba0e3f633431ad`.
-Debug and Release share the cache under `thirdparty/cache/`; use
-`VGUI2EXTENSION_DEPENDENCY_CACHE_DIR` to choose another directory.
-
-VGUI2Extension uses C++20, Debug `/MTd` and Release `/MT`. Release enables LTCG,
-`/OPT:REF` and `/OPT:ICF`; both configurations emit a PDB. The explicit compilation list
-is in [cmake/Sources.cmake](../../cmake/Sources.cmake), with 129 compilation units.
-`src/parsemsg.cpp` and `src/steam_api.cpp` are retained but are not compiled.
+- CMake downloads the MetaHook SDK and VC-LTL 5.3.1 automatically. The SDK version is
+  recorded in [cmake/Dependencies.cmake](../../cmake/Dependencies.cmake).
+- VC-LTL is verified after download. Debug and Release share its cache under
+  `thirdparty/cache/`; use `-DVGUI2EXTENSION_DEPENDENCY_CACHE_DIR=<path>` on first configure
+  to choose another directory.
+- For offline builds, prepare the SDK, VC-LTL and gamedata caches with an online build first.
+  A local SDK path alone does not cover every download.
+- External SDK sources are left unchanged. Both Debug and Release include a PDB for debugging.
 
 ## Regression tests
 

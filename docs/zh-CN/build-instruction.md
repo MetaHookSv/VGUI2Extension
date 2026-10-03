@@ -29,30 +29,27 @@ scripts\build-VGUI2Extension-x86-Release.bat "-DSDL2_INCLUDE_DIRS=D:/MetaHook/in
 
 ## 手动指定源码路径
 
-`METAHOOK_SOURCE_PATH` 指向包含 `include/metahook.h`、`include/HLSDK/`、
-`include/SourceSDK/` 和 `include/vgui_controls/` 的 **MetaHook 仓库根目录**。
-显式指定有效路径后，跳过 SDK 下载。
+MetaHook SDK 默认自动下载固定版本。需要复用本地源码时，设置 `METAHOOK_SOURCE_PATH`。
+无论 SDK 来源如何，SDL2 和 SDL3 头文件路径都必须提供：
 
-SDL 头文件也可以直接取自 MetaHook 已初始化的依赖源码树：
+| 参数 | 目录 |
+| --- | --- |
+| `METAHOOK_SOURCE_PATH`（可选） | MetaHook 仓库根目录，包含 `include/metahook.h` 及 HLSDK、SourceSDK、VGUI 源码 |
+| `SDL2_INCLUDE_DIRS`（必填） | 包含 `SDL2/SDL_syswm.h` 的 include 目录 |
+| `SDL3_INCLUDE_DIRS`（必填） | 包含 `SDL3/SDL_events.h` 的 include 目录 |
 
-```bat
-scripts\build-VGUI2Extension-x86-Release.bat "-DMETAHOOK_SOURCE_PATH=D:/MetaHook" "-DSDL2_INCLUDE_DIRS=D:/MetaHook/thirdparty/sdl2-compat-fork/include" "-DSDL3_INCLUDE_DIRS=D:/MetaHook/thirdparty/SDL3_fork/include"
-```
-
-`METAHOOK_SOURCE_PATH`、`SDL2_INCLUDE_DIRS` 和 `SDL3_INCLUDE_DIRS` 支持首次配置的同名环境变量。
-显式 `-D` 参数优先；环境变量只用于初始化 CMake cache。`-DMETAHOOK_SOURCE_PATH=` 恢复
-FetchContent 获取。离线构建时，提供本地 SDK，或复用已准备好的构建目录和依赖缓存。
-
-两个 SDL 参数均必填，支持分号分隔的目录列表。SDL2 必须提供 `SDL2/SDL_syswm.h`，
-SDL3 必须提供 `SDL3/SDL_events.h`。CMake 规范化 include 路径，并在配置阶段检查目录与必要头文件。
-本工程消费这些头文件，SDL 运行时由 MetaHook 提供。
-
-直接调用 CMake：
+SDL 头文件可取自上文的 MetaHook 安装目录，也可直接使用其已初始化的依赖源码目录：
 
 ```bat
-cmake -S . -B build/x86/Release -G "Visual Studio 17 2022" -A Win32 -DCMAKE_INSTALL_PREFIX=install/x86/Release -DMETAHOOK_SOURCE_PATH=D:/MetaHook -DSDL2_INCLUDE_DIRS=D:/MetaHook/install/x86/Release/include -DSDL3_INCLUDE_DIRS=D:/MetaHook/install/x86/Release/include
-cmake --build build/x86/Release --config Release --target install --parallel
+scripts\build-VGUI2Extension-x86-Release.bat ^
+  "-DMETAHOOK_SOURCE_PATH=D:/MetaHook" ^
+  "-DSDL2_INCLUDE_DIRS=D:/MetaHook/thirdparty/sdl2-compat-fork/include" ^
+  "-DSDL3_INCLUDE_DIRS=D:/MetaHook/thirdparty/SDL3_fork/include"
 ```
+
+三个参数均支持首次配置时的同名环境变量。修改已缓存的值请使用 `-D参数名=值`；
+`-DMETAHOOK_SOURCE_PATH=` 恢复自动下载 SDK。SDL 路径支持分号分隔的多个目录，
+请将整个 `-D` 参数放在引号中。SDL 运行时由 MetaHook 提供。
 
 ## 构建选项
 
@@ -80,24 +77,12 @@ catalog 要求、完整 GameSymbols 清单、module 归属与版本条件见 [ga
 
 ## 依赖与构建约定
 
-| 依赖 | 来源 | 版本 | 用途 |
-| --- | --- | --- | --- |
-| MetaHookSv/MetaHook | 本地源码路径或 FetchContent | 获取时固定为 `1d23fe946e6f0f09a1a892aa2156c3b462774026` | 公共 API、HLSDK/SourceSDK 与 VGUI 源码 |
-| SDL2 / SDL3 | 外部 include 目录 | 由 MetaHook 提供 | 输入和窗口声明 |
-| VC-LTL | 校验过的二进制缓存 | 5.3.1 | CRT 兼容性 |
-
-MetaHook 作为 SDK 使用：FetchContent 路径不构建宿主，也不初始化它的 submodule。
-本仓库没有第三方 submodule，不构建、链接或安装 SDL、Capstone、GLEW。
-
-VC-LTL 来自 `Chuyu-Team/VC-LTL5` v5.3.1 的 `VC-LTL-Binary.7z`，通过以下 SHA-256 校验：
-`7a18799ed3aa84a225610a5447a56bc534c5c98ccb8dec05caba0e3f633431ad`。
-Debug 与 Release 共用 `thirdparty/cache/` 下的缓存；可通过
-`VGUI2EXTENSION_DEPENDENCY_CACHE_DIR` 指定其他目录。
-
-VGUI2Extension 使用 C++20、Debug `/MTd`、Release `/MT`。Release 启用 LTCG、`/OPT:REF`
-和 `/OPT:ICF`；两种配置均生成 PDB。显式编译清单位于
-[cmake/Sources.cmake](../../cmake/Sources.cmake)，共 129 个编译单元。
-`src/parsemsg.cpp` 和 `src/steam_api.cpp` 保留在源码树中，但不参与编译。
+- CMake 自动下载 MetaHook SDK 和 VC-LTL 5.3.1。SDK 版本见
+  [cmake/Dependencies.cmake](../../cmake/Dependencies.cmake)。
+- VC-LTL 下载后自动校验，Debug 与 Release 共用 `thirdparty/cache/` 下的缓存；
+  首次配置时可用 `-DVGUI2EXTENSION_DEPENDENCY_CACHE_DIR=<路径>` 更改缓存目录。
+- 离线构建前，先联网构建一次以准备 SDK、VC-LTL 和 gamedata 缓存；仅指定本地 SDK 路径不足以覆盖所有下载。
+- 外部 SDK 源码保持不变，Debug 和 Release 均包含用于调试的 PDB。
 
 ## 回归测试
 
