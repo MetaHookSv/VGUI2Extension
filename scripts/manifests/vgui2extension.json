@@ -1,0 +1,428 @@
+{
+  "schemaVersion": 1,
+  "name": "vgui2extension",
+  "indexUrl": "https://hlnd2t.github.io/GoldSrc_VibeSignatures/gamesymbols/index.json",
+  "gameVersions": [
+    "cof-5936",
+    "cstrike-10210",
+    "cstrike-3248",
+    "cstrike-3647",
+    "cstrike-4554",
+    "cstrike-6153",
+    "cstrike-8684",
+    "czero-10210",
+    "czero-8684",
+    "czeror-10210",
+    "czeror-8684",
+    "hl-10210",
+    "hl-3248",
+    "hl-3266",
+    "hl-3329",
+    "hl-3647",
+    "hl-4554",
+    "hl-6153",
+    "hl-8684",
+    "svencoop-10257",
+    "svencoop-8948"
+  ],
+  "symbols": {
+    "engine": {
+      "cl_time": "global"
+    }
+  },
+  "symbolExemptions": {
+    "cl_time": [
+      "cstrike-10210",
+      "cstrike-3248",
+      "cstrike-3647",
+      "cstrike-4554",
+      "cstrike-6153",
+      "cstrike-8684",
+      "czero-10210",
+      "czero-8684",
+      "czeror-10210",
+      "czeror-8684"
+    ]
+  },
+  "conditionalGroups": [
+    {
+      "when": [
+        "cof-5936",
+        "hl-10210",
+        "hl-3248",
+        "hl-3266",
+        "hl-3329",
+        "hl-3647",
+        "hl-4554",
+        "hl-6153",
+        "hl-8684"
+      ],
+      "symbols": {
+        "gameui": {
+          "CCareerBotFrame::CCareerBotFrame(vgui2::Panel*)": "function",
+          "CCareerMapFrame::CCareerMapFrame(vgui2::Panel*)": "function",
+          "CCareerProfileFrame::CCareerProfileFrame(vgui2::Panel*)": "function"
+        }
+      }
+    },
+    {
+      "when": [
+        "cof-5936",
+        "hl-10210",
+        "hl-3248",
+        "hl-3266",
+        "hl-3329",
+        "hl-3647",
+        "hl-4554",
+        "hl-6153",
+        "hl-8684",
+        "svencoop-10257",
+        "svencoop-8948"
+      ],
+      "symbols": {
+        "engine": {
+          "cl_oldtime": "global",
+          "g_ScissorRect": "global",
+          "g_bScissor": "global",
+          "g_pClientFactory": "global",
+          "host_parms": "global",
+          "pmainwindow": "global",
+          "staticEngineSurface": "global",
+          "vgui2::Panel::Init(int, int, int, int)": "function"
+        },
+        "gameui": {
+          "CBasePanel::ApplySchemeSettings(vgui2::IScheme*)": "virtualFunction",
+          "CBasePanel::CBasePanel()": "function",
+          "CCreateMultiplayerGameDialog::CCreateMultiplayerGameDialog(vgui2::Panel*)": "function",
+          "CGameConsoleDialog::CGameConsoleDialog()": "function",
+          "COptionsDialog::COptionsDialog(vgui2::Panel*)": "function",
+          "COptionsSubAudio::COptionsSubAudio(vgui2::Panel*)": "function",
+          "COptionsSubAudio::OnApplyChanges()": "virtualFunction",
+          "COptionsSubMultiplayer::COptionsSubMultiplayer(vgui2::Panel*)": "function",
+          "COptionsSubMultiplayer::OnApplyChanges()": "virtualFunction",
+          "COptionsSubVideo::COptionsSubVideo(vgui2::Panel*)": "function",
+          "COptionsSubVideo::OnApplyChanges()": "virtualFunction",
+          "CTaskbar::CTaskbar(vgui2::Panel*, char const*)": "function",
+          "CTaskbar::OnCommand(char const*)": "virtualFunction",
+          "TabCatchingTextEntry::OnKeyCodeTyped(vgui2::KeyCode)": "virtualFunction",
+          "vgui2::FocusNavGroup._currentFocus": "structMember",
+          "vgui2::FocusNavGroup::GetCurrentFocus()": "virtualFunction",
+          "vgui2::Menu.m_pScroller": "structMember",
+          "vgui2::Menu::MakeItemsVisibleInScrollRange()": "virtualFunction",
+          "vgui2::MessageBox::ApplySchemeSettings(vgui2::IScheme*)": "virtualFunction",
+          "vgui2::MessageBox::MessageBox(char const*, char const*, vgui2::Panel*)": "function",
+          "vgui2::Panel::Init(int, int, int, int)": "function",
+          "vgui2::PropertyDialog._propertySheet": "structMember",
+          "vgui2::PropertySheet._activePage": "structMember",
+          "vgui2::PropertySheet::AddPage(vgui2::Panel*, char const*)": "virtualFunction",
+          "vgui2::PropertySheet::ApplyChanges()": "virtualFunction",
+          "vgui2::PropertySheet::ChangeActiveTab(int)": "virtualFunction",
+          "vgui2::PropertySheet::DeletePage(vgui2::Panel*)": "virtualFunction",
+          "vgui2::PropertySheet::DisablePage(char const*)": "virtualFunction",
+          "vgui2::PropertySheet::EnablePage(char const*)": "virtualFunction",
+          "vgui2::PropertySheet::GetActivePage()": "virtualFunction",
+          "vgui2::PropertySheet::GetActivePageNum()": "virtualFunction",
+          "vgui2::PropertySheet::GetActiveTab()": "virtualFunction",
+          "vgui2::PropertySheet::GetActiveTabTitle(char*, int)": "virtualFunction",
+          "vgui2::PropertySheet::GetNumPages()": "virtualFunction",
+          "vgui2::PropertySheet::GetPage(int)": "virtualFunction",
+          "vgui2::PropertySheet::GetTabTitle(int, char*, int)": "virtualFunction",
+          "vgui2::PropertySheet::HasHotkey(wchar_t)": "virtualFunction",
+          "vgui2::PropertySheet::PerformLayout()": "virtualFunction",
+          "vgui2::PropertySheet::ResetAllData()": "virtualFunction",
+          "vgui2::PropertySheet::SetActivePage(vgui2::Panel*)": "virtualFunction",
+          "vgui2::PropertySheet::SetTabWidth(int)": "virtualFunction",
+          "vgui2::RichText carriage-return filter branch": "patch",
+          "vgui2::RichText::InsertString(wchar_t const*)": "function",
+          "vgui2::RichText::OnThink()": "virtualFunction",
+          "vgui2::TextEntry::GetStartDrawIndex(int&)": "virtualFunction",
+          "vgui2::TextEntry::LayoutVerticalScrollBarSlider()": "virtualFunction"
+        },
+        "serverbrowser": {
+          "vgui2::Panel::Init(int, int, int, int)": "function"
+        },
+        "vgui2": {
+          "CInputWin32::PostKeyMessage(KeyValues*)": "function"
+        }
+      }
+    },
+    {
+      "when": [
+        "cof-5936",
+        "hl-10210",
+        "hl-3647",
+        "hl-4554",
+        "hl-6153",
+        "hl-8684",
+        "svencoop-10257",
+        "svencoop-8948"
+      ],
+      "symbols": {
+        "gameui": {
+          "KeyValues::LoadFromFile(IFileSystem*, char const*, char const*)": "virtualFunction"
+        },
+        "serverbrowser": {
+          "KeyValues::LoadFromFile(IFileSystem*, char const*, char const*)": "virtualFunction"
+        }
+      }
+    },
+    {
+      "when": [
+        "cof-5936",
+        "hl-10210",
+        "hl-6153",
+        "hl-8684",
+        "svencoop-10257",
+        "svencoop-8948"
+      ],
+      "symbols": {
+        "engine": {
+          "FileSystem_AddFallbackGameDir_V_strncpy_callsite_0": "patch",
+          "FileSystem_SetGameDirectory_V_strncpy_callsite_0": "patch"
+        }
+      }
+    },
+    {
+      "when": [
+        "cof-5936",
+        "hl-10210",
+        "hl-8684",
+        "svencoop-10257",
+        "svencoop-8948"
+      ],
+      "symbols": {
+        "client": {
+          "g_iVisibleMouse": "global"
+        }
+      }
+    },
+    {
+      "when": [
+        "cof-5936",
+        "hl-3248",
+        "hl-3266",
+        "hl-3329",
+        "hl-3647",
+        "hl-4554"
+      ],
+      "symbols": {
+        "engine": {
+          "CGame::WindowProc": "function"
+        }
+      }
+    },
+    {
+      "when": [
+        "cof-5936",
+        "hl-3248",
+        "hl-3266",
+        "hl-3329",
+        "hl-3647",
+        "hl-4554",
+        "hl-6153",
+        "hl-8684",
+        "svencoop-10257",
+        "svencoop-8948"
+      ],
+      "symbols": {
+        "gameui": {
+          "COptionsSubVideo::ApplyVidSettings(bool)": "function",
+          "vgui2::MessageBox::ApplySchemeSettings to vgui2::Panel::SetSize callsite": "patch",
+          "vgui2::RichText::InsertChar(wchar_t)": "function"
+        }
+      }
+    },
+    {
+      "when": [
+        "cstrike-10210",
+        "cstrike-3248",
+        "cstrike-3647",
+        "cstrike-4554",
+        "cstrike-6153",
+        "cstrike-8684",
+        "czero-10210",
+        "czero-8684"
+      ],
+      "symbols": {
+        "client": {
+          "CounterStrikeViewport.m_pCSBackGround": "structMember",
+          "CounterStrikeViewport::CCSBackGroundPanel.m_offsetX": "structMember",
+          "CounterStrikeViewport::CCSBackGroundPanel.m_offsetY": "structMember",
+          "CounterStrikeViewport::CCSBackGroundPanel::Activate()": "virtualFunction"
+        }
+      }
+    },
+    {
+      "when": [
+        "cstrike-10210",
+        "cstrike-3248",
+        "cstrike-3647",
+        "cstrike-4554",
+        "cstrike-6153",
+        "cstrike-8684",
+        "czero-10210",
+        "czero-8684",
+        "czeror-10210",
+        "czeror-8684"
+      ],
+      "symbols": {
+        "client": {
+          "CTeamMenu::LoadMapPage(char const*)": "function",
+          "vgui2::Frame::Activate()": "virtualFunction",
+          "vgui2::Frame::LoadControlSettings(char const*, char const*)": "function",
+          "vgui2::Panel::Init(int, int, int, int)": "function",
+          "vgui2::RichText::SetText(wchar_t const*)": "function"
+        }
+      }
+    },
+    {
+      "when": [
+        "cstrike-10210",
+        "cstrike-4554",
+        "cstrike-6153",
+        "cstrike-8684",
+        "czero-10210",
+        "czero-8684",
+        "czeror-10210",
+        "czeror-8684"
+      ],
+      "symbols": {
+        "client": {
+          "KeyValues::LoadFromFile(IFileSystem*, char const*, char const*)": "virtualFunction"
+        }
+      }
+    },
+    {
+      "when": [
+        "cstrike-3248",
+        "cstrike-3647"
+      ],
+      "symbols": {
+        "client": {
+          "vgui2::KeyValues::LoadFromFile(IFileSystem*, char const*, char const*)": "virtualFunction"
+        }
+      }
+    },
+    {
+      "when": [
+        "czeror-10210",
+        "czeror-8684"
+      ],
+      "symbols": {
+        "client": {
+          "CWorldMap::PaintBackground()": "virtualFunction",
+          "CWorldMapMissionSelect::PaintBackground()": "virtualFunction",
+          "CZEROViewPort.m_pWorldMapPanel": "structMember"
+        }
+      }
+    },
+    {
+      "when": [
+        "hl-10210",
+        "hl-6153",
+        "hl-8684",
+        "svencoop-10257",
+        "svencoop-8948"
+      ],
+      "symbols": {
+        "engine": {
+          "VGUIClient001_CreateInterface": "patch"
+        }
+      }
+    },
+    {
+      "when": [
+        "hl-3248",
+        "hl-3266",
+        "hl-3329"
+      ],
+      "symbols": {
+        "gameui": {
+          "vgui2::KeyValues::LoadFromFile(IFileSystem*, char const*, char const*)": "virtualFunction"
+        },
+        "serverbrowser": {
+          "vgui2::KeyValues::LoadFromFile(IFileSystem*, char const*, char const*)": "virtualFunction"
+        }
+      }
+    },
+    {
+      "when": [
+        "hl-3248",
+        "hl-3266",
+        "hl-3329",
+        "hl-3647",
+        "hl-4554"
+      ],
+      "symbols": {
+        "engine": {
+          "Sys_GetRegKeyValueUnderRoot": "function"
+        }
+      }
+    },
+    {
+      "when": [
+        "cof-5936",
+        "hl-3248",
+        "hl-3266",
+        "hl-3329",
+        "hl-3647",
+        "hl-4554",
+        "hl-6153",
+        "hl-8684",
+        "svencoop-10257",
+        "svencoop-8948"
+      ],
+      "symbols": {
+        "gameui": {
+          "vgui2_Panel_SetSize_Const_callsite_0": "patch",
+          "vgui2_Panel_SetMinimumSize_Const_callsite_0": "patch",
+          "vgui2_Panel_SetBounds_Const_callsite_0": "patch"
+        }
+      },
+      "numberedPatchSets": [
+        {
+          "module": "gameui",
+          "prefix": "vgui2_Panel_SetSize_Const_callsite"
+        },
+        {
+          "module": "gameui",
+          "prefix": "vgui2_Panel_SetMinimumSize_Const_callsite"
+        },
+        {
+          "module": "gameui",
+          "prefix": "vgui2_Panel_SetBounds_Const_callsite"
+        }
+      ]
+    },
+    {
+      "when": [
+        "cof-5936",
+        "hl-3248",
+        "hl-3266",
+        "hl-3329",
+        "hl-3647",
+        "hl-4554",
+        "hl-6153",
+        "hl-8684",
+        "svencoop-10257",
+        "svencoop-8948"
+      ],
+      "symbols": {
+        "serverbrowser": {
+          "vgui2_Panel_SetSize_Const_callsite_0": "patch",
+          "vgui2_Panel_SetMinimumSize_Const_callsite_0": "patch"
+        }
+      },
+      "numberedPatchSets": [
+        {
+          "module": "serverbrowser",
+          "prefix": "vgui2_Panel_SetSize_Const_callsite"
+        },
+        {
+          "module": "serverbrowser",
+          "prefix": "vgui2_Panel_SetMinimumSize_Const_callsite"
+        }
+      ]
+    }
+  ]
+}
