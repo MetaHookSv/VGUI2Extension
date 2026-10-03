@@ -5,3 +5,6 @@ __pycache__/
 *.pyc
 .vs/
 *.user
+/Debug/
+/Release/
+/x64/
