@@ -12,16 +12,14 @@ and input method handling.
 
 ## Compatibility
 
-| Engine | Build range |
-| --- | --- |
-| GoldSrc_blob | 3248–4554 |
-| GoldSrc_legacy | 4554–6153 |
-| GoldSrc_new | 8684 and later |
-| SvEngine | 8832 and later |
-| GoldSrc_HL25 | 9884 and later |
-
-These ranges follow the original plugin documentation. See [gamedata](docs/en/gamedata.md)
-for symbol requirements and [Features](docs/en/features.md) for runtime verification status.
+|        Engine               |      |
+|        ----                 | ---- |
+| GoldSrc_blob   (3248~4554)  | √    |
+| GoldSrc_legacy (4554~6153)  | √    |
+| GoldSrc_new    (8684 ~)     | √    |
+| SvEngine       (8832 ~)     | √    |
+| GoldSrc_HL25   (>= 9884)    | √    |
+| GoldSrc_CoF    (5936)       | √    |
 
 ## Quick start
 

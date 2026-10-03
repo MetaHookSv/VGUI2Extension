@@ -10,13 +10,14 @@ VGUI2Extension 是 MetaHook 的 UI 扩展插件，为其他插件提供修改 Go
 
 ## 兼容性
 
-| 引擎 | 构建号范围 |
-| --- | --- |
-| GoldSrc_blob | 3248–4554 |
-| GoldSrc_legacy | 4554–6153 |
-| GoldSrc_new | 8684 及以后 |
-| SvEngine | 8832 及以后 |
-| GoldSrc_HL25 | 9884 及以后 |
+|        Engine               |      |
+|        ----                 | ---- |
+| GoldSrc_blob   (3248~4554)  | √    |
+| GoldSrc_legacy (4554~6153)  | √    |
+| GoldSrc_new    (8684 ~)     | √    |
+| SvEngine       (8832 ~)     | √    |
+| GoldSrc_HL25   (>= 9884)    | √    |
+| GoldSrc_CoF    (5936)       | √    |
 
 ## 快速开始
 
