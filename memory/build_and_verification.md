@@ -6,10 +6,10 @@ permalink: vgui2extension/build-and-verification
 
 # Build and verification
 
-## 构建结构
+## Build structure
 
-根 CMake 使用 MSVC x86、C++20、Debug/Release、静态 CRT 和 VC-LTL 5.3.1。
-编译源列表来自原 vcxproj 的 129 个 ClCompile 项，其中 22 个为插件单元，107 个为共享 SDK 单元。
-Capstone/GLEW 仅为原 MSBuild 前置步骤残留；当前插件不需要它们。
-两个 SDL include 参数均必填。MetaHook SDK 可从路径消费，也可通过固定提交 FetchContent 获取。
-输出到 build/install，不访问本机游戏目录。
+The root CMake uses MSVC x86, C++20, Debug/Release, a static CRT and VC-LTL 5.3.1.
+The compile source list comes from the 129 ClCompile items of the original vcxproj, of which 22 are plugin units and 107 are shared SDK units.
+Capstone/GLEW are leftovers from the original MSBuild prerequisite steps only; the current plugin does not need them.
+Both SDL include arguments are required. The MetaHook SDK can be consumed from a path, or fetched at a fixed commit via FetchContent.
+Output goes to build/install and does not touch the local game directory.
