@@ -33,7 +33,7 @@ options dialog and client UI. Other plugins can insert buttons, add options page
 change the size and layout of existing controls.
 
 The public interfaces cover VGUI2 callbacks, DPI management, surface and fonts, schemes,
-and input handling. Header locations are listed in [Installation](installation.md#public-interfaces).
+and input handling. Header locations are listed in [Installation](installation.md#install-layout).
 
 ## Game language overrides
 

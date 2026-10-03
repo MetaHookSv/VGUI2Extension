@@ -28,7 +28,7 @@ VGUI2Extension 扩展游戏的 VGUI2 接口，并为其他 MetaHook 插件提供
 其他插件可以插入按钮、添加选项页，以及修改现有控件的大小和布局。
 
 公共接口涵盖 VGUI2 回调、DPI 管理、surface 与字体、scheme 和输入处理。
-头文件位置见[安装说明](installation.md#公共接口)。
+头文件位置见[安装说明](installation.md#安装目录布局)。
 
 ## 游戏语言覆盖
 
