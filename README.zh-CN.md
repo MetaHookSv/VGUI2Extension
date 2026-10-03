@@ -18,17 +18,13 @@ VGUI2Extension 是 MetaHook 的 UI 扩展插件，为其他插件提供修改 Go
 | SvEngine | 8832 及以后 |
 | GoldSrc_HL25 | 9884 及以后 |
 
-这些范围沿用原插件文档。符号要求见 [gamedata](docs/zh-CN/gamedata.md)，
-游戏运行验证状态见[功能说明](docs/zh-CN/features.md)。
-
 ## 快速开始
 
 从 [GitHub Releases](https://github.com/MetaHookSv/VGUI2Extension/releases) 获取
-`VGUI2Extension-windows-x86.7z`，或在本地[构建插件](docs/zh-CN/build-instruction.md)。
+`VGUI2Extension-windows-x86.7z`，或在[本地构建插件](docs/zh-CN/build-instruction.md)。
 
 将解压出的 `svencoop/` 合并到目标 mod 目录，将 `platform/` 合并到游戏的 platform 目录。
-在 MetaHook 的 `metahook/configs/plugins.lst` 中启用 `VGUI2Extension.dll`，放在依赖它的插件之前，
-然后通过 MetaHook 启动游戏。目录布局见[安装说明](docs/zh-CN/installation.md)。
+在 MetaHook 的 `metahook/configs/plugins.lst` 中启用 `VGUI2Extension.dll`，然后通过 MetaHook 启动游戏。
 
 ## 文档
 

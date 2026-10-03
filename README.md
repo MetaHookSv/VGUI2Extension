@@ -27,12 +27,12 @@ for symbol requirements and [Features](docs/en/features.md) for runtime verifica
 
 Obtain `VGUI2Extension-windows-x86.7z` from
 [GitHub Releases](https://github.com/MetaHookSv/VGUI2Extension/releases), or
-[build the plugin](docs/en/build-instruction.md) locally.
+[build the plugin locally](docs/en/build-instruction.md).
 
 Merge the extracted `svencoop/` into the target mod directory and `platform/` into the
-game's platform directory. Enable `VGUI2Extension.dll` in MetaHook's
-`metahook/configs/plugins.lst`, before plugins that depend on it, then launch the game
-through MetaHook. See [Installation](docs/en/installation.md) for the directory layout.
+game's platform directory.
+
+Enable `VGUI2Extension.dll` in MetaHook's `metahook/configs/plugins.lst`, then launch the game through MetaHook.
 
 ## Documentation
 
