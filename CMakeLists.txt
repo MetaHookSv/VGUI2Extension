@@ -55,13 +55,13 @@ install(DIRECTORY assets/ DESTINATION .)
 install(DIRECTORY include/ DESTINATION include)
 
 option(VGUI2EXTENSION_SYNC_GAMEDATA "Download and prune the plugin gamedata catalog before building" ON)
-set(VGUI2EXTENSION_GAMEDATA_DIR "${CMAKE_BINARY_DIR}/assets/svencoop/metahook/gamedata/vgui2extension" CACHE PATH "Plugin gamedata catalog directory")
+set(VGUI2EXTENSION_GAMEDATA_DIR "${PROJECT_BINARY_DIR}/assets/svencoop/metahook/gamedata/vgui2extension" CACHE PATH "Plugin gamedata catalog directory")
 if(VGUI2EXTENSION_SYNC_GAMEDATA)
     find_package(Python3 REQUIRED COMPONENTS Interpreter)
     add_custom_target(VGUI2ExtensionGameData
         COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/scripts/sync-gamedata.py"
             --manifest "${CMAKE_CURRENT_SOURCE_DIR}/scripts/manifests/vgui2extension.json"
-            --target-dir "${VGUI2EXTENSION_GAMEDATA_DIR}" --temp-root "${CMAKE_BINARY_DIR}/gamedata-sync"
+            --target-dir "${VGUI2EXTENSION_GAMEDATA_DIR}" --temp-root "${PROJECT_BINARY_DIR}/gamedata-sync"
         COMMENT "Synchronizing and validating VGUI2Extension gamedata" VERBATIM)
     add_custom_target(VGUI2ExtensionGameDataValidate
         COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/scripts/validate-gamedata.py"
