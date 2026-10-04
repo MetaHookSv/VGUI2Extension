@@ -52,7 +52,6 @@ set_target_properties(VGUI2Extension PROPERTIES INTERPROCEDURAL_OPTIMIZATION_REL
 install(TARGETS VGUI2Extension RUNTIME DESTINATION svencoop/metahook/plugins)
 install(FILES "$<TARGET_PDB_FILE:VGUI2Extension>" DESTINATION svencoop/metahook/plugins)
 install(DIRECTORY assets/ DESTINATION .)
-install(DIRECTORY include/ DESTINATION include)
 
 option(VGUI2EXTENSION_SYNC_GAMEDATA "Download and prune the plugin gamedata catalog before building" ON)
 set(VGUI2EXTENSION_GAMEDATA_DIR "${PROJECT_BINARY_DIR}/assets/svencoop/metahook/gamedata/vgui2extension" CACHE PATH "Plugin gamedata catalog directory")
