@@ -9,7 +9,7 @@
 
 两个工作流共用 [build-windows-x86 action](../../.github/actions/build-windows-x86/action.yml)。
 它从 `main` 检出同级 MetaHook 源码树，仅初始化 SDL2 和 SDL3 头文件依赖。
-该显式 SDK 路径优先于本地未指定 `METAHOOK_SOURCE_PATH` 时使用的 FetchContent 固定提交。
+该显式 SDK 路径优先于本地未指定 `METAHOOK_SOURCE_PATH` 时使用的 FetchContent 最新 `main`。
 
 action 使用 Release 构建脚本启用回归测试，运行 Python unittest 和 CTest，
 并按插件 manifest 校验安装后的 gamedata。随后使用 7-Zip 打包安装树中的 `svencoop/` 与

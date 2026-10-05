@@ -29,7 +29,7 @@ scripts\build-VGUI2Extension-x86-Release.bat "-DSDL2_INCLUDE_DIRS=D:/MetaHook/in
 
 ## 手动指定源码路径
 
-MetaHook SDK 默认自动下载固定版本。需要复用本地源码时，设置 `METAHOOK_SOURCE_PATH`。
+MetaHook SDK 默认自动下载最新的 `main`。需要复用本地源码时，设置 `METAHOOK_SOURCE_PATH`。
 无论 SDK 来源如何，SDL2 和 SDL3 头文件路径都必须提供：
 
 | 参数 | 目录 |

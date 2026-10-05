@@ -11,8 +11,8 @@
 Both workflows use the shared
 [build-windows-x86 action](../../.github/actions/build-windows-x86/action.yml). It checks
 out a sibling MetaHook source tree from `main` and initializes only its SDL2 and SDL3
-header dependencies. This explicit SDK path takes precedence over the pinned FetchContent
-SDK used by local builds without `METAHOOK_SOURCE_PATH`.
+header dependencies. This explicit SDK path takes precedence over the FetchContent
+SDK (latest `main`) used by local builds without `METAHOOK_SOURCE_PATH`.
 
 The action runs the Release build script with regression tests enabled, runs Python
 unittest and CTest, and validates the installed gamedata against the plugin manifest.

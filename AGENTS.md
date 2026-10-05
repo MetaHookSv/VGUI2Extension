@@ -25,7 +25,7 @@ This file provides guidance and important rules working with code in this reposi
 - gamedata: `scripts/manifests/vgui2extension.json` (static consumption contract), `scripts/sync-gamedata.py`, `scripts/validate-gamedata.py`
 - Tests: C++ regression tests under `tests/` run by CTest; gamedata synchronizer behavior tests under `scripts/tests/` run by Python unittest
 - Docs: `README.md` / `README.zh-CN.md`, prose pages under `docs/en/` and `docs/zh-CN/`
-- MetaHook SDK is consumed, not built: taken from `METAHOOK_SOURCE_PATH`, or fetched at a fixed commit when the path is unset. Both SDL2 and SDL3 include arguments are required; SDL is not built or packaged here.
+- MetaHook SDK is consumed, not built: taken from `METAHOOK_SOURCE_PATH`, or fetched from the latest `main` when the path is unset. Both SDL2 and SDL3 include arguments are required; SDL is not built or packaged here.
 - Build output: `build/x86/<configuration>/`; install output: `install/x86/<configuration>/`. Neither is tracked, and nothing is deployed to the game automatically.
 
 ## Repository rules

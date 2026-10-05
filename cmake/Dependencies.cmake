@@ -35,7 +35,8 @@ function(vgui2extension_prepare_dependencies)
         include(FetchContent)
         FetchContent_Declare(vgui2extension_metahook
             GIT_REPOSITORY https://github.com/MetaHookSv/MetaHook
-            GIT_TAG 1d23fe946e6f0f09a1a892aa2156c3b462774026
+            # MetaHook is tracked as a branch: always fetch the latest main.
+            GIT_TAG origin/main
             GIT_SUBMODULES ""
             GIT_SUBMODULES_RECURSE FALSE
             SOURCE_SUBDIR include

@@ -32,7 +32,7 @@ code. Build directories are `build/x86/<Debug|Release>` and install directories 
 
 ## Specifying source paths manually
 
-The MetaHook SDK is downloaded automatically at a fixed version. To reuse a local
+The MetaHook SDK is downloaded automatically from the latest `main`. To reuse a local
 checkout, set `METAHOOK_SOURCE_PATH`. Both SDL header paths are always required:
 
 | Parameter | Directory |
