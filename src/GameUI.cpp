@@ -333,6 +333,18 @@ void __fastcall GameUI_Panel_Init(vgui::Panel* pthis, int dummy, int x, int y, i
 	}
 }
 
+void* __fastcall GameUI_EditablePanel_OnSizeChanged_GetChild(void* pthis, int dummy, int index)
+{
+	auto pChild = (vgui::IClientPanel*)gPrivateFuncs.GameUI_Panel_GetChild(pthis, 0, index);
+
+	// Popups use screen coordinates and must not be resized or clipped by their parent.
+	// Only this layout callsite sees nullptr; ordinary GetChild calls stay unchanged.
+	if (pChild && pChild->IsPopup())
+		return nullptr;
+
+	return pChild;
+}
+
 void __fastcall GameUI_Panel_SetSize(vgui::Panel* pthis, int dummy, int width, int height)
 {
 	auto pPanel = (vgui::IClientPanel*)pthis;
@@ -364,21 +376,6 @@ void __fastcall GameUI_Panel_SetMinimumSize(vgui::Panel* pthis, int dummy, int w
 		height = g_pVGuiSchemeManager2->GetProportionalScaledValue(height);
 	}
 	gPrivateFuncs.GameUI_Panel_SetMinimumSize(pthis, 0, width, height);
-}
-
-void __fastcall GameUI_Panel_SetBounds_HL25(vgui::Panel* pthis, int dummy, int x, int y, int width, int height)
-{
-	if (x == 0 && y == 0 && width == 372 && height == 160)
-	{
-		auto pPanel = (vgui::IClientPanel*)pthis;
-		if (pPanel->IsProportional())
-		{
-			//TODO: ?
-			gPrivateFuncs.GameUI_Panel_SetBounds(pthis, 0, x, y, width, height);
-			return;
-		}
-	}
-	gPrivateFuncs.GameUI_Panel_SetBounds(pthis, 0, x, y, width, height);
 }
 
 void __fastcall GameUI_MessageBox_ApplySchemeSettings_Panel_SetSize(vgui::Panel* pthis, int dummy, int width, int height)
@@ -1279,6 +1276,40 @@ void* __fastcall CBasePanel_ctor(void* pthis, int dummy)
 
 	return result;
 }
+
+class CGameUIContentControlKeyValuesCallbacks : public IVGUI2Extension_KeyValuesCallbacks
+{
+public:
+	int GetAltitude() const override
+	{
+		return 0;
+	}
+
+	void KeyValues_LoadFromFile(void*& pthis, IFileSystem*& pFileSystem, const char*& resourceName,
+		const char*& pathId, const char* sourceModule, VGUI2Extension_CallbackContext* CallbackContext) override
+	{
+		if (!CallbackContext->IsPost || !CallbackContext->pRealReturnValue ||
+			!*(bool*)CallbackContext->pRealReturnValue || g_iEngineType != ENGINE_GOLDSRC_HL25 ||
+			stricmp(sourceModule, "GameUI"))
+			return;
+
+		if (stricmp(resourceName, "Resource/ContentControlDialog.res") &&
+			stricmp(resourceName, "Resource\\ContentControlDialog.res"))
+			return;
+
+		auto pDialog = ((KeyValues*)pthis)->FindKey("ContentControlDialog");
+		constexpr int contentControlDefaultWidth = 328;
+		constexpr int contentControlExtraWidth = 120;
+		if (pDialog && pDialog->GetInt("wide") == contentControlDefaultWidth)
+		{
+			// Leave room for HL25's AddonsFolder checkbox before ApplySettings scales the width.
+			// Only change the default, preserving custom resources and avoiding repeated expansion.
+			pDialog->SetInt("wide", contentControlDefaultWidth + contentControlExtraWidth);
+		}
+	}
+};
+
+static CGameUIContentControlKeyValuesCallbacks s_ContentControlKeyValuesCallbacks;
 
 bool __fastcall GameUI_KeyValues_LoadFromFile(void* pthis, int dummy, IFileSystem* pFileSystem, const char* resourceName, const char* pathId)
 {
@@ -2416,13 +2447,8 @@ void GameUI_FillAddress_MessageBox(const mh_dll_info_t&, const mh_dll_info_t&)
 
 void GameUI_PatchPanelSize(void)
 {
-	// HL25 already scales these dimensions. SvEngine still uses raw constants.
-	if (g_iEngineType == ENGINE_GOLDSRC_HL25)
-	{
-		//PatchPanelSizeCallsites(g_GameUIDllInfo.ImageBase, "gameui", "vgui2_Panel_SetBounds_Const_callsite_",
-		//	GameUI_Panel_SetBounds_HL25, (PVOID*)&gPrivateFuncs.GameUI_Panel_SetBounds);
-	}
-	else
+	// HL25 already scales these dimensions. Older GoldSrc and SvEngine use raw constants.
+	if (g_iEngineType != ENGINE_GOLDSRC_HL25)
 	{
 		PatchPanelSizeCallsites(g_GameUIDllInfo.ImageBase, "gameui", "vgui2_Panel_SetSize_Const_callsite_",
 			GameUI_Panel_SetSize, (PVOID*)&gPrivateFuncs.GameUI_Panel_SetSize);
@@ -2646,6 +2672,7 @@ void GameUI_InstallHooks(void)
 
 	if (gPrivateFuncs.GameUI_KeyValues_LoadFromFile)
 	{
+		VGUI2ExtensionInternal()->RegisterKeyValuesCallbacks(&s_ContentControlKeyValuesCallbacks);
 		Install_InlineHook(GameUI_KeyValues_LoadFromFile);
 	}
 
@@ -2708,12 +2735,25 @@ void GameUI_InstallHooks(void)
 		Install_InlineHook(CCareerBotFrame_ctor);
 	}
 
+	{
+		const char* symbolName = "vgui2_EditablePanel_OnSizeChanged_call_GetChild_callsite_0";
+		auto address = GamedataResolvePtr(g_GameUIDllInfo.ImageBase, "gameui", symbolName, MH_GAMESYMBOL_KIND_PATCH);
+		if (!g_pMetaHookAPI->InlinePatchRedirectBranch(address,
+			GameUI_EditablePanel_OnSizeChanged_GetChild, (PVOID*)&gPrivateFuncs.GameUI_Panel_GetChild))
+		{
+			Sys_Error("Could not redirect gamedata patch: %s (module gameui)\nEngine buildnum: %d", symbolName, g_dwEngineBuildnum);
+			return;
+		}
+	}
+
 	GameUI_PatchPanelSize();
 
 }
 
 void GameUI_UninstallHooks(void)
 {
+	VGUI2ExtensionInternal()->UnregisterKeyValuesCallbacks(&s_ContentControlKeyValuesCallbacks);
+
 	Uninstall_Hook(GameUI_Panel_Init);
 	Uninstall_Hook(CGameConsoleDialog_ctor);
 	Uninstall_Hook(CCreateMultiplayerGameDialog_ctor);

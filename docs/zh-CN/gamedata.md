@@ -17,6 +17,13 @@ GameUI 需要 PropertySheet 方法和 `_activePage`、FocusNavGroup 的 `GetCurr
 ServerBrowser 需要匹配的 KeyValues `LoadFromFile` 记录。
 PropertySheet 虚调用使用当前对象的 vtable，以及从 gamedata 查询的槽位。
 
+所有支持的 Windows GameUI 身份还需要
+`vgui2_EditablePanel_OnSizeChanged_call_GetChild_callsite_0`。
+仅此调用点将 popup 子窗口过滤为空指针，避免父窗口调整大小时移动或裁剪其屏幕坐标范围。
+其他 `GetChild` 调用及普通子控件保持原有行为。
+HL25 下还将 ContentControlDialog 资源的默认宽度从 328 增加到 448，再进行比例缩放，
+为 AddonsFolder 复选框留出空间。
+
 Menu 处理需要 `vgui2::Menu.m_pScroller` 和 `vgui2::Menu::MakeItemsVisibleInScrollRange()`。
 该方法直接解析，在目标 GameUI 二进制中没有显式参数。
 hook 仍依赖 Legacy/HL25 中 `m_pScroller` 相邻成员的布局；PropertySheet 的 `_pageTabs`
@@ -29,17 +36,17 @@ hook 仍依赖 Legacy/HL25 中 `m_pScroller` 相邻成员的布局；PropertyShe
 
 声明来源为 [scripts/manifests/vgui2extension.json](../../scripts/manifests/vgui2extension.json)。
 以下清单保留 manifest 中的完整 module、名称与 kind，并已对照源码调用核对。
-共 5 个 module、**92 条显式记录**，其中包含 **5 组连续编号补丁**的首条 `_0` 记录。
-每组编号补丁还可能消费后续记录，因此 92 不是每份安装 catalog 的记录总数。
+共 5 个 module、**93 条显式记录**，其中包含 **5 组连续编号补丁**的首条 `_0` 记录。
+每组编号补丁还可能消费后续记录，因此 93 不是每份安装 catalog 的记录总数。
 
 | Module | 显式记录数 |
 | --- | ---: |
 | `engine` | 14 |
 | `client` | 15 |
-| `gameui` | 57 |
+| `gameui` | 58 |
 | `serverbrowser` | 5 |
 | `vgui2` | 1 |
-| 合计 | 92 |
+| 合计 | 93 |
 
 GameSymbol 由 module 与名称共同定位。`engine`、`client`、`gameui`、`serverbrowser`
 中的同名符号是独立记录。下列条件表示 manifest 的 catalog 裁剪与校验范围；
@@ -187,6 +194,7 @@ GameSymbol 由 module 与名称共同定位。`engine`、`client`、`gameui`、`
 | `vgui2::RichText::OnThink()` | `virtualFunction` | G2 |
 | `vgui2::TextEntry::GetStartDrawIndex(int&)` | `virtualFunction` | G2 |
 | `vgui2::TextEntry::LayoutVerticalScrollBarSlider()` | `virtualFunction` | G2 |
+| `vgui2_EditablePanel_OnSizeChanged_call_GetChild_callsite_0` | `patch` | G2 |
 | `KeyValues::LoadFromFile(IFileSystem*, char const*, char const*)` | `virtualFunction` | G3 |
 | `COptionsSubVideo::ApplyVidSettings(bool)` | `function` | G7 |
 | `vgui2::MessageBox::ApplySchemeSettings to vgui2::Panel::SetSize callsite` | `patch` | G7 |
@@ -237,9 +245,9 @@ manifest 显式列出每组的首条 `_0`，并通过 `numberedPatchSets` 保留
 manifest 的 `prefix` 不含末尾下划线；源码前缀包含该下划线，再拼接编号。
 更新 catalog 时需保留 module 和版本条件。
 
-运行期在 `hl-10210` 上通过 `GameUI_Panel_SetBounds_HL25` 修补 `SetBounds` callsite
-（与其他 HL25 引擎标识同一调用面），G18 组即为其提供记录。后续若出现发布组合不同的引擎
-标识，应为其单独建组，而不要放宽 G16/G17——这样每个 `when` 列表都仍能断言其所列前缀确实存在。
+G18 保留 `hl-10210` 发布的 `SetBounds` callsite，但运行期不再重定向这些调用：
+HL25 已进行尺寸缩放，且对话框资源会覆盖构造函数尺寸。ContentControlDialog 在资源
+缩放前加宽，独立的 `OnSizeChanged` 补丁则阻止父窗口后续布局再次裁剪它。
 
 engine 的两个 `V_strncpy_callsite_0` 语言补丁是固定名称，不属于这些连续编号组。
 
