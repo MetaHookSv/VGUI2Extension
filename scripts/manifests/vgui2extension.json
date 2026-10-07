@@ -423,6 +423,22 @@
           "prefix": "vgui2_Panel_SetMinimumSize_Const_callsite"
         }
       ]
+    },
+    {
+      "when": [
+        "hl-10210"
+      ],
+      "symbols": {
+        "gameui": {
+          "vgui2_Panel_SetBounds_Const_callsite_0": "patch"
+        }
+      },
+      "numberedPatchSets": [
+        {
+          "module": "gameui",
+          "prefix": "vgui2_Panel_SetBounds_Const_callsite"
+        }
+      ]
     }
   ]
 }

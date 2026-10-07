@@ -61,7 +61,7 @@ GameSymbol 由 module 与名称共同定位。`engine`、`client`、`gameui`、`
 
 ### Manifest 条件
 
-`All` 表示 manifest 顶层的 `gameVersions` 列表；`G1` 至 `G17` 按顺序对应当前
+`All` 表示 manifest 顶层的 `gameVersions` 列表；`G1` 至 `G18` 按顺序对应当前
 `conditionalGroups` 的条目。`cl_time` 的豁免见[运行条件与可选记录](#运行条件与可选记录)。
 
 | 条件 | Manifest 中的 gameVersions |
@@ -84,6 +84,7 @@ GameSymbol 由 module 与名称共同定位。`engine`、`client`、`gameui`、`
 | G15 | `hl-3248`, `hl-3266`, `hl-3329`, `hl-3647`, `hl-4554` |
 | G16 | `cof-5936`, `hl-3248`, `hl-3266`, `hl-3329`, `hl-3647`, `hl-4554`, `hl-6153`, `hl-8684`, `svencoop-10257`, `svencoop-8948` |
 | G17 | `cof-5936`, `hl-3248`, `hl-3266`, `hl-3329`, `hl-3647`, `hl-4554`, `hl-6153`, `hl-8684`, `svencoop-10257`, `svencoop-8948` |
+| G18 | `hl-10210` |
 
 ## 按 module 列出的符号
 
@@ -194,6 +195,7 @@ GameSymbol 由 module 与名称共同定位。`engine`、`client`、`gameui`、`
 | `vgui2_Panel_SetSize_Const_callsite_0` | `patch` | G16 |
 | `vgui2_Panel_SetMinimumSize_Const_callsite_0` | `patch` | G16 |
 | `vgui2_Panel_SetBounds_Const_callsite_0` | `patch` | G16 |
+| `vgui2_Panel_SetBounds_Const_callsite_0` | `patch` | G18 |
 
 ### serverbrowser
 
@@ -219,19 +221,25 @@ GameSymbol 由 module 与名称共同定位。`engine`、`client`、`gameui`、`
 
 [GameUI.cpp 中的 PatchPanelSizeCallsites](../../src/GameUI.cpp) 使用
 `n = 0, 1, 2, ...` 构造下列名称。首条记录必需，后续记录可选查询，遇到首个编号缺失即停止。
-这五组补丁用于非 HL25 引擎，包括 SvEngine。
+`SetSize` / `SetMinimumSize` 两组用于非 HL25 引擎，包括 SvEngine；`hl-10210` 这一 HL25
+引擎只发布 `SetBounds` 组（另外两组在上游以 `_ScaledConst` 变体出现），因此单独使用 G18
+条件。`hl-10210` 不能并入 G16——G16 要求三个前缀同时存在。
 
 | Module | GameSymbol 编号模式 | Kind | Manifest 条件 |
 | --- | --- | --- | --- |
 | `gameui` | `vgui2_Panel_SetSize_Const_callsite_<n>` | `patch` | G16 |
 | `gameui` | `vgui2_Panel_SetMinimumSize_Const_callsite_<n>` | `patch` | G16 |
-| `gameui` | `vgui2_Panel_SetBounds_Const_callsite_<n>` | `patch` | G16 |
+| `gameui` | `vgui2_Panel_SetBounds_Const_callsite_<n>` | `patch` | G16、G18 |
 | `serverbrowser` | `vgui2_Panel_SetSize_Const_callsite_<n>` | `patch` | G17 |
 | `serverbrowser` | `vgui2_Panel_SetMinimumSize_Const_callsite_<n>` | `patch` | G17 |
 
 manifest 显式列出每组的首条 `_0`，并通过 `numberedPatchSets` 保留后续连续记录。
 manifest 的 `prefix` 不含末尾下划线；源码前缀包含该下划线，再拼接编号。
 更新 catalog 时需保留 module 和版本条件。
+
+运行期在 `hl-10210` 上通过 `GameUI_Panel_SetBounds_HL25` 修补 `SetBounds` callsite
+（与其他 HL25 引擎标识同一调用面），G18 组即为其提供记录。后续若出现发布组合不同的引擎
+标识，应为其单独建组，而不要放宽 G16/G17——这样每个 `when` 列表都仍能断言其所列前缀确实存在。
 
 engine 的两个 `V_strncpy_callsite_0` 语言补丁是固定名称，不属于这些连续编号组。
 

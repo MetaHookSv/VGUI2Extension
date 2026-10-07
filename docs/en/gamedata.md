@@ -68,7 +68,7 @@ API 115's `mh_gamesymbol_t::vfuncIndex`.
 
 ### Manifest conditions
 
-`All` is the manifest's top-level `gameVersions` list. `G1` through `G17` identify the
+`All` is the manifest's top-level `gameVersions` list. `G1` through `G18` identify the
 current `conditionalGroups` entries in order. The `cl_time` exemption is explained under
 [Runtime conditions and optional records](#runtime-conditions-and-optional-records).
 
@@ -92,6 +92,7 @@ current `conditionalGroups` entries in order. The `cl_time` exemption is explain
 | G15 | `hl-3248`, `hl-3266`, `hl-3329`, `hl-3647`, `hl-4554` |
 | G16 | `cof-5936`, `hl-3248`, `hl-3266`, `hl-3329`, `hl-3647`, `hl-4554`, `hl-6153`, `hl-8684`, `svencoop-10257`, `svencoop-8948` |
 | G17 | `cof-5936`, `hl-3248`, `hl-3266`, `hl-3329`, `hl-3647`, `hl-4554`, `hl-6153`, `hl-8684`, `svencoop-10257`, `svencoop-8948` |
+| G18 | `hl-10210` |
 
 ## Symbols by module
 
@@ -202,6 +203,7 @@ Source: [GameUI.cpp](../../src/GameUI.cpp).
 | `vgui2_Panel_SetSize_Const_callsite_0` | `patch` | G16 |
 | `vgui2_Panel_SetMinimumSize_Const_callsite_0` | `patch` | G16 |
 | `vgui2_Panel_SetBounds_Const_callsite_0` | `patch` | G16 |
+| `vgui2_Panel_SetBounds_Const_callsite_0` | `patch` | G18 |
 
 ### serverbrowser
 
@@ -227,14 +229,17 @@ Source: [InputWin32.cpp](../../src/InputWin32.cpp).
 
 [PatchPanelSizeCallsites in GameUI.cpp](../../src/GameUI.cpp) constructs the following
 names with `n = 0, 1, 2, ...`. The first record is required; later records are queried
-optionally, stopping at the first missing number. These five sets run on non-HL25
-engines, including SvEngine.
+optionally, stopping at the first missing number. The `SetSize` / `SetMinimumSize`
+sets run on non-HL25 engines, including SvEngine; the `hl-10210` HL25 engine publishes
+only the `SetBounds` set (the two other sets appear as the `_ScaledConst` variants
+upstream), so it carries its own G18 condition. `hl-10210` is therefore a distinct
+group and must not be folded into G16, which requires all three prefixes.
 
 | Module | Numbered GameSymbol pattern | Kind | Manifest condition |
 | --- | --- | --- | --- |
 | `gameui` | `vgui2_Panel_SetSize_Const_callsite_<n>` | `patch` | G16 |
 | `gameui` | `vgui2_Panel_SetMinimumSize_Const_callsite_<n>` | `patch` | G16 |
-| `gameui` | `vgui2_Panel_SetBounds_Const_callsite_<n>` | `patch` | G16 |
+| `gameui` | `vgui2_Panel_SetBounds_Const_callsite_<n>` | `patch` | G16, G18 |
 | `serverbrowser` | `vgui2_Panel_SetSize_Const_callsite_<n>` | `patch` | G17 |
 | `serverbrowser` | `vgui2_Panel_SetMinimumSize_Const_callsite_<n>` | `patch` | G17 |
 
@@ -242,6 +247,12 @@ The manifest lists each initial `_0` record explicitly and uses `numberedPatchSe
 retain the remaining consecutive records. Its `prefix` omits the final underscore;
 source prefixes include it before appending the number. Keep module and version
 conditions when updating the catalog.
+
+The runtime patches the `SetBounds` callsites on `hl-10210` through `GameUI_Panel_SetBounds_HL25`
+(the same call surface as the other HL25 engine identities), and that path is what the
+G18 group feeds. A subsequent engine identity that publishes a different mix must get its
+own group rather than widening G16/G17, so each `when` list keeps asserting that the
+prefixes it names really exist.
 
 The engine's two `V_strncpy_callsite_0` language patches are fixed names and are not
 part of these numbered sets.
