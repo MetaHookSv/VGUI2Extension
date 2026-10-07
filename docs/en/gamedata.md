@@ -19,6 +19,13 @@ and `_currentFocus`, the three options pages' `OnApplyChanges`, and
 record. PropertySheet virtual calls use the current object's vtable and a slot queried
 from gamedata.
 
+GameUI also requires `vgui2_EditablePanel_OnSizeChanged_call_GetChild_callsite_0`
+on every supported Windows GameUI identity. Only this callsite filters popup children
+to null, so parent resizing cannot move or clip their screen-space bounds. Other
+`GetChild` callers and non-popup children retain their original behavior.
+On HL25, the default ContentControlDialog resource width is increased from 328 to 448
+before proportional scaling, leaving room for the AddonsFolder checkbox.
+
 Menu handling needs `vgui2::Menu.m_pScroller` and
 `vgui2::Menu::MakeItemsVisibleInScrollRange()`. The method is resolved directly and takes
 no explicit arguments in the target GameUI binaries. The hook retains dependencies on
@@ -33,18 +40,18 @@ resolve these hooks.
 
 The declaration is [scripts/manifests/vgui2extension.json](../../scripts/manifests/vgui2extension.json).
 The list below follows its exact module, name and kind and has been checked against the
-source calls. It contains **92 explicit records** across 5 modules, including the
+source calls. It contains **93 explicit records** across 5 modules, including the
 five initial `_0` records of **5 numbered patch sets**. Each numbered set can consume
-additional records; 92 is not the total size of every installed catalog.
+additional records; 93 is not the total size of every installed catalog.
 
 | Module | Explicit entries |
 | --- | ---: |
 | `engine` | 14 |
 | `client` | 15 |
-| `gameui` | 57 |
+| `gameui` | 58 |
 | `serverbrowser` | 5 |
 | `vgui2` | 1 |
-| Total | 92 |
+| Total | 93 |
 
 A GameSymbol is identified by its module and name. Identical names in `engine`, `client`,
 `gameui` and `serverbrowser` refer to separate records. Conditions below describe the
@@ -195,6 +202,7 @@ Source: [GameUI.cpp](../../src/GameUI.cpp).
 | `vgui2::RichText::OnThink()` | `virtualFunction` | G2 |
 | `vgui2::TextEntry::GetStartDrawIndex(int&)` | `virtualFunction` | G2 |
 | `vgui2::TextEntry::LayoutVerticalScrollBarSlider()` | `virtualFunction` | G2 |
+| `vgui2_EditablePanel_OnSizeChanged_call_GetChild_callsite_0` | `patch` | G2 |
 | `KeyValues::LoadFromFile(IFileSystem*, char const*, char const*)` | `virtualFunction` | G3 |
 | `COptionsSubVideo::ApplyVidSettings(bool)` | `function` | G7 |
 | `vgui2::MessageBox::ApplySchemeSettings to vgui2::Panel::SetSize callsite` | `patch` | G7 |
@@ -248,11 +256,10 @@ retain the remaining consecutive records. Its `prefix` omits the final underscor
 source prefixes include it before appending the number. Keep module and version
 conditions when updating the catalog.
 
-The runtime patches the `SetBounds` callsites on `hl-10210` through `GameUI_Panel_SetBounds_HL25`
-(the same call surface as the other HL25 engine identities), and that path is what the
-G18 group feeds. A subsequent engine identity that publishes a different mix must get its
-own group rather than widening G16/G17, so each `when` list keeps asserting that the
-prefixes it names really exist.
+G18 retains the published `SetBounds` callsites on `hl-10210`, but the runtime does
+not redirect them: HL25 already scales its dimensions, and dialog resources overwrite
+constructor bounds. ContentControlDialog is widened in its resource before scaling;
+the separate `OnSizeChanged` patch prevents subsequent parent layout from clipping it.
 
 The engine's two `V_strncpy_callsite_0` language patches are fixed names and are not
 part of these numbered sets.

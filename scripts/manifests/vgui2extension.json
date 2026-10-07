@@ -136,7 +136,8 @@
           "vgui2::RichText::InsertString(wchar_t const*)": "function",
           "vgui2::RichText::OnThink()": "virtualFunction",
           "vgui2::TextEntry::GetStartDrawIndex(int&)": "virtualFunction",
-          "vgui2::TextEntry::LayoutVerticalScrollBarSlider()": "virtualFunction"
+          "vgui2::TextEntry::LayoutVerticalScrollBarSlider()": "virtualFunction",
+          "vgui2_EditablePanel_OnSizeChanged_call_GetChild_callsite_0": "patch"
         },
         "serverbrowser": {
           "vgui2::Panel::Init(int, int, int, int)": "function"

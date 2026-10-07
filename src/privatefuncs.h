@@ -100,6 +100,7 @@ typedef struct
 	//void* (__fastcall* CServerBrowserDialog_ctor)(void* pthis, int dummy, void* parent);
 	//GameUI
 	void(__fastcall* GameUI_Panel_Init)(void* pthis, int dummy, int x, int y, int w, int h);
+	void* (__fastcall* GameUI_Panel_GetChild)(void* pthis, int dummy, int index);
 	void(__fastcall* GameUI_LoadControlSettings)(void* pthis, int dummy, const char* controlResourceName, const char* pathID);
 	void(__fastcall* GameUI_LoadControlSettingsAndUserConfig)(void* pthis, int dummy, const char* dialogResourceName, int dialogID);
 	bool(__fastcall* GameUI_KeyValues_LoadFromFile)(void* pthis, int dummy, IFileSystem* pFileSystem, const char* resourceName, const char* pathId);
