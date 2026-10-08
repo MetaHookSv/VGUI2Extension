@@ -122,14 +122,15 @@ All private symbols come from the host gamedata catalog through the helpers in `
 
 - No signature scan, string search or disassembly walk remains. The only runtime code patching left
   is a handful of gamedata PATCH records redirected with `InlinePatchRedirectBranch`: the
-  `Sys_GetFactory(hClientDLL)` call for `VGUIClient001`, the two `V_strncpy` language-copy call
-  sites, the GameUI panel sizing call sites and the MessageBox `SetSize` call site. Each of those
-  addresses is resolved from the catalog, not searched for.
+  `Sys_GetFactory(hClientDLL)` call for `VGUIClient001`, the numbered per-owner `V_strncpy`
+  language-copy call sites (each filesystem owner's `_0` is required; CoF's per-arm `_1`
+  duplicates are optional), the GameUI panel sizing call sites and the MessageBox `SetSize` call
+  site. Each of those addresses is resolved from the catalog, not searched for.
 - `scripts/manifests/vgui2extension.json` is the static consumption contract: 21 game versions,
-  92 explicit records across five modules (`engine` 14, `client` 15, `gameui` 57, `serverbrowser` 5,
-  `vgui2` 1) plus the five `_0` records of 5 numbered patch sets, with `symbolExemptions` and 17
+  93 explicit records across five modules (`engine` 14, `client` 15, `gameui` 58, `serverbrowser` 5,
+  `vgui2` 1) plus the initial `_0` records of 7 numbered patch sets, with `symbolExemptions` and 19
   `conditionalGroups` carrying the per-game-version conditions. A numbered set can consume further
-  records, so 92 is not the size of every installed catalog. `docs/en/gamedata.md` and
+  records, so 93 is not the size of every installed catalog. `docs/en/gamedata.md` and
   `docs/zh-CN/gamedata.md` document the runtime requirements and the full inventory.
 - Host requirement: MetaHook must merge nested catalogs and provide API 115 or newer, with an API
   version at least as new as the SDK the plugin was built against.
@@ -154,7 +155,8 @@ All private symbols come from the host gamedata catalog through the helpers in `
   (disable the mouse-SPI handling in the window path).
 - The legacy language override resolves the five-argument `Sys_GetRegKeyValueUnderRoot` function
   where the catalog publishes it; that path selects an inline hook and bypasses the
-  `V_strncpy` language patch, while the engines without it keep the patch. Only the complete implicit-HKCU
+  `V_strncpy` language patch, while the engines without it keep the patch. CoF keeps the patch but
+  redirects both per-arm copies of each owner. Only the complete implicit-HKCU
   `Software\Valve\Steam` / `Language` pair is matched, case-insensitively; nonempty `-forcelang`
   overrides the returned buffer with bounded copying, and the effective value is mirrored to the
   current-language state. `Engine_InstallHooks` runs the `VGUIClient001` patch, the language-copy

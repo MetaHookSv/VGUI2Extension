@@ -440,6 +440,27 @@
           "prefix": "vgui2_Panel_SetBounds_Const_callsite"
         }
       ]
+    },
+    {
+      "when": [
+        "cof-5936"
+      ],
+      "symbols": {
+        "engine": {
+          "FileSystem_AddFallbackGameDir_V_strncpy_callsite_0": "patch",
+          "FileSystem_SetGameDirectory_V_strncpy_callsite_0": "patch"
+        }
+      },
+      "numberedPatchSets": [
+        {
+          "module": "engine",
+          "prefix": "FileSystem_SetGameDirectory_V_strncpy_callsite"
+        },
+        {
+          "module": "engine",
+          "prefix": "FileSystem_AddFallbackGameDir_V_strncpy_callsite"
+        }
+      ]
     }
   ]
 }

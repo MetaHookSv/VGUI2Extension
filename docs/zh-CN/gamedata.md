@@ -36,7 +36,7 @@ hook 仍依赖 Legacy/HL25 中 `m_pScroller` 相邻成员的布局；PropertyShe
 
 声明来源为 [scripts/manifests/vgui2extension.json](../../scripts/manifests/vgui2extension.json)。
 以下清单保留 manifest 中的完整 module、名称与 kind，并已对照源码调用核对。
-共 5 个 module、**93 条显式记录**，其中包含 **5 组连续编号补丁**的首条 `_0` 记录。
+共 5 个 module、**93 条显式记录**，其中包含 **7 组连续编号补丁**的首条 `_0` 记录。
 每组编号补丁还可能消费后续记录，因此 93 不是每份安装 catalog 的记录总数。
 
 | Module | 显式记录数 |
@@ -68,7 +68,7 @@ GameSymbol 由 module 与名称共同定位。`engine`、`client`、`gameui`、`
 
 ### Manifest 条件
 
-`All` 表示 manifest 顶层的 `gameVersions` 列表；`G1` 至 `G18` 按顺序对应当前
+`All` 表示 manifest 顶层的 `gameVersions` 列表；`G1` 至 `G19` 按顺序对应当前
 `conditionalGroups` 的条目。`cl_time` 的豁免见[运行条件与可选记录](#运行条件与可选记录)。
 
 | 条件 | Manifest 中的 gameVersions |
@@ -92,6 +92,7 @@ GameSymbol 由 module 与名称共同定位。`engine`、`client`、`gameui`、`
 | G16 | `cof-5936`, `hl-3248`, `hl-3266`, `hl-3329`, `hl-3647`, `hl-4554`, `hl-6153`, `hl-8684`, `svencoop-10257`, `svencoop-8948` |
 | G17 | `cof-5936`, `hl-3248`, `hl-3266`, `hl-3329`, `hl-3647`, `hl-4554`, `hl-6153`, `hl-8684`, `svencoop-10257`, `svencoop-8948` |
 | G18 | `hl-10210` |
+| G19 | `cof-5936` |
 
 ## 按 module 列出的符号
 
@@ -113,6 +114,8 @@ GameSymbol 由 module 与名称共同定位。`engine`、`client`、`gameui`、`
 | `vgui2::Panel::Init(int, int, int, int)` | `function` | G2 |
 | `FileSystem_AddFallbackGameDir_V_strncpy_callsite_0` | `patch` | G4 |
 | `FileSystem_SetGameDirectory_V_strncpy_callsite_0` | `patch` | G4 |
+| `FileSystem_AddFallbackGameDir_V_strncpy_callsite_1` | `patch` | G19 |
+| `FileSystem_SetGameDirectory_V_strncpy_callsite_1` | `patch` | G19 |
 | `CGame::WindowProc` | `function` | G6 |
 | `VGUIClient001_CreateInterface` | `patch` | G13 |
 | `Sys_GetRegKeyValueUnderRoot` | `function` | G15 |
@@ -240,6 +243,8 @@ GameSymbol 由 module 与名称共同定位。`engine`、`client`、`gameui`、`
 | `gameui` | `vgui2_Panel_SetBounds_Const_callsite_<n>` | `patch` | G16、G18 |
 | `serverbrowser` | `vgui2_Panel_SetSize_Const_callsite_<n>` | `patch` | G17 |
 | `serverbrowser` | `vgui2_Panel_SetMinimumSize_Const_callsite_<n>` | `patch` | G17 |
+| `engine` | `FileSystem_SetGameDirectory_V_strncpy_callsite_<n>` | `patch` | G19 |
+| `engine` | `FileSystem_AddFallbackGameDir_V_strncpy_callsite_<n>` | `patch` | G19 |
 
 manifest 显式列出每组的首条 `_0`，并通过 `numberedPatchSets` 保留后续连续记录。
 manifest 的 `prefix` 不含末尾下划线；源码前缀包含该下划线，再拼接编号。
@@ -249,7 +254,10 @@ G18 保留 `hl-10210` 发布的 `SetBounds` callsite，但运行期不再重定�
 HL25 已进行尺寸缩放，且对话框资源会覆盖构造函数尺寸。ContentControlDialog 在资源
 缩放前加宽，独立的 `OnSizeChanged` 补丁则阻止父窗口后续布局再次裁剪它。
 
-engine 的两个 `V_strncpy_callsite_0` 语言补丁是固定名称，不属于这些连续编号组。
+engine 的两个语言补丁同样是连续编号的：多数引擎把 Steam 语言分支与默认 `english`
+分支合并到同一个 `call`，因此 `_0` 即覆盖整个 owner；CoF 为每个分支各发射一次拷贝，
+因此额外发布 `_1`。manifest 的 G19 条件组只对 `cof-5936` 保留该组，其他引擎组（G4）
+只声明两条必需的 `_0`。
 
 ## 运行条件与可选记录
 
@@ -258,7 +266,8 @@ engine 的两个 `V_strncpy_callsite_0` 语言补丁是固定名称，不属于�
 - 先查询 `engine / VGUIClient001_CreateInterface`；缺少该记录时，
   旧版路径改为必需解析 `engine / g_pClientFactory`。其他查询错误会报告错误。
 - `engine / Sys_GetRegKeyValueUnderRoot` 为可选解析；不可用时，
-  两个文件系统 `V_strncpy_callsite_0` 补丁均为必需。
+  两个文件系统 `V_strncpy_callsite_0` 补丁均为必需；`_1` 重复拷贝为可选解析，
+  只在 `cof-5936` 上存在。
   SDL2 的 `SDL_GetWindowWMInfo` 路径不可用时使用 `CGame::WindowProc`。
 - 客户端没有原生 VGUI2 时，可选解析 `client / g_iVisibleMouse`。
   原生客户端的 `Panel::Init` 与 KeyValues `LoadFromFile` 也使用可选解析。

@@ -105,24 +105,34 @@ void Engine_PatchAddress_LanguageStrncpy(const mh_dll_info_t& RealDllInfo)
 	if (gPrivateFuncs.Sys_GetRegKeyValueUnderRoot)
 		return;
 
-	// Both filesystem owners copy the default language through the same function.
-	const char* patchNames[] = {
-		"FileSystem_SetGameDirectory_V_strncpy_callsite_0",
-		"FileSystem_AddFallbackGameDir_V_strncpy_callsite_0",
+	// Both filesystem owners copy the default language. Most engines merge the
+	// Steam-language and default-English arms into a single call, so each `_0`
+	// covers its owner. CoF emits one copy per arm instead; its `_1` records are
+	// optional and only present there.
+	const char* prefixes[] = {
+		"FileSystem_SetGameDirectory_V_strncpy_callsite_",
+		"FileSystem_AddFallbackGameDir_V_strncpy_callsite_",
 	};
-	PVOID patchSites[_countof(patchNames)] = {};
-	for (size_t i = 0; i < _countof(patchNames); ++i)
+	for (size_t owner = 0; owner < _countof(prefixes); ++owner)
 	{
-		patchSites[i] = GamedataResolvePtr(RealDllInfo.ImageBase, "engine", patchNames[i], MH_GAMESYMBOL_KIND_PATCH);
-	}
-
-	for (size_t i = 0; i < _countof(patchNames); ++i)
-	{
-		// The hook API handles both direct and import-indirect CALLs and saves the original target.
-		if (!g_pMetaHookAPI->InlinePatchRedirectBranch(patchSites[i], NewV_strncpy, (void**)&gPrivateFuncs.V_strncpy))
+		for (int index = 0; ; ++index)
 		{
-			Sys_Error("Could not redirect gamedata patch: %s\nEngine buildnum: %d", patchNames[i], g_dwEngineBuildnum);
-			return;
+			char patchName[128];
+			snprintf(patchName, sizeof(patchName), "%s%d", prefixes[owner], index);
+
+			// The first copy of each owner is required; a per-arm duplicate may be absent.
+			PVOID patchSite = index == 0
+				? GamedataResolvePtr(RealDllInfo.ImageBase, "engine", patchName, MH_GAMESYMBOL_KIND_PATCH)
+				: GamedataResolvePtrIfAvailable(RealDllInfo.ImageBase, "engine", patchName, MH_GAMESYMBOL_KIND_PATCH);
+			if (!patchSite)
+				break;
+
+			// The hook API handles both direct and import-indirect CALLs and saves the original target.
+			if (!g_pMetaHookAPI->InlinePatchRedirectBranch(patchSite, NewV_strncpy, (void**)&gPrivateFuncs.V_strncpy))
+			{
+				Sys_Error("Could not redirect gamedata patch: %s\nEngine buildnum: %d", patchName, g_dwEngineBuildnum);
+				return;
+			}
 		}
 	}
 }

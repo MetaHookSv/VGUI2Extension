@@ -41,7 +41,7 @@ resolve these hooks.
 The declaration is [scripts/manifests/vgui2extension.json](../../scripts/manifests/vgui2extension.json).
 The list below follows its exact module, name and kind and has been checked against the
 source calls. It contains **93 explicit records** across 5 modules, including the
-five initial `_0` records of **5 numbered patch sets**. Each numbered set can consume
+initial `_0` records of **7 numbered patch sets**. Each numbered set can consume
 additional records; 93 is not the total size of every installed catalog.
 
 | Module | Explicit entries |
@@ -100,6 +100,7 @@ current `conditionalGroups` entries in order. The `cl_time` exemption is explain
 | G16 | `cof-5936`, `hl-3248`, `hl-3266`, `hl-3329`, `hl-3647`, `hl-4554`, `hl-6153`, `hl-8684`, `svencoop-10257`, `svencoop-8948` |
 | G17 | `cof-5936`, `hl-3248`, `hl-3266`, `hl-3329`, `hl-3647`, `hl-4554`, `hl-6153`, `hl-8684`, `svencoop-10257`, `svencoop-8948` |
 | G18 | `hl-10210` |
+| G19 | `cof-5936` |
 
 ## Symbols by module
 
@@ -121,6 +122,8 @@ Sources: [privatefuncs.cpp](../../src/privatefuncs.cpp),
 | `vgui2::Panel::Init(int, int, int, int)` | `function` | G2 |
 | `FileSystem_AddFallbackGameDir_V_strncpy_callsite_0` | `patch` | G4 |
 | `FileSystem_SetGameDirectory_V_strncpy_callsite_0` | `patch` | G4 |
+| `FileSystem_AddFallbackGameDir_V_strncpy_callsite_1` | `patch` | G19 |
+| `FileSystem_SetGameDirectory_V_strncpy_callsite_1` | `patch` | G19 |
 | `CGame::WindowProc` | `function` | G6 |
 | `VGUIClient001_CreateInterface` | `patch` | G13 |
 | `Sys_GetRegKeyValueUnderRoot` | `function` | G15 |
@@ -250,6 +253,8 @@ group and must not be folded into G16, which requires all three prefixes.
 | `gameui` | `vgui2_Panel_SetBounds_Const_callsite_<n>` | `patch` | G16, G18 |
 | `serverbrowser` | `vgui2_Panel_SetSize_Const_callsite_<n>` | `patch` | G17 |
 | `serverbrowser` | `vgui2_Panel_SetMinimumSize_Const_callsite_<n>` | `patch` | G17 |
+| `engine` | `FileSystem_SetGameDirectory_V_strncpy_callsite_<n>` | `patch` | G19 |
+| `engine` | `FileSystem_AddFallbackGameDir_V_strncpy_callsite_<n>` | `patch` | G19 |
 
 The manifest lists each initial `_0` record explicitly and uses `numberedPatchSets` to
 retain the remaining consecutive records. Its `prefix` omits the final underscore;
@@ -261,8 +266,10 @@ not redirect them: HL25 already scales its dimensions, and dialog resources over
 constructor bounds. ContentControlDialog is widened in its resource before scaling;
 the separate `OnSizeChanged` patch prevents subsequent parent layout from clipping it.
 
-The engine's two `V_strncpy_callsite_0` language patches are fixed names and are not
-part of these numbered sets.
+The engine's two language patches are numbered as well. Most engines merge the Steam-language
+and default-English arms into a single `call`, so each `_0` covers its whole owner; CoF emits one
+copy per arm and additionally publishes `_1`. G19 keeps that set for `cof-5936` only, while the
+other engine group (G4) declares just the two required `_0` records.
 
 ## Runtime conditions and optional records
 
@@ -272,7 +279,8 @@ part of these numbered sets.
 - `engine / VGUIClient001_CreateInterface` is queried first. When that record is absent,
   the legacy path requires `engine / g_pClientFactory`; other query failures report an error.
 - `engine / Sys_GetRegKeyValueUnderRoot` is queried optionally. When unavailable, both
-  filesystem `V_strncpy_callsite_0` patches are required. `CGame::WindowProc` is used
+  filesystem `V_strncpy_callsite_0` patches are required; the `_1` duplicates are
+  queried optionally and exist only on `cof-5936`. `CGame::WindowProc` is used
   when the SDL2 `SDL_GetWindowWMInfo` path is unavailable.
 - `client / g_iVisibleMouse` is queried optionally for clients without native VGUI2.
   Native client `Panel::Init` and KeyValues `LoadFromFile` are also queried optionally.
