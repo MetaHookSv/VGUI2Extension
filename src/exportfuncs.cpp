@@ -24,28 +24,28 @@ typedef int SDL_bool;
 
 typedef struct SDL2_KeyboardEvent
 {
-	SDL_EventType type;     /**< SDL_EVENT_KEY_DOWN or SDL_EVENT_KEY_UP */
-	Uint32 timestamp;
-	SDL_WindowID windowID;  /**< The window with keyboard focus, if any */
-	SDL_KeyboardID which;   /**< The keyboard instance id, or 0 if unknown or virtual */
-	SDL_Scancode scancode;  /**< SDL physical key code */
-	SDL_Keycode key;        /**< SDL virtual key code */
-	SDL_Keymod mod;         /**< current key modifiers */
-	Uint16 raw;             /**< The platform dependent scancode for this event */
-	bool down;              /**< true if the key is pressed */
-	bool repeat;            /**< true if this is a key repeat */
+    SDL_EventType  type; /**< SDL_EVENT_KEY_DOWN or SDL_EVENT_KEY_UP */
+    Uint32         timestamp;
+    SDL_WindowID   windowID; /**< The window with keyboard focus, if any */
+    SDL_KeyboardID which;    /**< The keyboard instance id, or 0 if unknown or virtual */
+    SDL_Scancode   scancode; /**< SDL physical key code */
+    SDL_Keycode    key;      /**< SDL virtual key code */
+    SDL_Keymod     mod;      /**< current key modifiers */
+    Uint16         raw;      /**< The platform dependent scancode for this event */
+    bool           down;     /**< true if the key is pressed */
+    bool           repeat;   /**< true if this is a key repeat */
 } SDL2_KeyboardEvent;
 
 
 #define SDL2_TEXTEDITINGEVENT_TEXT_SIZE (32)
 typedef struct SDL2_TextEditingEvent
 {
-	Uint32 type;
-	Uint32 timestamp;
-	SDL_WindowID windowID;
-	char text[SDL2_TEXTEDITINGEVENT_TEXT_SIZE];
-	Sint32 start;
-	Sint32 length;
+    Uint32       type;
+    Uint32       timestamp;
+    SDL_WindowID windowID;
+    char         text[SDL2_TEXTEDITINGEVENT_TEXT_SIZE];
+    Sint32       start;
+    Sint32       length;
 } SDL2_TextEditingEvent;
 
 #define SDL_TEXTINPUTEVENT_TEXT_SIZE (32)
@@ -54,39 +54,39 @@ typedef struct SDL2_TextEditingEvent
  */
 typedef struct SDL2_TextInputEvent
 {
-	Uint32 type;                              /**< ::SDL_TEXTINPUT */
-	Uint32 timestamp;                         /**< In milliseconds, populated using SDL_GetTicks() */
-	SDL_WindowID windowID;                          /**< The window with keyboard focus, if any */
-	char text[SDL_TEXTINPUTEVENT_TEXT_SIZE];  /**< The input text */
+    Uint32       type;                               /**< ::SDL_TEXTINPUT */
+    Uint32       timestamp;                          /**< In milliseconds, populated using SDL_GetTicks() */
+    SDL_WindowID windowID;                           /**< The window with keyboard focus, if any */
+    char         text[SDL_TEXTINPUTEVENT_TEXT_SIZE]; /**< The input text */
 } SDL2_TextInputEvent;
 
 
 typedef struct SDL2_TextEditingCandidatesEvent
 {
-	SDL_EventType type;         /**< SDL_EVENT_TEXT_EDITING_CANDIDATES */
-	Uint32 timestamp;
-	SDL_WindowID windowID;      /**< The window with keyboard focus, if any */
-	const char* const* candidates;    /**< The list of candidates, or NULL if there are no candidates available */
-	Sint32 num_candidates;      /**< The number of strings in `candidates` */
-	Sint32 selected_candidate;  /**< The index of the selected candidate, or -1 if no candidate is selected */
-	bool horizontal;          /**< true if the list is horizontal, false if it's vertical */
-	Uint8 padding1;
-	Uint8 padding2;
-	Uint8 padding3;
+    SDL_EventType      type; /**< SDL_EVENT_TEXT_EDITING_CANDIDATES */
+    Uint32             timestamp;
+    SDL_WindowID       windowID;           /**< The window with keyboard focus, if any */
+    const char* const* candidates;         /**< The list of candidates, or NULL if there are no candidates available */
+    Sint32             num_candidates;     /**< The number of strings in `candidates` */
+    Sint32             selected_candidate; /**< The index of the selected candidate, or -1 if no candidate is selected */
+    bool               horizontal;         /**< true if the list is horizontal, false if it's vertical */
+    Uint8              padding1;
+    Uint8              padding2;
+    Uint8              padding3;
 } SDL2_TextEditingCandidatesEvent;
 
 #include "VGUI2ExtensionInternal.h"
 
-cl_enginefunc_t gEngfuncs = { 0 };
+cl_enginefunc_t gEngfuncs = {0};
 
 int m_iIntermission = 0;
 
 //client.dll
-void *GameViewport = NULL;
-int *g_iVisibleMouse = NULL;
-void *gHud = NULL;
+void* GameViewport    = NULL;
+int*  g_iVisibleMouse = NULL;
+void* gHud            = NULL;
 
-HWND g_MainWnd = NULL;
+HWND    g_MainWnd     = NULL;
 WNDPROC g_MainWndProc = NULL;
 
 //No need to support custom dpi here
@@ -111,433 +111,427 @@ int FileSystem_SetGameDirectory(const char *pDefaultDir, const char *pGameDir)
 
 #endif
 
-const char *GetBaseDirectory()
+const char* GetBaseDirectory()
 {
-	return host_parms->basedir;
+    return host_parms->basedir;
 }
 
 IBaseInterface* CreateInterfaceProxy(const char* pName, int* pReturnCode)
 {
-	auto ret = CreateInterface(pName, pReturnCode);
-	if (ret)
-		return ret;
+    auto ret = CreateInterface(pName, pReturnCode);
+    if (ret)
+        return ret;
 
-	if (gExportfuncs.ClientFactory)
-	{
-		auto CreateInterfaceClientDll = (decltype(CreateInterfaceProxy)*)gExportfuncs.ClientFactory();
-		return CreateInterfaceClientDll(pName, pReturnCode);
-	}
+    if (gExportfuncs.ClientFactory)
+    {
+        auto CreateInterfaceClientDll = (decltype(CreateInterfaceProxy)*)gExportfuncs.ClientFactory();
+        return CreateInterfaceClientDll(pName, pReturnCode);
+    }
 
-	return NULL;
+    return NULL;
 }
 
-void *NewClientFactory(void)
+void* NewClientFactory(void)
 {
-	return CreateInterfaceProxy;
+    return CreateInterfaceProxy;
 }
 
 
 int HUD_Redraw(float time, int intermission)
 {
-	m_iIntermission = intermission;
+    m_iIntermission = intermission;
 
-	return gExportfuncs.HUD_Redraw(time, intermission);
+    return gExportfuncs.HUD_Redraw(time, intermission);
 }
 
 void HUD_Shutdown(void)
 {
-	ShutdownWindowStuffs();
-	NativeClientUI_UninstallHooks();
-	Client_UninstallHooks();
-	ClientVGUI_UninstallHooks();
+    ShutdownWindowStuffs();
+    NativeClientUI_UninstallHooks();
+    Client_UninstallHooks();
+    ClientVGUI_UninstallHooks();
 
-	gExportfuncs.HUD_Shutdown();
+    gExportfuncs.HUD_Shutdown();
 }
 
 // Purpose: Make IN_MouseEvent aware of VGUI2 mouse input capture, which is not natively supported by VGUI1 mods.
 void IN_MouseEvent(int mstate)
 {
-	if (g_iVisibleMouse && vgui::surface() && vgui::surface()->IsCursorVisible())
-	{
-		int iVisibleMouse = *g_iVisibleMouse;
-		*g_iVisibleMouse = 1;
+    if (g_iVisibleMouse && vgui::surface() && vgui::surface()->IsCursorVisible())
+    {
+        int iVisibleMouse = *g_iVisibleMouse;
+        *g_iVisibleMouse  = 1;
 
-		gExportfuncs.IN_MouseEvent(mstate);
+        gExportfuncs.IN_MouseEvent(mstate);
 
-		*g_iVisibleMouse = iVisibleMouse;
-	}
-	else
-	{
-		gExportfuncs.IN_MouseEvent(mstate);
-	}
+        *g_iVisibleMouse = iVisibleMouse;
+    }
+    else
+    {
+        gExportfuncs.IN_MouseEvent(mstate);
+    }
 }
 
 // Purpose: Make IN_Accumulate aware of VGUI2 mouse input capture, which is not natively supported by VGUI1 mods.
 void IN_Accumulate(void)
 {
-	if (g_iVisibleMouse && vgui::surface() && vgui::surface()->IsCursorVisible())
-	{
-		int iVisibleMouse = *g_iVisibleMouse;
-		*g_iVisibleMouse = 1;
+    if (g_iVisibleMouse && vgui::surface() && vgui::surface()->IsCursorVisible())
+    {
+        int iVisibleMouse = *g_iVisibleMouse;
+        *g_iVisibleMouse  = 1;
 
-		gExportfuncs.IN_Accumulate();
+        gExportfuncs.IN_Accumulate();
 
-		*g_iVisibleMouse = iVisibleMouse;
-	}
-	else
-	{
-		gExportfuncs.IN_Accumulate();
-	}
+        *g_iVisibleMouse = iVisibleMouse;
+    }
+    else
+    {
+        gExportfuncs.IN_Accumulate();
+    }
 }
 
 // Purpose: Make CL_CreateMove aware of VGUI2 mouse input capture, which is not natively supported by VGUI1 mods.
-void CL_CreateMove(float frametime, struct usercmd_s *cmd, int active)
+void CL_CreateMove(float frametime, struct usercmd_s* cmd, int active)
 {
-	if (g_iVisibleMouse && vgui::surface() && vgui::surface()->IsCursorVisible())
-	{
-		int iVisibleMouse = *g_iVisibleMouse;
-		*g_iVisibleMouse = 1;
+    if (g_iVisibleMouse && vgui::surface() && vgui::surface()->IsCursorVisible())
+    {
+        int iVisibleMouse = *g_iVisibleMouse;
+        *g_iVisibleMouse  = 1;
 
-		gExportfuncs.CL_CreateMove(frametime, cmd, active);
+        gExportfuncs.CL_CreateMove(frametime, cmd, active);
 
-		*g_iVisibleMouse = iVisibleMouse;
-	}
-	else
-	{
-		gExportfuncs.CL_CreateMove(frametime, cmd, active);
-	}
+        *g_iVisibleMouse = iVisibleMouse;
+    }
+    else
+    {
+        gExportfuncs.CL_CreateMove(frametime, cmd, active);
+    }
 }
 
 void HUD_Init(void)
 {
-	VGUI1_PostInstallHooks();
+    VGUI1_PostInstallHooks();
 
-	gExportfuncs.HUD_Init();
+    gExportfuncs.HUD_Init();
 }
 
-IBaseInterface *NewCreateInterface(const char *pName, int *pReturnCode)
+IBaseInterface* NewCreateInterface(const char* pName, int* pReturnCode)
 {
-	auto pfnCreateInterface = (decltype(NewCreateInterface) *)Sys_GetFactoryThis();
-	auto pInterface = pfnCreateInterface(pName, pReturnCode);
-	if (pInterface)
-		return pInterface;
+    auto pfnCreateInterface = (decltype(NewCreateInterface)*)Sys_GetFactoryThis();
+    auto pInterface         = pfnCreateInterface(pName, pReturnCode);
+    if (pInterface)
+        return pInterface;
 
-	pfnCreateInterface = (decltype(NewCreateInterface) *)GetProcAddress(g_hClientModule, CREATEINTERFACE_PROCNAME);
-	if (pfnCreateInterface)
-	{
-		pInterface = pfnCreateInterface(pName, pReturnCode);
-		if (pInterface)
-			return pInterface;
-	}
+    pfnCreateInterface = (decltype(NewCreateInterface)*)GetProcAddress(g_hClientModule, CREATEINTERFACE_PROCNAME);
+    if (pfnCreateInterface)
+    {
+        pInterface = pfnCreateInterface(pName, pReturnCode);
+        if (pInterface)
+            return pInterface;
+    }
 
-	return NULL;
+    return NULL;
 }
 
 #if defined(_WIN32)
-void Sys_GetRegKeyValueUnderRoot(HKEY rootKey, const char *pszSubKey, const char *pszElement, char *pszReturnString, int nReturnLength, const char *pszDefaultValue)
+void Sys_GetRegKeyValueUnderRoot(HKEY rootKey, const char* pszSubKey, const char* pszElement, char* pszReturnString, int nReturnLength, const char* pszDefaultValue)
 {
-	LONG lResult;           // Registry function result code
-	HKEY hKey;              // Handle of opened/created key
-	char szBuff[128];       // Temp. buffer
-	DWORD dwDisposition;    // Type of key opening event
-	DWORD dwType;           // Type of key
-	DWORD dwSize;           // Size of element data
+    LONG  lResult;       // Registry function result code
+    HKEY  hKey;          // Handle of opened/created key
+    char  szBuff[128];   // Temp. buffer
+    DWORD dwDisposition; // Type of key opening event
+    DWORD dwType;        // Type of key
+    DWORD dwSize;        // Size of element data
 
-	// Assume the worst
-	Q_snprintf(pszReturnString, nReturnLength, pszDefaultValue);
+    // Assume the worst
+    Q_snprintf(pszReturnString, nReturnLength, pszDefaultValue);
 
-	// Create it if it doesn't exist.  (Create opens the key otherwise)
-	lResult = RegCreateKeyEx(
-		rootKey,	// handle of open key 
-		pszSubKey,			// address of name of subkey to open 
-		0,					// DWORD ulOptions,	  // reserved 
-		"String",			// Type of value
-		REG_OPTION_NON_VOLATILE, // Store permanently in reg.
-		KEY_ALL_ACCESS,		// REGSAM samDesired, // security access mask 
-		NULL,
-		&hKey,				// Key we are creating
-		&dwDisposition);    // Type of creation
+    // Create it if it doesn't exist.  (Create opens the key otherwise)
+    lResult = RegCreateKeyEx(
+        rootKey,                 // handle of open key
+        pszSubKey,               // address of name of subkey to open
+        0,                       // DWORD ulOptions,	  // reserved
+        "String",                // Type of value
+        REG_OPTION_NON_VOLATILE, // Store permanently in reg.
+        KEY_ALL_ACCESS,          // REGSAM samDesired, // security access mask
+        NULL,
+        &hKey,           // Key we are creating
+        &dwDisposition); // Type of creation
 
-	if (lResult != ERROR_SUCCESS)  // Failure
-		return;
+    if (lResult != ERROR_SUCCESS) // Failure
+        return;
 
-	// First time, just set to Valve default
-	if (dwDisposition == REG_CREATED_NEW_KEY)
-	{
-		// Just Set the Values according to the defaults
-		lResult = RegSetValueEx(hKey, pszElement, 0, REG_SZ, (CONST BYTE *)pszDefaultValue, Q_strlen(pszDefaultValue) + 1);
-	}
-	else
-	{
-		// We opened the existing key. Now go ahead and find out how big the key is.
-		dwSize = nReturnLength;
-		lResult = RegQueryValueEx(hKey, pszElement, 0, &dwType, (unsigned char *)szBuff, &dwSize);
+    // First time, just set to Valve default
+    if (dwDisposition == REG_CREATED_NEW_KEY)
+    {
+        // Just Set the Values according to the defaults
+        lResult = RegSetValueEx(hKey, pszElement, 0, REG_SZ, (CONST BYTE*)pszDefaultValue, Q_strlen(pszDefaultValue) + 1);
+    }
+    else
+    {
+        // We opened the existing key. Now go ahead and find out how big the key is.
+        dwSize  = nReturnLength;
+        lResult = RegQueryValueEx(hKey, pszElement, 0, &dwType, (unsigned char*)szBuff, &dwSize);
 
-		// Success?
-		if (lResult == ERROR_SUCCESS)
-		{
-			// Only copy strings, and only copy as much data as requested.
-			if (dwType == REG_SZ)
-			{
-				Q_strncpy(pszReturnString, szBuff, nReturnLength);
-				pszReturnString[nReturnLength - 1] = '\0';
-			}
-		}
-		else
-			// Didn't find it, so write out new value
-		{
-			// Just Set the Values according to the defaults
-			lResult = RegSetValueEx(hKey, pszElement, 0, REG_SZ, (CONST BYTE *)pszDefaultValue, Q_strlen(pszDefaultValue) + 1);
-		}
-	};
+        // Success?
+        if (lResult == ERROR_SUCCESS)
+        {
+            // Only copy strings, and only copy as much data as requested.
+            if (dwType == REG_SZ)
+            {
+                Q_strncpy(pszReturnString, szBuff, nReturnLength);
+                pszReturnString[nReturnLength - 1] = '\0';
+            }
+        }
+        else
+        // Didn't find it, so write out new value
+        {
+            // Just Set the Values according to the defaults
+            lResult = RegSetValueEx(hKey, pszElement, 0, REG_SZ, (CONST BYTE*)pszDefaultValue, Q_strlen(pszDefaultValue) + 1);
+        }
+    };
 
-	// Always close this key before exiting.
-	RegCloseKey(hKey);
+    // Always close this key before exiting.
+    RegCloseKey(hKey);
 }
 
-void Sys_GetRegKeyValue(char *pszSubKey, char *pszElement, char *pszReturnString, int nReturnLength, char *pszDefaultValue)
+void Sys_GetRegKeyValue(char* pszSubKey, char* pszElement, char* pszReturnString, int nReturnLength, char* pszDefaultValue)
 {
-	Sys_GetRegKeyValueUnderRoot(HKEY_CURRENT_USER, pszSubKey, pszElement, pszReturnString, nReturnLength, pszDefaultValue);
+    Sys_GetRegKeyValueUnderRoot(HKEY_CURRENT_USER, pszSubKey, pszElement, pszReturnString, nReturnLength, pszDefaultValue);
 }
 
 #endif
 
-void __cdecl NewEngineSys_GetRegKeyValueUnderRoot(const char* subKey, const char* element,
-	char* output, int capacity, const char* defaultValue)
+void __cdecl NewEngineSys_GetRegKeyValueUnderRoot(const char* subKey, const char* element, char* output, int capacity, const char* defaultValue)
 {
-	const char* forcedLanguage = nullptr;
-	if (LanguageRegistry::IsSteamLanguage(subKey, element))
-		CommandLine()->CheckParm("-forcelang", &forcedLanguage);
-	// These engines already obtain Steam's language here, including with -steamlang.
-	LanguageRegistry::Read(gPrivateFuncs.Sys_GetRegKeyValueUnderRoot, subKey, element,
-		output, capacity, defaultValue, forcedLanguage,
-		m_szCurrentGameLanguage, sizeof(m_szCurrentGameLanguage));
+    const char* forcedLanguage = nullptr;
+    if (LanguageRegistry::IsSteamLanguage(subKey, element))
+        CommandLine()->CheckParm("-forcelang", &forcedLanguage);
+    // These engines already obtain Steam's language here, including with -steamlang.
+    LanguageRegistry::Read(gPrivateFuncs.Sys_GetRegKeyValueUnderRoot, subKey, element,
+                           output, capacity, defaultValue, forcedLanguage,
+                           m_szCurrentGameLanguage, sizeof(m_szCurrentGameLanguage));
 }
 
-char * NewV_strncpy(char *a1, const char *a2, size_t a3)
+char* NewV_strncpy(char* a1, const char* a2, size_t a3)
 {
-	char language[128] = { 0 };
-	const char *pszLanguage = NULL;
-	auto szGameDir = gEngfuncs.pfnGetGameDirectory();
+    char        language[128] = {0};
+    const char* pszLanguage   = NULL;
+    auto        szGameDir     = gEngfuncs.pfnGetGameDirectory();
 
-	if (CommandLine()->CheckParm("-forcelang", &pszLanguage) && pszLanguage && pszLanguage[0])
-	{
-		a2 = pszLanguage;
-	}
+    if (CommandLine()->CheckParm("-forcelang", &pszLanguage) && pszLanguage && pszLanguage[0])
+    {
+        a2 = pszLanguage;
+    }
 
-	else if ((szGameDir && !strcmp(szGameDir, "svencoop")) || CommandLine()->CheckParm("-steamlang"))
-	{
-		Sys_GetRegKeyValue("Software\\Valve\\Steam", "Language", language, sizeof(language), "");
+    else if ((szGameDir && !strcmp(szGameDir, "svencoop")) || CommandLine()->CheckParm("-steamlang"))
+    {
+        Sys_GetRegKeyValue("Software\\Valve\\Steam", "Language", language, sizeof(language), "");
 
-		if ((Q_strlen(language) > 0) && (0 != Q_stricmp(language, "english")))
-		{
-			a2 = language;
-		}
-	}
+        if ((Q_strlen(language) > 0) && (0 != Q_stricmp(language, "english")))
+        {
+            a2 = language;
+        }
+    }
 
-	gPrivateFuncs.V_strncpy(m_szCurrentGameLanguage, a2, sizeof(m_szCurrentGameLanguage) - 1);
-	m_szCurrentGameLanguage[sizeof(m_szCurrentGameLanguage) - 1] = 0;
+    gPrivateFuncs.V_strncpy(m_szCurrentGameLanguage, a2, sizeof(m_szCurrentGameLanguage) - 1);
+    m_szCurrentGameLanguage[sizeof(m_szCurrentGameLanguage) - 1] = 0;
 
-	return gPrivateFuncs.V_strncpy(a1, a2, a3);
+    return gPrivateFuncs.V_strncpy(a1, a2, a3);
 }
 
 double engine_GetAbsoluteTime()
 {
-	return gEngfuncs.GetAbsoluteTime();
+    return gEngfuncs.GetAbsoluteTime();
 }
 
 SDL_Window* SDL_GetWindowFromID(SDL_WindowID id)
 {
-	if (!gPrivateFuncs.SDL_GetWindowFromID)
-		return nullptr;
+    if (!gPrivateFuncs.SDL_GetWindowFromID)
+        return nullptr;
 
-	return (SDL_Window*)gPrivateFuncs.SDL_GetWindowFromID(id);
+    return (SDL_Window*)gPrivateFuncs.SDL_GetWindowFromID(id);
 }
 
 SDL_bool SDL_GetWindowWMInfo(SDL_Window* window, SDL_SysWMinfo* info)
 {
-	if (!gPrivateFuncs.SDL_GetWindowWMInfo)
-		return false;
+    if (!gPrivateFuncs.SDL_GetWindowWMInfo)
+        return false;
 
-	return gPrivateFuncs.SDL_GetWindowWMInfo(window, info);
+    return gPrivateFuncs.SDL_GetWindowWMInfo(window, info);
 }
 
-HWND SDL_GetWindowWin32HWND(SDL_Window *wnd)
+HWND SDL_GetWindowWin32HWND(SDL_Window* wnd)
 {
-	SDL_SysWMinfo wmInfo;
-	SDL_VERSION(&wmInfo.version);
-	if(SDL_GetWindowWMInfo(wnd, &wmInfo))
-		return wmInfo.info.win.window;
+    SDL_SysWMinfo wmInfo;
+    SDL_VERSION(&wmInfo.version);
+    if (SDL_GetWindowWMInfo(wnd, &wmInfo))
+        return wmInfo.info.win.window;
 
-	return NULL;
+    return NULL;
 }
 
 SDL_Window* SDL_GL_GetCurrentWindow(void)
 {
-	if (!gPrivateFuncs.SDL_GL_GetCurrentWindow)
-		return nullptr;
+    if (!gPrivateFuncs.SDL_GL_GetCurrentWindow)
+        return nullptr;
 
-	return (SDL_Window*)gPrivateFuncs.SDL_GL_GetCurrentWindow();
+    return (SDL_Window*)gPrivateFuncs.SDL_GL_GetCurrentWindow();
 }
 
 class CVGUI2Extension_BaseUICallbacks : public IVGUI2Extension_BaseUICallbacks
 {
 public:
-	int GetAltitude() const override
-	{
-		return 0;
-	}
+    int GetAltitude() const override
+    {
+        return 0;
+    }
 
-	void Initialize(CreateInterfaceFn* factories, int count) override
-	{
-		
-	}
+    void Initialize(CreateInterfaceFn* factories, int count) override
+    {
+    }
 
-	void Start(struct cl_enginefuncs_s* engineFuncs, int interfaceVersion) override
-	{
-		
-	}
+    void Start(struct cl_enginefuncs_s* engineFuncs, int interfaceVersion) override
+    {
+    }
 
-	void Shutdown(void)
-	{
+    void Shutdown(void)
+    {
+    }
 
-	}
+    void Key_Event(int& down, int& keynum, const char*& pszCurrentBinding, VGUI2Extension_CallbackContext* CallbackContext) override
+    {
+    }
 
-	void Key_Event(int& down, int& keynum, const char*& pszCurrentBinding, VGUI2Extension_CallbackContext* CallbackContext) override
-	{
+    void CallEngineSurfaceAppProc(void*& pevent, void*& userData, VGUI2Extension_CallbackContext* CallbackContext) override
+    {
+        if (CallbackContext->IsPost)
+            return;
 
-	}
+        const auto pSDLEvent = (const SDL_Event*)pevent;
 
-	void CallEngineSurfaceAppProc(void*& pevent, void*& userData, VGUI2Extension_CallbackContext* CallbackContext) override
-	{
-		if (CallbackContext->IsPost)
-			return;
+        switch (pSDLEvent->type)
+        {
+            case SDL_EVENT_KEY_DOWN:
+            case SDL_EVENT_KEY_UP:
+            {
+                const auto pKeyEvent = (const SDL2_KeyboardEvent*)pSDLEvent;
 
-		const auto pSDLEvent = (const SDL_Event *)pevent;
+                if (pKeyEvent->key == SDLK_BACKSPACE)
+                {
+                    if (vgui::input()->IsIMEComposing())
+                    {
+                        CallbackContext->Result = VGUI2Extension_Result::SUPERCEDE;
+                        break;
+                    }
+                }
+                break;
+            }
+            case SDL_EVENT_TEXT_EDITING_CANDIDATES:
+            {
+                const auto pTextEditingCandidateEvent = (const SDL2_TextEditingCandidatesEvent*)pSDLEvent;
 
-		switch (pSDLEvent->type)
-		{
-		case SDL_EVENT_KEY_DOWN:
-		case SDL_EVENT_KEY_UP:
-		{
-			const auto pKeyEvent = (const SDL2_KeyboardEvent*)pSDLEvent;
+                if (!vgui::input()->GetIMEWindow())
+                {
+                    auto window = SDL_GetWindowFromID(pTextEditingCandidateEvent->windowID);
+                    auto hWnd   = SDL_GetWindowWin32HWND(window);
+                    vgui::input()->SetIMEWindow(hWnd);
+                }
 
-			if (pKeyEvent->key == SDLK_BACKSPACE)
-			{
-				if (vgui::input()->IsIMEComposing())
-				{
-					CallbackContext->Result = VGUI2Extension_Result::SUPERCEDE;
-					break;
-				}
-			}
-			break;
-		}
-		case SDL_EVENT_TEXT_EDITING_CANDIDATES:
-		{
-			const auto pTextEditingCandidateEvent = (const SDL2_TextEditingCandidatesEvent *)pSDLEvent;
+                //gEngfuncs.Con_DPrintf("SDL_EVENT_TEXT_EDITING_CANDIDATES\n");
 
-			if (!vgui::input()->GetIMEWindow()) {
-				auto window = SDL_GetWindowFromID(pTextEditingCandidateEvent->windowID);
-				auto hWnd = SDL_GetWindowWin32HWND(window);
-				vgui::input()->SetIMEWindow(hWnd);
-			}
+                if (pTextEditingCandidateEvent->candidates == nullptr && pTextEditingCandidateEvent->num_candidates == 0)
+                {
+                    vgui::input()->OnIMECloseCandidates();
+                }
+                else
+                {
+                    vgui::input()->OnIMEShowCandidates();
+                }
 
-			//gEngfuncs.Con_DPrintf("SDL_EVENT_TEXT_EDITING_CANDIDATES\n");
+                CallbackContext->Result = VGUI2Extension_Result::SUPERCEDE;
+                break;
+            }
+            case SDL_EVENT_TEXT_INPUT:
+            {
+                const auto pTextInputEvent = (const SDL2_TextInputEvent*)pSDLEvent;
 
-			if (pTextEditingCandidateEvent->candidates == nullptr && pTextEditingCandidateEvent->num_candidates == 0) {
-				vgui::input()->OnIMECloseCandidates();
-			}
-			else {
-				vgui::input()->OnIMEShowCandidates();
-			}
+                if (!vgui::input()->GetIMEWindow())
+                {
+                    auto window = SDL_GetWindowFromID(pTextInputEvent->windowID);
+                    auto hWnd   = SDL_GetWindowWin32HWND(window);
+                    vgui::input()->SetIMEWindow(hWnd);
+                }
 
-			CallbackContext->Result = VGUI2Extension_Result::SUPERCEDE;
-			break;
-		}
-		case SDL_EVENT_TEXT_INPUT:
-		{
-			const auto pTextInputEvent = (const SDL2_TextInputEvent*)pSDLEvent;
+                //gEngfuncs.Con_DPrintf("SDL_EVENT_TEXT_INPUT\n");
 
-			if (!vgui::input()->GetIMEWindow()) {
-				auto window = SDL_GetWindowFromID(pTextInputEvent->windowID);
-				auto hWnd = SDL_GetWindowWin32HWND(window);
-				vgui::input()->SetIMEWindow(hWnd);
-			}
+                if (vgui::input()->IsIMEComposing())
+                {
+                    CallbackContext->Result = VGUI2Extension_Result::SUPERCEDE;
+                    break;
+                }
 
-			//gEngfuncs.Con_DPrintf("SDL_EVENT_TEXT_INPUT\n");
+                //Already captured by BaseUISurface::AppHandler
+                //So we do nothing here.
+                break;
+            }
+            case SDL_EVENT_TEXT_EDITING:
+            {
+                const auto pTextEditingEvent = (const SDL2_TextEditingEvent*)pSDLEvent;
 
-			if (vgui::input()->IsIMEComposing())
-			{
-				CallbackContext->Result = VGUI2Extension_Result::SUPERCEDE;
-				break;
-			}
+                if (!vgui::input()->GetIMEWindow())
+                {
+                    auto window = SDL_GetWindowFromID(pTextEditingEvent->windowID);
+                    auto hWnd   = SDL_GetWindowWin32HWND(window);
+                    vgui::input()->SetIMEWindow(hWnd);
+                }
 
-			//Already captured by BaseUISurface::AppHandler
-			//So we do nothing here.
-			break;
-		}
-		case SDL_EVENT_TEXT_EDITING:
-		{
-			const auto pTextEditingEvent = (const SDL2_TextEditingEvent*)pSDLEvent;
+                //gEngfuncs.Con_DPrintf("SDL_EVENT_TEXT_EDITING \"%s\" %d %d\n", pTextEditingEvent->text, pTextEditingEvent->start, pTextEditingEvent->length);
 
-			if (!vgui::input()->GetIMEWindow()) {
-				auto window = SDL_GetWindowFromID(pTextEditingEvent->windowID);
-				auto hWnd = SDL_GetWindowWin32HWND(window);
-				vgui::input()->SetIMEWindow(hWnd);
-			}
+                if (pTextEditingEvent->text[0] == 0 && pTextEditingEvent->length == 0)
+                { // pTextEditingEvent->start might be 1 for unknown reason on proton when switching focus
 
-			//gEngfuncs.Con_DPrintf("SDL_EVENT_TEXT_EDITING \"%s\" %d %d\n", pTextEditingEvent->text, pTextEditingEvent->start, pTextEditingEvent->length);
+                    vgui::input()->OnIMEEndComposition();
+                }
+                else
+                {
+                    if (!vgui::input()->IsIMEComposing())
+                        vgui::input()->OnIMEStartComposition();
 
-			if (pTextEditingEvent->text[0] == 0 && pTextEditingEvent->length == 0) {// pTextEditingEvent->start might be 1 for unknown reason on proton when switching focus
+                    vgui::input()->OnIMECompositionWin32(GCS_COMPSTR);
+                }
 
-				vgui::input()->OnIMEEndComposition();
-			}
-			else
-			{
-				if(!vgui::input()->IsIMEComposing())
-					vgui::input()->OnIMEStartComposition();
+                CallbackContext->Result = VGUI2Extension_Result::SUPERCEDE;
+                break;
+            }
+        }
+    }
 
-				vgui::input()->OnIMECompositionWin32(GCS_COMPSTR);
+    void CallEngineSurfaceWndProc(void*& hwnd, unsigned int& msg, unsigned int& wparam, long& lparam, VGUI2Extension_CallbackContext* CallbackContext) override
+    {
+        // Native IME messages are consumed once, before CGame::WindowProc.
+        // Neither the pre nor the post BaseUI callback may submit them again.
+    }
 
-			}
+    void Paint(int& x, int& y, int& right, int& bottom, VGUI2Extension_CallbackContext* CallbackContext) override
+    {
+    }
 
-			CallbackContext->Result = VGUI2Extension_Result::SUPERCEDE;
-			break;
-		}
-		}
+    void HideGameUI(VGUI2Extension_CallbackContext* CallbackContext) override
+    {
+    }
 
-	}
+    void ActivateGameUI(VGUI2Extension_CallbackContext* CallbackContext) override
+    {
+    }
 
-	void CallEngineSurfaceWndProc(void*& hwnd, unsigned int& msg, unsigned int& wparam, long& lparam, VGUI2Extension_CallbackContext* CallbackContext) override
-	{
-		// Native IME messages are consumed once, before CGame::WindowProc.
-		// Neither the pre nor the post BaseUI callback may submit them again.
-	}
+    void HideConsole(VGUI2Extension_CallbackContext* CallbackContext) override
+    {
+    }
 
-	void Paint(int& x, int& y, int& right, int& bottom, VGUI2Extension_CallbackContext* CallbackContext) override
-	{
-
-	}
-
-	void HideGameUI(VGUI2Extension_CallbackContext* CallbackContext) override
-	{
-
-	}
-
-	void ActivateGameUI(VGUI2Extension_CallbackContext* CallbackContext) override
-	{
-
-	}
-
-	void HideConsole(VGUI2Extension_CallbackContext* CallbackContext) override
-	{
-
-	}
-
-	void ShowConsole(VGUI2Extension_CallbackContext* CallbackContext) override
-	{
-
-	}
+    void ShowConsole(VGUI2Extension_CallbackContext* CallbackContext) override
+    {
+    }
 };
 
 static CVGUI2Extension_BaseUICallbacks s_BaseUICallbacks_IMEHandler;
@@ -546,69 +540,69 @@ static hook_t* s_WindowProcHook = nullptr;
 
 static LRESULT __fastcall NewCGame_WindowProc(void* pthis, int, HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
-	if (HandleIMEWindowMessage(vgui::input(), hwnd, msg, wparam, lparam))
-		return 0;
+    if (HandleIMEWindowMessage(vgui::input(), hwnd, msg, wparam, lparam))
+        return 0;
 
-	return gPrivateFuncs.CGame_WindowProc(pthis, 0, hwnd, msg, wparam, lparam);
+    return gPrivateFuncs.CGame_WindowProc(pthis, 0, hwnd, msg, wparam, lparam);
 }
 
 void ShutdownWindowStuffs(void)
 {
-	if (s_WindowProcHook)
-	{
-		g_pMetaHookAPI->UnHook(s_WindowProcHook);
-		s_WindowProcHook = nullptr;
-		gPrivateFuncs.CGame_WindowProc = nullptr;
-	}
-	VGUI2ExtensionInternal()->UnregisterBaseUICallbacks(&s_BaseUICallbacks_IMEHandler);
+    if (s_WindowProcHook)
+    {
+        g_pMetaHookAPI->UnHook(s_WindowProcHook);
+        s_WindowProcHook               = nullptr;
+        gPrivateFuncs.CGame_WindowProc = nullptr;
+    }
+    VGUI2ExtensionInternal()->UnregisterBaseUICallbacks(&s_BaseUICallbacks_IMEHandler);
 }
 
 BOOL WINAPI NewSystemParametersInfoA(_In_ UINT uiAction, _In_ UINT uiParam, _Pre_maybenull_ _Post_valid_ PVOID pvParam, _In_ UINT fWinIni)
 {
-	if (SPI_SETMOUSE == uiParam)
-	{
-		return TRUE;
-	}
+    if (SPI_SETMOUSE == uiParam)
+    {
+        return TRUE;
+    }
 
-	return SystemParametersInfoA(uiAction, uiParam, pvParam, fWinIni);
+    return SystemParametersInfoA(uiAction, uiParam, pvParam, fWinIni);
 }
 
 void InitWindowStuffs(void)
 {
-	HWND Win32Hwnd = NULL;
+    HWND Win32Hwnd = NULL;
 
-	if (gPrivateFuncs.SDL_GetWindowWMInfo)
-	{
-		//SDL2 branch, Sys_GetMainWindow returns SDL_Window *
-		Win32Hwnd = SDL_GetWindowWin32HWND((SDL_Window *)Sys_GetMainWindow());
-	}
-	else
-	{
-		//non-SDL2 branch
-		Win32Hwnd = (decltype(Win32Hwnd))Sys_GetMainWindow();
-		if (!s_WindowProcHook)
-		{
-			auto address = GamedataResolvePtr(g_EngineDLLInfo.ImageBase, "engine", "CGame::WindowProc", MH_GAMESYMBOL_KIND_FUNCTION);
-			s_WindowProcHook = g_pMetaHookAPI->InlineHook(address, NewCGame_WindowProc,
-				(void**)&gPrivateFuncs.CGame_WindowProc);
-			if (!s_WindowProcHook)
-				Sys_Error("Could not install the native IME window procedure hook.");
-		}
-	}
+    if (gPrivateFuncs.SDL_GetWindowWMInfo)
+    {
+        //SDL2 branch, Sys_GetMainWindow returns SDL_Window *
+        Win32Hwnd = SDL_GetWindowWin32HWND((SDL_Window*)Sys_GetMainWindow());
+    }
+    else
+    {
+        //non-SDL2 branch
+        Win32Hwnd = (decltype(Win32Hwnd))Sys_GetMainWindow();
+        if (!s_WindowProcHook)
+        {
+            auto address     = GamedataResolvePtr(g_EngineDLLInfo.ImageBase, "engine", "CGame::WindowProc", MH_GAMESYMBOL_KIND_FUNCTION);
+            s_WindowProcHook = g_pMetaHookAPI->InlineHook(address, NewCGame_WindowProc,
+                                                          (void**)&gPrivateFuncs.CGame_WindowProc);
+            if (!s_WindowProcHook)
+                Sys_Error("Could not install the native IME window procedure hook.");
+        }
+    }
 
-	DpiManagerInternal()->InitFromHwnd(Win32Hwnd);
+    DpiManagerInternal()->InitFromHwnd(Win32Hwnd);
 
-	if (gEngfuncs.CheckParm("-nomousespi", nullptr))
-	{
-		if (g_pMetaHookAPI->GetClientModule())
-		{
-			g_pMetaHookAPI->IATHook(g_pMetaHookAPI->GetClientModule(), "user32.dll", "SystemParametersInfoA", NewSystemParametersInfoA, nullptr);
-		}
-		else if (g_pMetaHookAPI->GetBlobClientModule())
-		{
-			g_pMetaHookAPI->BlobIATHook(g_pMetaHookAPI->GetBlobClientModule(), "user32.dll", "SystemParametersInfoA", NewSystemParametersInfoA, nullptr);
-		}
-	}
+    if (gEngfuncs.CheckParm("-nomousespi", nullptr))
+    {
+        if (g_pMetaHookAPI->GetClientModule())
+        {
+            g_pMetaHookAPI->IATHook(g_pMetaHookAPI->GetClientModule(), "user32.dll", "SystemParametersInfoA", NewSystemParametersInfoA, nullptr);
+        }
+        else if (g_pMetaHookAPI->GetBlobClientModule())
+        {
+            g_pMetaHookAPI->BlobIATHook(g_pMetaHookAPI->GetBlobClientModule(), "user32.dll", "SystemParametersInfoA", NewSystemParametersInfoA, nullptr);
+        }
+    }
 
-	VGUI2ExtensionInternal()->RegisterBaseUICallbacks(&s_BaseUICallbacks_IMEHandler);
+    VGUI2ExtensionInternal()->RegisterBaseUICallbacks(&s_BaseUICallbacks_IMEHandler);
 }

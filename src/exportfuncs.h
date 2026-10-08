@@ -17,27 +17,26 @@
 
 extern cl_enginefunc_t gEngfuncs;
 
-char * NewV_strncpy(char *a1, const char *a2, size_t a3);
-void __cdecl NewEngineSys_GetRegKeyValueUnderRoot(const char* subKey, const char* element,
-	char* output, int capacity, const char* defaultValue);
+char*        NewV_strncpy(char* a1, const char* a2, size_t a3);
+void __cdecl NewEngineSys_GetRegKeyValueUnderRoot(const char* subKey, const char* element, char* output, int capacity, const char* defaultValue);
 
 void HUD_Init(void);
-int HUD_Redraw(float time, int intermission);
+int  HUD_Redraw(float time, int intermission);
 void HUD_Shutdown(void);
 void IN_MouseEvent(int mstate);
 void IN_Accumulate(void);
-void CL_CreateMove(float frametime, struct usercmd_s *cmd, int active);
+void CL_CreateMove(float frametime, struct usercmd_s* cmd, int active);
 
-client_textmessage_t *pfnTextMessageGet(const char *pName);
-void TextMessageParse(byte* pMemFile, int fileSize);
+client_textmessage_t* pfnTextMessageGet(const char* pName);
+void                  TextMessageParse(byte* pMemFile, int fileSize);
 
-void *NewClientFactory(void);
+void* NewClientFactory(void);
 
-const char *GetBaseDirectory();
+const char* GetBaseDirectory();
 
 //int FileSystem_SetGameDirectory(const char *pDefaultDir, const char *pGameDir);
 
-IBaseInterface *NewCreateInterface(const char *pName, int *pReturnCode);
+IBaseInterface* NewCreateInterface(const char* pName, int* pReturnCode);
 
 LRESULT WINAPI VID_MainWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 

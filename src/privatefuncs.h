@@ -14,185 +14,183 @@ class KeyValues;
 
 typedef struct walk_context_s
 {
-	walk_context_s(void* a, size_t l, int d) : address(a), len(l), depth(d)
-	{
-
-	}
-	void* address;
-	size_t len;
-	int depth;
-}walk_context_t;
+    walk_context_s(void* a, size_t l, int d) : address(a), len(l), depth(d)
+    {
+    }
+    void*  address;
+    size_t len;
+    int    depth;
+} walk_context_t;
 
 typedef struct
 {
-	//Engine VGUI2 wrapper
-	//void(*VGuiWrap2_Paint)(void);
-	void(__fastcall* EngineVGUI2_Panel_Init)(void* pthis, int dummy, int x, int y, int w, int h);
+    //Engine VGUI2 wrapper
+    //void(*VGuiWrap2_Paint)(void);
+    void(__fastcall* EngineVGUI2_Panel_Init)(void* pthis, int dummy, int x, int y, int w, int h);
 
-	//VGUI1
-	void* (__cdecl* vgui_App_getInstance)();
-	void (__fastcall *vgui_TextImage_paint)(vgui1_TextImage *pthis, int, void *panel);
-	void** vftable_vgui1_TextImage;
-	void** vftable_vgui1_Color;
+    //VGUI1
+    void*(__cdecl* vgui_App_getInstance)();
+    void(__fastcall* vgui_TextImage_paint)(vgui1_TextImage* pthis, int, void* panel);
+    void** vftable_vgui1_TextImage;
+    void** vftable_vgui1_Color;
 
-	//VGUI2;
-	char* (*V_strncpy)(char* a1, const char* a2, size_t a3);
-	void (__cdecl* Sys_GetRegKeyValueUnderRoot)(const char* subKey, const char* element,
-		char* output, int capacity, const char* defaultValue);
+    //VGUI2;
+    char* (*V_strncpy)(char* a1, const char* a2, size_t a3);
+    void(__cdecl* Sys_GetRegKeyValueUnderRoot)(const char* subKey, const char* element, char* output, int capacity, const char* defaultValue);
 
-	//Engine init
-	PVOID (*VGUIClient001_CreateInterface)(HINTERFACEMODULE hModule);
-	LRESULT (__fastcall* CGame_WindowProc)(void* pthis, int dummy, HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
+    //Engine init
+    PVOID (*VGUIClient001_CreateInterface)(HINTERFACEMODULE hModule);
+    LRESULT(__fastcall* CGame_WindowProc)(void* pthis, int dummy, HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
 
-	//ClientVGUI
-	void(__fastcall* ClientVGUI_Panel_Init)(void* pthis, int dummy, int x, int y, int w, int h);
-	void(__fastcall* ClientVGUI_Panel_SetSize)(void* pthis, int dummy, int width, int height);
-	void(__fastcall* ClientVGUI_LoadControlSettings)(void* pthis, int dummy, const char* controlResourceName, const char* pathID);
-	bool(__fastcall* ClientVGUI_KeyValues_LoadFromFile)(void* pthis, int dummy, IFileSystem* pFileSystem, const char* resourceName, const char* pathId);
+    //ClientVGUI
+    void(__fastcall* ClientVGUI_Panel_Init)(void* pthis, int dummy, int x, int y, int w, int h);
+    void(__fastcall* ClientVGUI_Panel_SetSize)(void* pthis, int dummy, int width, int height);
+    void(__fastcall* ClientVGUI_LoadControlSettings)(void* pthis, int dummy, const char* controlResourceName, const char* pathID);
+    bool(__fastcall* ClientVGUI_KeyValues_LoadFromFile)(void* pthis, int dummy, IFileSystem* pFileSystem, const char* resourceName, const char* pathId);
 
-	void(__fastcall* ClientVGUI_RichText_SetTextW)(void* pthis, int dummy, const wchar_t* text);
+    void(__fastcall* ClientVGUI_RichText_SetTextW)(void* pthis, int dummy, const wchar_t* text);
 
-	//Valve populate SetTextW with invalid chars, and CTeamMenu::LoadMapPage is the
-	//only caller that hands it the corrupted map description text.
-	void(__fastcall* TeamMenu_LoadMapPage)(void* pthis, int dummy, const char* mapname);
+    //Valve populate SetTextW with invalid chars, and CTeamMenu::LoadMapPage is the
+    //only caller that hands it the corrupted map description text.
+    void(__fastcall* TeamMenu_LoadMapPage)(void* pthis, int dummy, const char* mapname);
 
-	//void** ClientVGUI_BuildGroup_vftable;
-	//void(__fastcall* ClientVGUI_BuildGroup_ApplySettings)(void* pthis, int dummy, void* resourceData);
-	//void(__fastcall* ClientVGUI_BuildGroup_LoadControlSettings)(void* pthis, int dummy, const char* controlResourceName, const char* pathID);
+    //void** ClientVGUI_BuildGroup_vftable;
+    //void(__fastcall* ClientVGUI_BuildGroup_ApplySettings)(void* pthis, int dummy, void* resourceData);
+    //void(__fastcall* ClientVGUI_BuildGroup_LoadControlSettings)(void* pthis, int dummy, const char* controlResourceName, const char* pathID);
 
-	//void* (__fastcall* CCSBackGroundPanel_ctor)(void* pthis, int, void* parent);
-	void (__fastcall* CCSBackGroundPanel_Activate)(void* pthis, int dummy);
-	int CCSBackGroundPanel_m_offsetX;
-	int CCSBackGroundPanel_m_offsetY;
+    //void* (__fastcall* CCSBackGroundPanel_ctor)(void* pthis, int, void* parent);
+    void(__fastcall* CCSBackGroundPanel_Activate)(void* pthis, int dummy);
+    int CCSBackGroundPanel_m_offsetX;
+    int CCSBackGroundPanel_m_offsetY;
 
-	void (__fastcall* CWorldMap_PaintBackground)(void* pthis, int dummy);
-	void(__fastcall* CWorldMapMissionSelect_PaintBackground)(void* pthis, int dummy);
+    void(__fastcall* CWorldMap_PaintBackground)(void* pthis, int dummy);
+    void(__fastcall* CWorldMapMissionSelect_PaintBackground)(void* pthis, int dummy);
 
-	//Vtable slots resolved once in ClientUIProxy_Start_FillAddress. vgui2::Frame::Activate()
-	//is the base slot the background panel and the buy menu both override.
-	int vfunc_index_Frame_Activate;
-	int vfunc_index_CCSBackGroundPanel_Activate;
-	int vfunc_index_CWorldMap_PaintBackground;
-	int vfunc_index_CWorldMapMissionSelect_PaintBackground;
+    //Vtable slots resolved once in ClientUIProxy_Start_FillAddress. vgui2::Frame::Activate()
+    //is the base slot the background panel and the buy menu both override.
+    int vfunc_index_Frame_Activate;
+    int vfunc_index_CCSBackGroundPanel_Activate;
+    int vfunc_index_CWorldMap_PaintBackground;
+    int vfunc_index_CWorldMapMissionSelect_PaintBackground;
 
-	//void* (__fastcall* CClientMOTD_ctor)(void* pthis, int, void* parent);
-	//void (__fastcall* CClientMOTD_PerformLayout)(void* pthis, int dummy);
-	//void (__fastcall* CClientMOTD_ApplySettings)(void* pthis, int dummy, void* inResourceData);
-	//void** CClientMOTD_vftable;
+    //void* (__fastcall* CClientMOTD_ctor)(void* pthis, int, void* parent);
+    //void (__fastcall* CClientMOTD_PerformLayout)(void* pthis, int dummy);
+    //void (__fastcall* CClientMOTD_ApplySettings)(void* pthis, int dummy, void* inResourceData);
+    //void** CClientMOTD_vftable;
 
-	void* (__fastcall* CSBuyMenu_ctor)(void* pthis, int, void* parent);
-	void (__fastcall* CSBuyMenu_Activate)(void* pthis, int);
-	void** CSBuyMenu_vftable;
+    void*(__fastcall* CSBuyMenu_ctor)(void* pthis, int, void* parent);
+    void(__fastcall* CSBuyMenu_Activate)(void* pthis, int);
+    void** CSBuyMenu_vftable;
 
-	//void* (__fastcall* CBuySubMenu_ctor)(void* pthis, int, void* parent);
-	//void(__fastcall* CBuySubMenu_OnDisplay)(void* pthis, int);
-	//void** CBuySubMenu_vftable;
+    //void* (__fastcall* CBuySubMenu_ctor)(void* pthis, int, void* parent);
+    //void(__fastcall* CBuySubMenu_OnDisplay)(void* pthis, int);
+    //void** CBuySubMenu_vftable;
 
-	//ServerBrowser
-	void(__fastcall* ServerBrowser_Panel_Init)(void* pthis, int dummy, int x, int y, int w, int h);
-	void(__fastcall* ServerBrowser_LoadControlSettings)(void* pthis, int dummy, const char* controlResourceName, const char* pathID);
-	//void(__fastcall* ServerBrowser_LoadControlSettingsAndUserConfig)(void* pthis, int dummy, const char* dialogResourceName, int dialogID);
-	//void* (__fastcall* ServerBrowser_KeyValues_ctor)(void* pthis, int dummy, const char* name);
-	//void (__fastcall* CBaseGamesPage_OnButtonToggled)(void* pthis, int dummy, void* a2, int state);
-	void(__fastcall* ServerBrowser_Panel_SetSize)(void* pthis, int dummy, int width, int height);
-	void(__fastcall* ServerBrowser_Panel_SetMinimumSize)(void* pthis, int dummy, int width, int height);
-	bool(__fastcall* ServerBrowser_KeyValues_LoadFromFile)(void* pthis, int dummy, IFileSystem* pFileSystem, const char* resourceName, const char* pathId);
-	//void* (__fastcall* CServerBrowserDialog_ctor)(void* pthis, int dummy, void* parent);
-	//GameUI
-	void(__fastcall* GameUI_Panel_Init)(void* pthis, int dummy, int x, int y, int w, int h);
-	void* (__fastcall* GameUI_Panel_GetChild)(void* pthis, int dummy, int index);
-	void(__fastcall* GameUI_LoadControlSettings)(void* pthis, int dummy, const char* controlResourceName, const char* pathID);
-	void(__fastcall* GameUI_LoadControlSettingsAndUserConfig)(void* pthis, int dummy, const char* dialogResourceName, int dialogID);
-	bool(__fastcall* GameUI_KeyValues_LoadFromFile)(void* pthis, int dummy, IFileSystem* pFileSystem, const char* resourceName, const char* pathId);
-	void(__fastcall* GameUI_Panel_SetSize)(void* pthis, int dummy, int width, int height);
-	void(__fastcall* GameUI_Panel_SetBounds)(void* pthis, int dummy, int x, int y, int width, int height);
-	void(__fastcall* GameUI_Panel_SetMinimumSize)(void* pthis, int dummy, int width, int height);
-	void(__fastcall* GameUI_Menu_MakeItemsVisibleInScrollRange)(void* pthis, int dummy);
-	int offset_Menu_m_pScroller;
-	int offset_PropertyDialog_propertySheet;
-	int offset_PropertySheet_activePage;
-	int offset_FocusNavGroup_currentFocus;
-	void *(__fastcall*MessageBox_ctor)(void* pthis, int dummy, const char *title, const char *text, void *parent);
-	void (__fastcall*MessageBox_ApplySchemeSettings)(void* pthis, int dummy, void *pScheme);
-	void *(__fastcall*CCreateMultiplayerGameDialog_ctor)(void* pthis, int dummy, void* parent);
-	void *(__fastcall*CGameConsoleDialog_ctor)(void* pthis, int dummy);
-	void *(__fastcall*COptionsDialog_ctor)(void *pthis, int dummy, void *parent);
+    //ServerBrowser
+    void(__fastcall* ServerBrowser_Panel_Init)(void* pthis, int dummy, int x, int y, int w, int h);
+    void(__fastcall* ServerBrowser_LoadControlSettings)(void* pthis, int dummy, const char* controlResourceName, const char* pathID);
+    //void(__fastcall* ServerBrowser_LoadControlSettingsAndUserConfig)(void* pthis, int dummy, const char* dialogResourceName, int dialogID);
+    //void* (__fastcall* ServerBrowser_KeyValues_ctor)(void* pthis, int dummy, const char* name);
+    //void (__fastcall* CBaseGamesPage_OnButtonToggled)(void* pthis, int dummy, void* a2, int state);
+    void(__fastcall* ServerBrowser_Panel_SetSize)(void* pthis, int dummy, int width, int height);
+    void(__fastcall* ServerBrowser_Panel_SetMinimumSize)(void* pthis, int dummy, int width, int height);
+    bool(__fastcall* ServerBrowser_KeyValues_LoadFromFile)(void* pthis, int dummy, IFileSystem* pFileSystem, const char* resourceName, const char* pathId);
+    //void* (__fastcall* CServerBrowserDialog_ctor)(void* pthis, int dummy, void* parent);
+    //GameUI
+    void(__fastcall* GameUI_Panel_Init)(void* pthis, int dummy, int x, int y, int w, int h);
+    void*(__fastcall* GameUI_Panel_GetChild)(void* pthis, int dummy, int index);
+    void(__fastcall* GameUI_LoadControlSettings)(void* pthis, int dummy, const char* controlResourceName, const char* pathID);
+    void(__fastcall* GameUI_LoadControlSettingsAndUserConfig)(void* pthis, int dummy, const char* dialogResourceName, int dialogID);
+    bool(__fastcall* GameUI_KeyValues_LoadFromFile)(void* pthis, int dummy, IFileSystem* pFileSystem, const char* resourceName, const char* pathId);
+    void(__fastcall* GameUI_Panel_SetSize)(void* pthis, int dummy, int width, int height);
+    void(__fastcall* GameUI_Panel_SetBounds)(void* pthis, int dummy, int x, int y, int width, int height);
+    void(__fastcall* GameUI_Panel_SetMinimumSize)(void* pthis, int dummy, int width, int height);
+    void(__fastcall* GameUI_Menu_MakeItemsVisibleInScrollRange)(void* pthis, int dummy);
+    int offset_Menu_m_pScroller;
+    int offset_PropertyDialog_propertySheet;
+    int offset_PropertySheet_activePage;
+    int offset_FocusNavGroup_currentFocus;
+    void*(__fastcall* MessageBox_ctor)(void* pthis, int dummy, const char* title, const char* text, void* parent);
+    void(__fastcall* MessageBox_ApplySchemeSettings)(void* pthis, int dummy, void* pScheme);
+    void*(__fastcall* CCreateMultiplayerGameDialog_ctor)(void* pthis, int dummy, void* parent);
+    void*(__fastcall* CGameConsoleDialog_ctor)(void* pthis, int dummy);
+    void*(__fastcall* COptionsDialog_ctor)(void* pthis, int dummy, void* parent);
 
-	void *(__fastcall*COptionsSubVideo_ctor)(void *pthis, int dummy, void *parent);
-	void(__fastcall* COptionsSubVideo_OnApplyChanges)(void* pthis, int dummy);
+    void*(__fastcall* COptionsSubVideo_ctor)(void* pthis, int dummy, void* parent);
+    void(__fastcall* COptionsSubVideo_OnApplyChanges)(void* pthis, int dummy);
 
-	void *(__fastcall*COptionsSubAudio_ctor)(void *pthis, int dummy, void *parent);
-	void(__fastcall* COptionsSubAudio_OnApplyChanges)(void* pthis, int dummy);
+    void*(__fastcall* COptionsSubAudio_ctor)(void* pthis, int dummy, void* parent);
+    void(__fastcall* COptionsSubAudio_OnApplyChanges)(void* pthis, int dummy);
 
-	void* (__fastcall*COptionsSubMultiplayer_ctor)(void* pthis, int dummy, void* parent);
-	void (__fastcall* COptionsSubMultiplayer_OnApplyChanges)(void* pthis, int dummy);
+    void*(__fastcall* COptionsSubMultiplayer_ctor)(void* pthis, int dummy, void* parent);
+    void(__fastcall* COptionsSubMultiplayer_OnApplyChanges)(void* pthis, int dummy);
 
-	void(__fastcall *COptionsSubVideo_ApplyVidSettings)(void *pthis, int dummy, bool bForceRestart);
+    void(__fastcall* COptionsSubVideo_ApplyVidSettings)(void* pthis, int dummy, bool bForceRestart);
 
-	void*(__fastcall*CTaskBar_ctor)(void* pthis, int dummy, void* parent, const char* panelName);
-	void(__fastcall* CTaskBar_OnCommand)(void* pthis, int dummy, const char* command);
-	void(__fastcall* CTaskBar_CreateGameMenu)(void* pthis, int dummy);
+    void*(__fastcall* CTaskBar_ctor)(void* pthis, int dummy, void* parent, const char* panelName);
+    void(__fastcall* CTaskBar_OnCommand)(void* pthis, int dummy, const char* command);
+    void(__fastcall* CTaskBar_CreateGameMenu)(void* pthis, int dummy);
 
-	void* (__fastcall* CBasePanel_ctor)(void* pthis, int dummy);
-	void(__fastcall* CBasePanel_ApplySchemeSettings)(void* pthis, int dummy, void* pScheme);
+    void*(__fastcall* CBasePanel_ctor)(void* pthis, int dummy);
+    void(__fastcall* CBasePanel_ApplySchemeSettings)(void* pthis, int dummy, void* pScheme);
 
-	void(__fastcall* GameUI_PropertySheet_PerformLayout)(void* pthis, int dummy);
-	void* (__fastcall *GameUI_PropertySheet_HasHotkey)(void* pthis, int dummy, wchar_t key);
-	void* (__fastcall *GameUI_FocusNavGroup_GetCurrentFocus)(void* pthis, int dummy);
+    void(__fastcall* GameUI_PropertySheet_PerformLayout)(void* pthis, int dummy);
+    void*(__fastcall* GameUI_PropertySheet_HasHotkey)(void* pthis, int dummy, wchar_t key);
+    void*(__fastcall* GameUI_FocusNavGroup_GetCurrentFocus)(void* pthis, int dummy);
 
-	//vgui2::PropertySheet vtable slots read by the Options-dialog proxy callback.
-	//Resolved once in GameUI_FillAddress_PropertySheet instead of at each call.
-	int vfunc_index_PropertySheet_AddPage;
-	int vfunc_index_PropertySheet_SetActivePage;
-	int vfunc_index_PropertySheet_SetTabWidth;
-	int vfunc_index_PropertySheet_GetActivePage;
-	int vfunc_index_PropertySheet_ResetAllData;
-	int vfunc_index_PropertySheet_ApplyChanges;
-	int vfunc_index_PropertySheet_GetPage;
-	int vfunc_index_PropertySheet_DeletePage;
-	int vfunc_index_PropertySheet_GetActiveTab;
-	int vfunc_index_PropertySheet_GetActiveTabTitle;
-	int vfunc_index_PropertySheet_GetTabTitle;
-	int vfunc_index_PropertySheet_GetActivePageNum;
-	int vfunc_index_PropertySheet_GetNumPages;
-	int vfunc_index_PropertySheet_DisablePage;
-	int vfunc_index_PropertySheet_EnablePage;
-	int vfunc_index_PropertySheet_ChangeActiveTab;
+    //vgui2::PropertySheet vtable slots read by the Options-dialog proxy callback.
+    //Resolved once in GameUI_FillAddress_PropertySheet instead of at each call.
+    int vfunc_index_PropertySheet_AddPage;
+    int vfunc_index_PropertySheet_SetActivePage;
+    int vfunc_index_PropertySheet_SetTabWidth;
+    int vfunc_index_PropertySheet_GetActivePage;
+    int vfunc_index_PropertySheet_ResetAllData;
+    int vfunc_index_PropertySheet_ApplyChanges;
+    int vfunc_index_PropertySheet_GetPage;
+    int vfunc_index_PropertySheet_DeletePage;
+    int vfunc_index_PropertySheet_GetActiveTab;
+    int vfunc_index_PropertySheet_GetActiveTabTitle;
+    int vfunc_index_PropertySheet_GetTabTitle;
+    int vfunc_index_PropertySheet_GetActivePageNum;
+    int vfunc_index_PropertySheet_GetNumPages;
+    int vfunc_index_PropertySheet_DisablePage;
+    int vfunc_index_PropertySheet_EnablePage;
+    int vfunc_index_PropertySheet_ChangeActiveTab;
 
-	void(__fastcall* GameUI_RichText_InsertStringW)(void* pthis, int dummy, const wchar_t* msg);
-	void(__fastcall* GameUI_RichText_InsertChar)(void* pthis, int dummy, wchar_t ch);
-	void (__fastcall* GameUI_RichText_OnThink)(void* pthis, int dummy);//virtual 0x158
+    void(__fastcall* GameUI_RichText_InsertStringW)(void* pthis, int dummy, const wchar_t* msg);
+    void(__fastcall* GameUI_RichText_InsertChar)(void* pthis, int dummy, wchar_t ch);
+    void(__fastcall* GameUI_RichText_OnThink)(void* pthis, int dummy); //virtual 0x158
 
-	void (__fastcall* GameUI_TextEntry_LayoutVerticalScrollBarSlider)(void* pthis, int dummy);//virtual 0x2C0
-	void (__fastcall* GameUI_TextEntry_OnKeyCodeTyped)(void* pthis, int dummy, int code);//virtual 0x194
-	int  (__fastcall* GameUI_TextEntry_GetStartDrawIndex)(void* pthis, int dummy, int& lineBreakIndexIndex);//virtual 0x2F8
-	//void (__fastcall* TextEntry_InsertChar)(void* pthis, int dummy, wchar_t ch);//virtual 0x250
+    void(__fastcall* GameUI_TextEntry_LayoutVerticalScrollBarSlider)(void* pthis, int dummy);              //virtual 0x2C0
+    void(__fastcall* GameUI_TextEntry_OnKeyCodeTyped)(void* pthis, int dummy, int code);                   //virtual 0x194
+    int(__fastcall* GameUI_TextEntry_GetStartDrawIndex)(void* pthis, int dummy, int& lineBreakIndexIndex); //virtual 0x2F8
+    //void (__fastcall* TextEntry_InsertChar)(void* pthis, int dummy, wchar_t ch);//virtual 0x250
 
-	void* (__fastcall* CCareerProfileFrame_ctor)(void* pthis, int dummy, void* parent);
-	void* (__fastcall* CCareerMapFrame_ctor)(void* pthis, int dummy, void* parent);
-	void* (__fastcall* CCareerBotFrame_ctor)(void* pthis, int dummy, void* parent);
+    void*(__fastcall* CCareerProfileFrame_ctor)(void* pthis, int dummy, void* parent);
+    void*(__fastcall* CCareerMapFrame_ctor)(void* pthis, int dummy, void* parent);
+    void*(__fastcall* CCareerBotFrame_ctor)(void* pthis, int dummy, void* parent);
 
 
-	//SDL2
-	void (__cdecl*SDL_GetWindowPosition)(void* window, int* x, int* y);
-	void (__cdecl*SDL_GetWindowSize)(void* window, int* w, int* h);
-	int (__cdecl*SDL_GetDisplayDPI)(int displayIndex, float* ddpi, float* hdpi, float* vdpi);
-	void*(__cdecl*SDL_GetWindowFromID)(int id);
-	int (__cdecl*SDL_GetWindowWMInfo)(void* window, void* info);
-	void* (__cdecl*SDL_GL_GetCurrentWindow)(void);
-}private_funcs_t;
+    //SDL2
+    void(__cdecl* SDL_GetWindowPosition)(void* window, int* x, int* y);
+    void(__cdecl* SDL_GetWindowSize)(void* window, int* w, int* h);
+    int(__cdecl* SDL_GetDisplayDPI)(int displayIndex, float* ddpi, float* hdpi, float* vdpi);
+    void*(__cdecl* SDL_GetWindowFromID)(int id);
+    int(__cdecl* SDL_GetWindowWMInfo)(void* window, void* info);
+    void*(__cdecl* SDL_GL_GetCurrentWindow)(void);
+} private_funcs_t;
 
-extern void *GameViewport;
-extern int *g_iVisibleMouse;
-extern void *gHud;
+extern void* GameViewport;
+extern int*  g_iVisibleMouse;
+extern void* gHud;
 
-extern double *cl_time;
-extern double *cl_oldtime;
+extern double* cl_time;
+extern double* cl_oldtime;
 extern double* realtime;
 
-extern int *cl_viewentity;
+extern int* cl_viewentity;
 
-extern vec3_t *listener_origin;
+extern vec3_t* listener_origin;
 
 //extern char(*s_pBaseDir)[512];
 extern quakeparms_t* host_parms;
@@ -202,16 +200,16 @@ extern char m_szCurrentGameLanguage[128];
 //VGUI1 engineSurfaceWrapper
 extern void* staticEngineSurface;
 
-extern void** (*pmainwindow);
+extern void**(*pmainwindow);
 
 extern private_funcs_t gPrivateFuncs;
 
 const char* GetCurrentGameLanguage();
 
-extern HMODULE g_hGameUI;
-extern HMODULE g_hServerBrowser;
-extern HMODULE g_hVGUI2;
-extern bool g_bIsServerBrowserHooked;
+extern HMODULE       g_hGameUI;
+extern HMODULE       g_hServerBrowser;
+extern HMODULE       g_hVGUI2;
+extern bool          g_bIsServerBrowserHooked;
 extern mh_dll_info_t g_GameUIDllInfo;
 extern mh_dll_info_t g_ServerBrowserDllInfo;
 extern mh_dll_info_t g_VGUI2DllInfo;

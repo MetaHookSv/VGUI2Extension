@@ -5,13 +5,14 @@
 #include <string>
 
 #define DEFINE_VGUI2EXTENSION_INTERNAL_CALLBACK_SIMPLE(name, ...) virtual void name(__VA_ARGS__) = 0;
-#define DEFINE_VGUI2EXTENSION_INTERNAL_CALLBACK(name, ...)  virtual void name(__VA_ARGS__, VGUI2Extension_CallbackContext* CallbackContext) = 0;
-#define DEFINE_VGUI2EXTENSION_INTERNAL_CALLBACK_NOARG(name)  virtual void name(VGUI2Extension_CallbackContext* CallbackContext) = 0;
+#define DEFINE_VGUI2EXTENSION_INTERNAL_CALLBACK(name, ...)        virtual void name(__VA_ARGS__, VGUI2Extension_CallbackContext* CallbackContext) = 0;
+#define DEFINE_VGUI2EXTENSION_INTERNAL_CALLBACK_NOARG(name)       virtual void name(VGUI2Extension_CallbackContext* CallbackContext) = 0;
 
 class CVGUI2Extension_String : public IVGUI2Extension_String
 {
 private:
     std::string m_str;
+
 public:
     const char* c_str() const override
     {
@@ -55,7 +56,7 @@ public:
     DEFINE_VGUI2EXTENSION_INTERNAL_CALLBACK_SIMPLE(BaseUI_Shutdown);
     DEFINE_VGUI2EXTENSION_INTERNAL_CALLBACK(BaseUI_Key_Event, int& down, int& keynum, const char*& pszCurrentBinding);
     DEFINE_VGUI2EXTENSION_INTERNAL_CALLBACK(BaseUI_CallEngineSurfaceAppProc, void*& pevent, void*& userData);
-    DEFINE_VGUI2EXTENSION_INTERNAL_CALLBACK(BaseUI_CallEngineSurfaceWndProc, void*& hwnd, unsigned int &msg, unsigned int& wparam, long& lparam);
+    DEFINE_VGUI2EXTENSION_INTERNAL_CALLBACK(BaseUI_CallEngineSurfaceWndProc, void*& hwnd, unsigned int& msg, unsigned int& wparam, long& lparam);
     DEFINE_VGUI2EXTENSION_INTERNAL_CALLBACK(BaseUI_Paint, int& x, int& y, int& right, int& bottom);
     DEFINE_VGUI2EXTENSION_INTERNAL_CALLBACK_NOARG(BaseUI_HideGameUI);
     DEFINE_VGUI2EXTENSION_INTERNAL_CALLBACK_NOARG(BaseUI_ActivateGameUI);
@@ -84,14 +85,14 @@ public:
     DEFINE_VGUI2EXTENSION_INTERNAL_CALLBACK(GameUI_SetSecondaryProgressBar, float& progress);
     DEFINE_VGUI2EXTENSION_INTERNAL_CALLBACK(GameUI_SetSecondaryProgressBarText, const char*& statusText);
 
-    virtual const char *GameUI_GetControlModuleName(int i) const = 0;
-    virtual int GameUI_GetCallbackCount() const = 0;
+    virtual const char* GameUI_GetControlModuleName(int i) const = 0;
+    virtual int         GameUI_GetCallbackCount() const          = 0;
 
     DEFINE_VGUI2EXTENSION_INTERNAL_CALLBACK_SIMPLE(GameUI_COptionsDialog_ctor, IGameUIOptionsDialogCtorCallbackContext* CallbackContext);
     DEFINE_VGUI2EXTENSION_INTERNAL_CALLBACK(GameUI_COptionsSubVideo_ApplyVidSettings, void*& pPanel, bool& bForceRestart);
 
     DEFINE_VGUI2EXTENSION_INTERNAL_CALLBACK_SIMPLE(GameUI_COptionsDialogSubPage_ctor, IGameUIOptionsDialogSubPageCtorCallbackContext* CallbackContext);
-    DEFINE_VGUI2EXTENSION_INTERNAL_CALLBACK(GameUI_COptionsSubPage_OnApplyChanges, void*& pPanel, const char *name);
+    DEFINE_VGUI2EXTENSION_INTERNAL_CALLBACK(GameUI_COptionsSubPage_OnApplyChanges, void*& pPanel, const char* name);
 
     DEFINE_VGUI2EXTENSION_INTERNAL_CALLBACK_SIMPLE(GameUI_CTaskBar_ctor, IGameUITaskBarCtorCallbackContext* CallbackContext);
     DEFINE_VGUI2EXTENSION_INTERNAL_CALLBACK(GameUI_CTaskBar_OnCommand, void*& pPanel, const char*& command);
