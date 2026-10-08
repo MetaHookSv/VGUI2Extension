@@ -262,10 +262,9 @@ void __fastcall GameUI_RichText_InsertStringW(void* pthis, int dummy, wchar_t* c
 
 		auto ws = wss.str();
 
-		if (ws.size())
-		{
-			gPrivateFuncs.GameUI_RichText_InsertStringW(pthis, 0, ws.c_str());
-		}
+		// CareerRichText inserts an empty string to recalculate its scrollbar after showing it.
+		// Preserve the original layout/repaint side effects even when filtering leaves no text.
+		gPrivateFuncs.GameUI_RichText_InsertStringW(pthis, 0, ws.c_str());
 
 		if ((*ch) == L'\r' || (*ch) == L'\0')
 			break;
