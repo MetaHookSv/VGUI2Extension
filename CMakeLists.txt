@@ -23,7 +23,9 @@ include(cmake/Dependencies.cmake)
 vgui2extension_prepare_dependencies()
 include("${VC_LTL_Root}/VC-LTL helper for cmake.cmake")
 include(cmake/Sources.cmake)
+include(cmake/SourceGroups.cmake)
 add_library(VGUI2Extension SHARED ${VGUI2EXTENSION_SOURCES})
+vgui2extension_assign_source_groups(VGUI2Extension)
 target_compile_features(VGUI2Extension PRIVATE cxx_std_20)
 target_include_directories(VGUI2Extension PRIVATE
     src include/Interface include/Interface/VGUI
