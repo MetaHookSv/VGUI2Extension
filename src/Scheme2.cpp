@@ -1246,7 +1246,13 @@ const char* CScheme::LookupSchemeSetting(const char* pchSetting)
     if (res >= 3)
         return pchSetting;
 
-    const char* colStr = m_pkvColors->GetString(pchSetting, NULL);
+    //GoldSrc schemes can use literal color names containing '/', for example
+    //CareerScheme's "Menu/BgColor". The string overload treats '/' as a path
+    //and would miss that override, falling back to the transparent ControlBG.
+    const char* colStr = m_pkvColors->GetString(KeyValuesSystem()->GetSymbolForString(pchSetting), NULL);
+
+    if (!colStr)
+        colStr = m_pkvColors->GetString(pchSetting, NULL);
 
     if (colStr)
         return colStr;

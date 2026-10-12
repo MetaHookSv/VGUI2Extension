@@ -47,6 +47,9 @@ static hook_t* g_phook_GameUI_Menu_MakeItemsVisibleInScrollRange      = NULL;
 static hook_t* g_phook_CCareerProfileFrame_ctor                       = NULL;
 static hook_t* g_phook_CCareerMapFrame_ctor                           = NULL;
 static hook_t* g_phook_CCareerBotFrame_ctor                           = NULL;
+static hook_t* g_phook_MissionPackMenu_PerformLayout                  = NULL;
+
+static void(__fastcall* g_pfnMissionPackMenu_PerformLayout)(vgui::Panel*, int) = NULL;
 
 //One VFTHook per IGameUI / IGameConsole slot installed by GameUI_InstallHooks;
 //kept so GameUI_UninstallHooks can UnHook them instead of leaving the proxy
@@ -490,6 +493,57 @@ GameUI control hooks
 ====================================================================
 */
 
+template <class T>
+static void LimitMissionPackMenuLines(vgui::Panel* panel, vgui::Panel* combo)
+{
+    auto* menu      = (T*)((PUCHAR)panel + gPrivateFuncs.offset_Menu_m_pScroller - offsetof(T, m_pScroller));
+    int   rowHeight = menu->m_iMenuItemHeight;
+    if (panel->IsProportional())
+        rowHeight = g_pVGuiSchemeManager2->GetProportionalScaledValue(rowHeight);
+
+    if (rowHeight <= 0)
+        return;
+
+    int workX, workY, workWide, workTall;
+    vgui::surface()->GetWorkspaceBounds(workX, workY, workWide, workTall);
+    int left, top, right, bottom;
+    panel->GetInset(left, top, right, bottom);
+
+    //Native ComboBox::DoClick opens the popup one pixel below the edit field.
+    constexpr int dropdownGap = 1;
+    int           popupX = 0, popupY = combo->GetTall() + dropdownGap;
+    combo->LocalToScreen(popupX, popupY);
+    const int availableHeight = workY + workTall - popupY - top - bottom;
+    const int visibleLines    = max(1, availableHeight / rowHeight);
+
+    //The career frame passes the total pack count as the visible-line limit.
+    //Recompute it before native layout decides whether to add its scrollbar.
+    menu->m_iNumVisibleLines = min(max(1, menu->m_SortedItems.Count()), visibleLines);
+}
+
+static void __fastcall MissionPackMenu_PerformLayout(vgui::Panel* panel, int dummy)
+{
+    auto*      combo             = panel->GetParent();
+    const bool isMissionPackMenu = combo && !strcmp(combo->GetName(), "ComboBoxMissionPack");
+    if (isMissionPackMenu)
+    {
+        if (g_iEngineType == ENGINE_GOLDSRC_HL25)
+            LimitMissionPackMenuLines<CMenu_HL25>(panel, combo);
+        else
+            LimitMissionPackMenuLines<CMenu_Legacy>(panel, combo);
+    }
+    g_pfnMissionPackMenu_PerformLayout(panel, dummy);
+
+    //Native Menu layout disables its scrollbar. Mission packs need a draggable
+    //slider as well as the menu's wheel/keyboard navigation.
+    if (isMissionPackMenu)
+    {
+        auto* scroller = panel->FindChildByName("MenuScrollBar");
+        if (scroller && scroller->IsVisible())
+            scroller->SetEnabled(true);
+    }
+}
+
 void* __fastcall CCareerProfileFrame_ctor(vgui::Panel* pthis, int dummy, void* parent)
 {
     bool bOriginal = vgui::surface()->IsForcingHDProportional();
@@ -498,6 +552,29 @@ void* __fastcall CCareerProfileFrame_ctor(vgui::Panel* pthis, int dummy, void* p
     auto r = gPrivateFuncs.CCareerProfileFrame_ctor(pthis, dummy, parent);
 
     vgui::surface()->SetForcingHDProportional(bOriginal);
+
+    if (!g_phook_MissionPackMenu_PerformLayout)
+    {
+        auto* combo = pthis->FindChildByName("ComboBoxMissionPack");
+        if (combo)
+        {
+            for (int i = 0; i < combo->GetChildCount(); ++i)
+            {
+                auto* child = combo->GetChild(i);
+                if (!strcmp(child->GetClassName(), "Menu"))
+                {
+                    //PerformLayout is a shared Panel virtual slot. This existing
+                    //catalog entry supplies its index without a new ABI constant.
+                    const int slot                        = GamedataResolveVFuncIndex(g_GameUIDllInfo.ImageBase, "gameui", "vgui2::PropertySheet::PerformLayout()");
+                    g_phook_MissionPackMenu_PerformLayout = g_pMetaHookAPI->VFTHookEx(
+                        *(PVOID**)child, slot, MissionPackMenu_PerformLayout, (void**)&g_pfnMissionPackMenu_PerformLayout);
+                    if (!g_phook_MissionPackMenu_PerformLayout)
+                        Sys_Error("Could not hook mission-pack menu layout.");
+                    break;
+                }
+            }
+        }
+    }
 
     return r;
 }
@@ -2752,6 +2829,9 @@ void GameUI_InstallHooks(void)
 void GameUI_UninstallHooks(void)
 {
     VGUI2ExtensionInternal()->UnregisterKeyValuesCallbacks(&s_ContentControlKeyValuesCallbacks);
+
+    Uninstall_Hook(MissionPackMenu_PerformLayout);
+    g_pfnMissionPackMenu_PerformLayout = NULL;
 
     Uninstall_Hook(GameUI_Panel_Init);
     Uninstall_Hook(CGameConsoleDialog_ctor);
