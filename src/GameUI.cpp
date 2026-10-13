@@ -2586,7 +2586,7 @@ void GameUI_FillAddress_Panel_Init(const mh_dll_info_t& RealDllInfo)
 
 int __fastcall GameUI_ComboBox_AddItemW(void* pthis, int dummy, const wchar_t* itemText, const void* userData)
 {
-    std::vector<char> caption;
+    std::string caption;
     if (!ConvertComboBoxItemToUTF8(itemText, caption))
     {
         Sys_Error("Could not convert GameUI ComboBox item text to UTF-8.");
@@ -2603,7 +2603,7 @@ int __fastcall GameUI_ComboBox_AddItemW(void* pthis, int dummy, const wchar_t* i
 
     //The menu takes ownership of the message; selected text must remain a WSTRING.
     auto message = new KeyValues("SetText", "text", itemText);
-    return addMenuItem(menu, 0, caption.data(), message, pthis, userData);
+    return addMenuItem(menu, 0, caption.c_str(), message, pthis, userData);
 }
 
 void GameUI_FillAddress_ComboBox(const mh_dll_info_t& RealDllInfo)

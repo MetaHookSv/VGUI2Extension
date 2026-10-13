@@ -6,15 +6,15 @@
 
 int main()
 {
-    std::vector<char> output;
+    std::string output;
     assert(ConvertComboBoxItemToUTF8(L"  \u96f6\u70b9\u884c\u52a8", output));
-    assert(15 == output.size());
-    assert(0 == std::strcmp("  \xe9\x9b\xb6\xe7\x82\xb9\xe8\xa1\x8c\xe5\x8a\xa8", output.data()));
+    assert(14 == output.size());
+    assert(0 == std::strcmp("  \xe9\x9b\xb6\xe7\x82\xb9\xe8\xa1\x8c\xe5\x8a\xa8", output.c_str()));
 
     assert(ConvertComboBoxItemToUTF8(L"ASCII", output));
-    assert(0 == std::strcmp("ASCII", output.data()));
+    assert("ASCII" == output);
     assert(ConvertComboBoxItemToUTF8(L"", output));
-    assert(1 == output.size() && '\0' == output[0]);
+    assert(output.empty() && '\0' == output.c_str()[0]);
 
     const std::wstring longText(512, L'\u96f6');
     assert(ConvertComboBoxItemToUTF8(longText.c_str(), output));
@@ -24,11 +24,11 @@ int main()
             result += "\xe9\x9b\xb6";
         return result;
     }();
-    assert(expected == output.data());
-    assert(expected.size() + 1 == output.size());
+    assert(expected == output);
+    assert(expected.size() == output.size());
 
     assert(ConvertComboBoxItemToUTF8(L"\U0001f600", output));
-    assert(0 == std::strcmp("\xf0\x9f\x98\x80", output.data()));
+    assert("\xf0\x9f\x98\x80" == output);
     assert(!ConvertComboBoxItemToUTF8(nullptr, output));
     assert(output.empty());
 }
