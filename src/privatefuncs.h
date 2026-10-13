@@ -106,6 +106,9 @@ typedef struct
     void(__fastcall* GameUI_Panel_SetBounds)(void* pthis, int dummy, int x, int y, int width, int height);
     void(__fastcall* GameUI_Panel_SetMinimumSize)(void* pthis, int dummy, int width, int height);
     void(__fastcall* GameUI_Menu_MakeItemsVisibleInScrollRange)(void* pthis, int dummy);
+    int(__fastcall* GameUI_ComboBox_AddItemW)(void* pthis, int dummy, const wchar_t* itemText, const void* userData);
+    int vfunc_index_ComboBox_GetMenu;
+    int vfunc_index_Menu_AddMenuItem;
     int offset_Menu_m_pScroller;
     int offset_PropertyDialog_propertySheet;
     int offset_PropertySheet_activePage;

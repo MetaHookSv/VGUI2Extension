@@ -38,20 +38,26 @@ resolve these hooks.
 
 ## GameSymbols inventory
 
+The GameUI wide-character `ComboBox::AddItem` hook requires the ComboBox/Menu
+records published in GoldSrc_VibeSignatures `v20261013a`. It allocates the exact UTF-8
+byte count (including the terminator), preserves the wide `SetText` message and user
+data, and calls `GetMenu` / four-argument `AddMenuItem` through catalog-resolved
+virtual slots. The client-module ComboBox implementation is not hooked.
+
 The declaration is [scripts/manifests/vgui2extension.json](../../scripts/manifests/vgui2extension.json).
 The list below follows its exact module, name and kind and has been checked against the
-source calls. It contains **93 explicit records** across 5 modules, including the
+source calls. It contains **98 explicit records** across 5 modules, including the
 initial `_0` records of **7 numbered patch sets**. Each numbered set can consume
-additional records; 93 is not the total size of every installed catalog.
+additional records; 98 is not the total size of every installed catalog.
 
 | Module | Explicit entries |
 | --- | ---: |
 | `engine` | 14 |
 | `client` | 15 |
-| `gameui` | 58 |
+| `gameui` | 63 |
 | `serverbrowser` | 5 |
 | `vgui2` | 1 |
-| Total | 93 |
+| Total | 98 |
 
 A GameSymbol is identified by its module and name. Identical names in `engine`, `client`,
 `gameui` and `serverbrowser` refer to separate records. Conditions below describe the
@@ -173,6 +179,11 @@ Source: [GameUI.cpp](../../src/GameUI.cpp).
 | `CTaskbar::CTaskbar(vgui2::Panel*, char const*)` | `function` | G2 |
 | `CTaskbar::OnCommand(char const*)` | `virtualFunction` | G2 |
 | `TabCatchingTextEntry::OnKeyCodeTyped(vgui2::KeyCode)` | `virtualFunction` | G2 |
+| `vgui2::ComboBox::AddItem(wchar_t const*, KeyValues const*)` | `virtualFunction` | G3 |
+| `vgui2::ComboBox::AddItem(wchar_t const*, vgui2::KeyValues const*)` | `virtualFunction` | G14 |
+| `vgui2::ComboBox::GetMenu()` | `virtualFunction` | G2 |
+| `vgui2::Menu::AddMenuItem(char const*, KeyValues*, vgui2::Panel*, KeyValues const*)` | `virtualFunction` | G3 |
+| `vgui2::Menu::AddMenuItem(char const*, vgui2::KeyValues*, vgui2::Panel*, vgui2::KeyValues const*)` | `virtualFunction` | G14 |
 | `vgui2::FocusNavGroup._currentFocus` | `structMember` | G2 |
 | `vgui2::FocusNavGroup::GetCurrentFocus()` | `virtualFunction` | G2 |
 | `vgui2::Menu.m_pScroller` | `structMember` | G2 |

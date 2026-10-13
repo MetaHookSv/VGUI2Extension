@@ -105,6 +105,7 @@
           "CTaskbar::CTaskbar(vgui2::Panel*, char const*)": "function",
           "CTaskbar::OnCommand(char const*)": "virtualFunction",
           "TabCatchingTextEntry::OnKeyCodeTyped(vgui2::KeyCode)": "virtualFunction",
+          "vgui2::ComboBox::GetMenu()": "virtualFunction",
           "vgui2::FocusNavGroup._currentFocus": "structMember",
           "vgui2::FocusNavGroup::GetCurrentFocus()": "virtualFunction",
           "vgui2::Menu.m_pScroller": "structMember",
@@ -160,7 +161,9 @@
       ],
       "symbols": {
         "gameui": {
-          "KeyValues::LoadFromFile(IFileSystem*, char const*, char const*)": "virtualFunction"
+          "KeyValues::LoadFromFile(IFileSystem*, char const*, char const*)": "virtualFunction",
+          "vgui2::ComboBox::AddItem(wchar_t const*, KeyValues const*)": "virtualFunction",
+          "vgui2::Menu::AddMenuItem(char const*, KeyValues*, vgui2::Panel*, KeyValues const*)": "virtualFunction"
         },
         "serverbrowser": {
           "KeyValues::LoadFromFile(IFileSystem*, char const*, char const*)": "virtualFunction"
@@ -339,7 +342,9 @@
       ],
       "symbols": {
         "gameui": {
-          "vgui2::KeyValues::LoadFromFile(IFileSystem*, char const*, char const*)": "virtualFunction"
+          "vgui2::KeyValues::LoadFromFile(IFileSystem*, char const*, char const*)": "virtualFunction",
+          "vgui2::ComboBox::AddItem(wchar_t const*, vgui2::KeyValues const*)": "virtualFunction",
+          "vgui2::Menu::AddMenuItem(char const*, vgui2::KeyValues*, vgui2::Panel*, vgui2::KeyValues const*)": "virtualFunction"
         },
         "serverbrowser": {
           "vgui2::KeyValues::LoadFromFile(IFileSystem*, char const*, char const*)": "virtualFunction"
