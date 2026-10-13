@@ -7,6 +7,7 @@
 #include <vgui/IClientPanel.h>
 #include <vgui_controls/Panel.h>
 #include <vgui_controls/Menu.h>
+#include <KeyValues.h>
 #include <set>
 #include <sstream>
 #include <vector>
@@ -15,6 +16,7 @@
 #include "privatefuncs.h"
 #include "DpiManagerInternal.h"
 #include "VGUI2ExtensionInternal.h"
+#include "ComboBoxUnicode.h"
 
 static hook_t* g_phook_ServerBrowser_Panel_Init                       = NULL;
 static hook_t* g_phook_ServerBrowser_KeyValues_LoadFromFile           = NULL;
@@ -48,6 +50,7 @@ static hook_t* g_phook_CCareerProfileFrame_ctor                       = NULL;
 static hook_t* g_phook_CCareerMapFrame_ctor                           = NULL;
 static hook_t* g_phook_CCareerBotFrame_ctor                           = NULL;
 static hook_t* g_phook_MissionPackMenu_PerformLayout                  = NULL;
+static hook_t* g_phook_GameUI_ComboBox_AddItemW                       = NULL;
 
 static void(__fastcall* g_pfnMissionPackMenu_PerformLayout)(vgui::Panel*, int) = NULL;
 
@@ -2581,6 +2584,44 @@ void GameUI_FillAddress_Panel_Init(const mh_dll_info_t& RealDllInfo)
         GamedataResolvePtr(RealDllInfo.ImageBase, "gameui", "vgui2::Panel::Init(int, int, int, int)", MH_GAMESYMBOL_KIND_FUNCTION);
 }
 
+int __fastcall GameUI_ComboBox_AddItemW(void* pthis, int dummy, const wchar_t* itemText, const void* userData)
+{
+    std::vector<char> caption;
+    if (!ConvertComboBoxItemToUTF8(itemText, caption))
+    {
+        Sys_Error("Could not convert GameUI ComboBox item text to UTF-8.");
+        return 0;
+    }
+
+    //Dispatch through the native virtual slots, retaining overrides without assuming
+    //the SDK's ComboBox member layout or its vtable ordering.
+    const auto comboVtable = *(void***)pthis;
+    const auto getMenu     = (void*(__fastcall*)(void*, int))comboVtable[gPrivateFuncs.vfunc_index_ComboBox_GetMenu];
+    auto       menu        = getMenu(pthis, 0);
+    const auto menuVtable  = *(void***)menu;
+    const auto addMenuItem = (int(__fastcall*)(void*, int, const char*, KeyValues*, void*, const void*))menuVtable[gPrivateFuncs.vfunc_index_Menu_AddMenuItem];
+
+    //The menu takes ownership of the message; selected text must remain a WSTRING.
+    auto message = new KeyValues("SetText", "text", itemText);
+    return addMenuItem(menu, 0, caption.data(), message, pthis, userData);
+}
+
+void GameUI_FillAddress_ComboBox(const mh_dll_info_t& RealDllInfo)
+{
+    gPrivateFuncs.GameUI_ComboBox_AddItemW = (decltype(gPrivateFuncs.GameUI_ComboBox_AddItemW))
+        GamedataResolveIfAvailable(RealDllInfo.ImageBase, "gameui",
+                                   {"vgui2::ComboBox::AddItem(wchar_t const*, KeyValues const*)",
+                                    "vgui2::ComboBox::AddItem(wchar_t const*, vgui2::KeyValues const*)"},
+                                   MH_GAMESYMBOL_KIND_VIRTUAL_FUNCTION);
+    Sig_FuncNotFound(GameUI_ComboBox_AddItemW);
+
+    gPrivateFuncs.vfunc_index_ComboBox_GetMenu = GamedataResolveVFuncIndex(RealDllInfo.ImageBase, "gameui", "vgui2::ComboBox::GetMenu()");
+    const char* menuSymbol                     = "vgui2::Menu::AddMenuItem(char const*, KeyValues*, vgui2::Panel*, KeyValues const*)";
+    if (g_pMetaHookAPI->IsGameSymbolAvailable(RealDllInfo.ImageBase, menuSymbol) != MH_GAMESYMBOL_OK)
+        menuSymbol = "vgui2::Menu::AddMenuItem(char const*, vgui2::KeyValues*, vgui2::Panel*, vgui2::KeyValues const*)";
+    gPrivateFuncs.vfunc_index_Menu_AddMenuItem = GamedataResolveVFuncIndex(RealDllInfo.ImageBase, "gameui", menuSymbol);
+}
+
 void GameUI_FillAddress_Menu(const mh_dll_info_t& RealDllInfo)
 {
     gPrivateFuncs.offset_Menu_m_pScroller = GamedataResolveStructMember(RealDllInfo.ImageBase, "gameui", "vgui2::Menu.m_pScroller");
@@ -2639,6 +2680,7 @@ void GameUI_FillAddress(void)
     GameUI_FillAddress_Panel_Init(g_GameUIDllInfo);
 
     GameUI_FillAddress_Menu(g_GameUIDllInfo);
+    GameUI_FillAddress_ComboBox(g_GameUIDllInfo);
 }
 
 bool GameUI_HasExclusiveInput()
@@ -2754,6 +2796,9 @@ void GameUI_InstallHooks(void)
     }
 
     Install_InlineHook(COptionsDialog_ctor);
+    Install_InlineHook(GameUI_ComboBox_AddItemW);
+    if (!g_phook_GameUI_ComboBox_AddItemW)
+        Sys_Error("Could not install GameUI ComboBox::AddItem(wchar_t*) hook.");
     Install_InlineHook(COptionsSubVideo_ctor);
     Install_InlineHook(COptionsSubAudio_ctor);
     Install_InlineHook(COptionsSubMultiplayer_ctor);
@@ -2831,6 +2876,7 @@ void GameUI_UninstallHooks(void)
     VGUI2ExtensionInternal()->UnregisterKeyValuesCallbacks(&s_ContentControlKeyValuesCallbacks);
 
     Uninstall_Hook(MissionPackMenu_PerformLayout);
+    Uninstall_Hook(GameUI_ComboBox_AddItemW);
     g_pfnMissionPackMenu_PerformLayout = NULL;
 
     Uninstall_Hook(GameUI_Panel_Init);

@@ -34,19 +34,24 @@ hook 仍依赖 Legacy/HL25 中 `m_pScroller` 相邻成员的布局；PropertyShe
 
 ## GameSymbols 清单
 
+GameUI 宽字符 `ComboBox::AddItem` hook 需要 GoldSrc_VibeSignatures `v20261013a`
+发布的 ComboBox/Menu 记录。它按 UTF-8 实际字节数（含终止符）分配缓冲区，保留宽字符
+`SetText` 消息与 userData，并通过 catalog 中的虚函数槽位调用 `GetMenu` 和四参数
+`AddMenuItem`。本次不 hook client 模块的 ComboBox 实现。
+
 声明来源为 [scripts/manifests/vgui2extension.json](../../scripts/manifests/vgui2extension.json)。
 以下清单保留 manifest 中的完整 module、名称与 kind，并已对照源码调用核对。
-共 5 个 module、**93 条显式记录**，其中包含 **7 组连续编号补丁**的首条 `_0` 记录。
-每组编号补丁还可能消费后续记录，因此 93 不是每份安装 catalog 的记录总数。
+共 5 个 module、**98 条显式记录**，其中包含 **7 组连续编号补丁**的首条 `_0` 记录。
+每组编号补丁还可能消费后续记录，因此 98 不是每份安装 catalog 的记录总数。
 
 | Module | 显式记录数 |
 | --- | ---: |
 | `engine` | 14 |
 | `client` | 15 |
-| `gameui` | 58 |
+| `gameui` | 63 |
 | `serverbrowser` | 5 |
 | `vgui2` | 1 |
-| 合计 | 93 |
+| 合计 | 98 |
 
 GameSymbol 由 module 与名称共同定位。`engine`、`client`、`gameui`、`serverbrowser`
 中的同名符号是独立记录。下列条件表示 manifest 的 catalog 裁剪与校验范围；
@@ -165,6 +170,11 @@ GameSymbol 由 module 与名称共同定位。`engine`、`client`、`gameui`、`
 | `CTaskbar::CTaskbar(vgui2::Panel*, char const*)` | `function` | G2 |
 | `CTaskbar::OnCommand(char const*)` | `virtualFunction` | G2 |
 | `TabCatchingTextEntry::OnKeyCodeTyped(vgui2::KeyCode)` | `virtualFunction` | G2 |
+| `vgui2::ComboBox::AddItem(wchar_t const*, KeyValues const*)` | `virtualFunction` | G3 |
+| `vgui2::ComboBox::AddItem(wchar_t const*, vgui2::KeyValues const*)` | `virtualFunction` | G14 |
+| `vgui2::ComboBox::GetMenu()` | `virtualFunction` | G2 |
+| `vgui2::Menu::AddMenuItem(char const*, KeyValues*, vgui2::Panel*, KeyValues const*)` | `virtualFunction` | G3 |
+| `vgui2::Menu::AddMenuItem(char const*, vgui2::KeyValues*, vgui2::Panel*, vgui2::KeyValues const*)` | `virtualFunction` | G14 |
 | `vgui2::FocusNavGroup._currentFocus` | `structMember` | G2 |
 | `vgui2::FocusNavGroup::GetCurrentFocus()` | `virtualFunction` | G2 |
 | `vgui2::Menu.m_pScroller` | `structMember` | G2 |

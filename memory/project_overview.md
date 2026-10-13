@@ -127,10 +127,10 @@ All private symbols come from the host gamedata catalog through the helpers in `
   duplicates are optional), the GameUI panel sizing call sites and the MessageBox `SetSize` call
   site. Each of those addresses is resolved from the catalog, not searched for.
 - `scripts/manifests/vgui2extension.json` is the static consumption contract: 21 game versions,
-  93 explicit records across five modules (`engine` 14, `client` 15, `gameui` 58, `serverbrowser` 5,
+  98 explicit records across five modules (`engine` 14, `client` 15, `gameui` 63, `serverbrowser` 5,
   `vgui2` 1) plus the initial `_0` records of 7 numbered patch sets, with `symbolExemptions` and 19
   `conditionalGroups` carrying the per-game-version conditions. A numbered set can consume further
-  records, so 93 is not the size of every installed catalog. `docs/en/gamedata.md` and
+  records, so 98 is not the size of every installed catalog. `docs/en/gamedata.md` and
   `docs/zh-CN/gamedata.md` document the runtime requirements and the full inventory.
 - Host requirement: MetaHook must merge nested catalogs and provide API 115 or newer, with an API
   version at least as new as the SDK the plugin was built against.
