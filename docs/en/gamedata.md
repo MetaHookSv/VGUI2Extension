@@ -51,20 +51,30 @@ the cost text using the complete integer and `#Career_Cost`. The TextImage membe
 offset and wide SetText virtual slot come from gamedata; the native overload has
 no extra `bool` argument. Other games do not install this hook.
 
+The Condition Zero career player-name fix requires the five records published in
+GoldSrc_VibeSignatures `v20261016b`. It hooks the difficulty-box constructor and
+base-frame Activate, calls the originals first, then explicitly converts the full
+UTF-8 name cvar to Unicode and updates the Label through its catalog-resolved wide
+virtual slot. The frame retains the localized difficulty from the public
+`CareerUI001` interface. Member offsets come from gamedata, including the inherited
+`CCareerBaseBox.m_pTextLabel`; neither CRT locale nor a 31-byte temporary limits the
+replacement name. Invalid UTF-8 or missing localization leaves the original text.
+These hooks are installed only on `czero`.
+
 The declaration is [scripts/manifests/vgui2extension.json](../../scripts/manifests/vgui2extension.json).
 The list below follows its exact module, name and kind and has been checked against the
-source calls. It contains **102 explicit records** across 5 modules, including the
+source calls. It contains **107 explicit records** across 5 modules, including the
 initial `_0` records of **7 numbered patch sets**. Each numbered set can consume
-additional records; 102 is not the total size of every installed catalog.
+additional records; 107 is not the total size of every installed catalog.
 
 | Module | Explicit entries |
 | --- | ---: |
 | `engine` | 14 |
 | `client` | 15 |
-| `gameui` | 67 |
+| `gameui` | 72 |
 | `serverbrowser` | 5 |
 | `vgui2` | 1 |
-| Total | 102 |
+| Total | 107 |
 
 A GameSymbol is identified by its module and name. Identical names in `engine`, `client`,
 `gameui` and `serverbrowser` refer to separate records. Conditions below describe the
@@ -172,6 +182,11 @@ Source: [GameUI.cpp](../../src/GameUI.cpp).
 | `CCareerBotFrame::CCareerBotFrame(vgui2::Panel*)` | `function` | G1 |
 | `CBotButton::SetCharacter(CCareerCharacter const*)` | `function` | G1 |
 | `CBotButton.m_pText` | `structMember` | G1 |
+| `CCareerDifficultyBox::CCareerDifficultyBox(char const*, vgui2::Panel*)` | `function` | G1 |
+| `CCareerBaseFrame::Activate()` | `function` | G1 |
+| `CCareerBaseBox.m_pTextLabel` | `structMember` | G1 |
+| `CCareerBaseFrame.m_pPlayerName` | `structMember` | G1 |
+| `vgui2::Label::SetText(wchar_t const*)` | `virtualFunction` | G1 |
 | `CCareerCharacter::GetPoints() const` | `function` | G1 |
 | `vgui2::TextImage::SetText(wchar_t const*)` | `virtualFunction` | G1 |
 | `CCareerMapFrame::CCareerMapFrame(vgui2::Panel*)` | `function` | G1 |

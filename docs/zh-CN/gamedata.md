@@ -45,19 +45,26 @@ GameUI 宽字符 `ComboBox::AddItem` hook 需要 GoldSrc_VibeSignatures `v202610
 再以完整整数和 `#Career_Cost` 更新费用文字。TextImage 成员偏移与宽字符 SetText
 虚槽位均来自 gamedata；原生重载没有额外的 `bool` 参数。其他游戏不安装此 hook。
 
+任期模式的玩家名修复需要 GoldSrc_VibeSignatures `v20261016b` 发布的五项记录。
+仅在 `czero` 中 hook 难度框构造函数与基类 Activate：先调用原函数，再将完整的
+UTF-8 name cvar 显式转换成 Unicode，通过 gamedata 提供的宽字符 Label 虚槽位更新文字。
+标题保留从公开 `CareerUI001` 接口取得的当前难度及其本地化文本；两个成员偏移均由
+gamedata 提供，包含继承自 `CCareerBaseBox` 的 `m_pTextLabel`。替换文字不再依赖
+CRT locale，也不经过原有的 31 字节截断。无效 UTF-8 或缺失本地化时保留原文字。
+
 声明来源为 [scripts/manifests/vgui2extension.json](../../scripts/manifests/vgui2extension.json)。
 以下清单保留 manifest 中的完整 module、名称与 kind，并已对照源码调用核对。
-共 5 个 module、**102 条显式记录**，其中包含 **7 组连续编号补丁**的首条 `_0` 记录。
-每组编号补丁还可能消费后续记录，因此 102 不是每份安装 catalog 的记录总数。
+共 5 个 module、**107 条显式记录**，其中包含 **7 组连续编号补丁**的首条 `_0` 记录。
+每组编号补丁还可能消费后续记录，因此 107 不是每份安装 catalog 的记录总数。
 
 | Module | 显式记录数 |
 | --- | ---: |
 | `engine` | 14 |
 | `client` | 15 |
-| `gameui` | 67 |
+| `gameui` | 72 |
 | `serverbrowser` | 5 |
 | `vgui2` | 1 |
-| 合计 | 102 |
+| 合计 | 107 |
 
 GameSymbol 由 module 与名称共同定位。`engine`、`client`、`gameui`、`serverbrowser`
 中的同名符号是独立记录。下列条件表示 manifest 的 catalog 裁剪与校验范围；
@@ -162,6 +169,11 @@ GameSymbol 由 module 与名称共同定位。`engine`、`client`、`gameui`、`
 | `CCareerBotFrame::CCareerBotFrame(vgui2::Panel*)` | `function` | G1 |
 | `CBotButton::SetCharacter(CCareerCharacter const*)` | `function` | G1 |
 | `CBotButton.m_pText` | `structMember` | G1 |
+| `CCareerDifficultyBox::CCareerDifficultyBox(char const*, vgui2::Panel*)` | `function` | G1 |
+| `CCareerBaseFrame::Activate()` | `function` | G1 |
+| `CCareerBaseBox.m_pTextLabel` | `structMember` | G1 |
+| `CCareerBaseFrame.m_pPlayerName` | `structMember` | G1 |
+| `vgui2::Label::SetText(wchar_t const*)` | `virtualFunction` | G1 |
 | `CCareerCharacter::GetPoints() const` | `function` | G1 |
 | `vgui2::TextImage::SetText(wchar_t const*)` | `virtualFunction` | G1 |
 | `CCareerMapFrame::CCareerMapFrame(vgui2::Panel*)` | `function` | G1 |
