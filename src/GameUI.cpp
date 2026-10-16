@@ -2,6 +2,7 @@
 #include <cvardef.h>
 #include <IGameUI.h>
 #include <IGameConsole.h>
+#include <ICareerUI.h>
 #include <vgui/VGUI.h>
 #include <vgui/IPanel.h>
 #include <vgui/IClientPanel.h>
@@ -18,6 +19,7 @@
 #include "DpiManagerInternal.h"
 #include "VGUI2ExtensionInternal.h"
 #include "ComboBoxUnicode.h"
+#include "CareerPlayerName.h"
 
 static hook_t* g_phook_ServerBrowser_Panel_Init                       = NULL;
 static hook_t* g_phook_ServerBrowser_KeyValues_LoadFromFile           = NULL;
@@ -53,6 +55,10 @@ static hook_t* g_phook_CCareerBotFrame_ctor                           = NULL;
 static hook_t* g_phook_MissionPackMenu_PerformLayout                  = NULL;
 static hook_t* g_phook_GameUI_ComboBox_AddItemW                       = NULL;
 static hook_t* g_phook_CBotButton_SetCharacter                        = NULL;
+static hook_t* g_phook_CCareerDifficultyBox_ctor                      = NULL;
+static hook_t* g_phook_CCareerBaseFrame_Activate                      = NULL;
+
+static ICareerUI* g_pCareerUI = nullptr;
 
 static void(__fastcall* g_pfnMissionPackMenu_PerformLayout)(vgui::Panel*, int) = NULL;
 
@@ -2620,17 +2626,61 @@ void __fastcall CBotButton_SetCharacter(void* pthis, int dummy, const void* char
 
     //The original formats only GetPoints() % 10. Keep the complete integer and
     //the native localized caption, without changing the character's actual cost.
-    const auto           points = std::to_wstring(gPrivateFuncs.CCareerCharacter_GetPoints(character, 0));
-    std::vector<wchar_t> text(wcslen(format) + points.size() + 1);
+    const auto   points = std::to_wstring(gPrivateFuncs.CCareerCharacter_GetPoints(character, 0));
+    std::wstring text(wcslen(format) + points.size() + 1, L'\0');
     vgui::localize()->ConstructString(text.data(), static_cast<int>(text.size() * sizeof(wchar_t)), format, 1, points.c_str());
 
     const auto textImage = *(void**)((byte*)pthis + gPrivateFuncs.offset_CBotButton_m_pText);
     const auto vtable    = *(void***)textImage;
     //The native wide overload has no SDK-only clearUnlocalizedSymbol argument.
     const auto setText = (void(__fastcall*)(void*, int, const wchar_t*))vtable[gPrivateFuncs.vfunc_index_TextImage_SetTextW];
-    setText(textImage, 0, text.data());
+    setText(textImage, 0, text.c_str());
     //The original already invalidated the button's layout; it will measure the
     //replacement TextImage on the next layout pass.
+}
+
+static void SetCareerLabelText(void* owner, int memberOffset, const wchar_t* text)
+{
+    const auto label = *(void**)((byte*)owner + memberOffset);
+    if (!label)
+        return;
+
+    const auto vtable  = *(void***)label;
+    const auto setText = (void(__fastcall*)(void*, int, const wchar_t*))vtable[gPrivateFuncs.vfunc_index_Label_SetTextW];
+    setText(label, 0, text);
+}
+
+void* __fastcall CCareerDifficultyBox_ctor(void* pthis, int dummy, const char* panelName, void* parent)
+{
+    const auto   result = gPrivateFuncs.CCareerDifficultyBox_ctor(pthis, dummy, panelName, parent);
+    std::wstring text;
+    if (ConvertCareerPlayerNameToUnicode(gEngfuncs.pfnGetCvarString("name"), text))
+        SetCareerLabelText(pthis, gPrivateFuncs.offset_CCareerBaseBox_m_pTextLabel, text.c_str());
+    return result;
+}
+
+void __fastcall CCareerBaseFrame_Activate(void* pthis, int dummy)
+{
+    gPrivateFuncs.CCareerBaseFrame_Activate(pthis, dummy);
+
+    const auto   token = "#Cstrike_Bot_Difficulty" + std::to_string(static_cast<int>(g_pCareerUI->GetDifficulty()));
+    std::wstring text;
+    if (BuildCareerPlayerNameText(gEngfuncs.pfnGetCvarString("name"), vgui::localize()->Find(token.c_str()), text))
+        SetCareerLabelText(pthis, gPrivateFuncs.offset_CCareerBaseFrame_m_pPlayerName, text.c_str());
+}
+
+void GameUI_FillAddress_CareerPlayerName(const mh_dll_info_t& RealDllInfo)
+{
+    if (!g_bIsCZero)
+        return;
+
+    gPrivateFuncs.CCareerDifficultyBox_ctor = (decltype(gPrivateFuncs.CCareerDifficultyBox_ctor))
+        GamedataResolvePtr(RealDllInfo.ImageBase, "gameui", "CCareerDifficultyBox::CCareerDifficultyBox(char const*, vgui2::Panel*)", MH_GAMESYMBOL_KIND_FUNCTION);
+    gPrivateFuncs.CCareerBaseFrame_Activate = (decltype(gPrivateFuncs.CCareerBaseFrame_Activate))
+        GamedataResolvePtr(RealDllInfo.ImageBase, "gameui", "CCareerBaseFrame::Activate()", MH_GAMESYMBOL_KIND_FUNCTION);
+    gPrivateFuncs.offset_CCareerBaseBox_m_pTextLabel    = GamedataResolveStructMember(RealDllInfo.ImageBase, "gameui", "CCareerBaseBox.m_pTextLabel");
+    gPrivateFuncs.offset_CCareerBaseFrame_m_pPlayerName = GamedataResolveStructMember(RealDllInfo.ImageBase, "gameui", "CCareerBaseFrame.m_pPlayerName");
+    gPrivateFuncs.vfunc_index_Label_SetTextW            = GamedataResolveVFuncIndex(RealDllInfo.ImageBase, "gameui", "vgui2::Label::SetText(wchar_t const*)");
 }
 
 void GameUI_FillAddress_CBotButton(const mh_dll_info_t& RealDllInfo)
@@ -2722,6 +2772,7 @@ void GameUI_FillAddress(void)
     GameUI_FillAddress_Menu(g_GameUIDllInfo);
     GameUI_FillAddress_ComboBox(g_GameUIDllInfo);
     GameUI_FillAddress_CBotButton(g_GameUIDllInfo);
+    GameUI_FillAddress_CareerPlayerName(g_GameUIDllInfo);
 }
 
 bool GameUI_HasExclusiveInput()
@@ -2837,6 +2888,19 @@ void GameUI_InstallHooks(void)
     }
 
     Install_InlineHook(COptionsDialog_ctor);
+    if (gPrivateFuncs.CCareerDifficultyBox_ctor)
+    {
+        g_pCareerUI = (ICareerUI*)GameUICreateInterface(CAREERUI_INTERFACE_VERSION, nullptr);
+        if (!g_pCareerUI)
+        {
+            Sys_Error("Could not get CareerUI001 from GameUI.dll.");
+            return;
+        }
+        Install_InlineHook(CCareerDifficultyBox_ctor);
+        Install_InlineHook(CCareerBaseFrame_Activate);
+        if (!g_phook_CCareerDifficultyBox_ctor || !g_phook_CCareerBaseFrame_Activate)
+            Sys_Error("Could not install GameUI Career player-name hooks.");
+    }
     if (gPrivateFuncs.CBotButton_SetCharacter)
     {
         Install_InlineHook(CBotButton_SetCharacter);
@@ -2925,6 +2989,9 @@ void GameUI_UninstallHooks(void)
     Uninstall_Hook(MissionPackMenu_PerformLayout);
     Uninstall_Hook(GameUI_ComboBox_AddItemW);
     Uninstall_Hook(CBotButton_SetCharacter);
+    Uninstall_Hook(CCareerDifficultyBox_ctor);
+    Uninstall_Hook(CCareerBaseFrame_Activate);
+    g_pCareerUI                        = nullptr;
     g_pfnMissionPackMenu_PerformLayout = NULL;
 
     Uninstall_Hook(GameUI_Panel_Init);

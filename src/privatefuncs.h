@@ -111,6 +111,11 @@ typedef struct
     int(__fastcall* CCareerCharacter_GetPoints)(const void* pthis, int dummy);
     int offset_CBotButton_m_pText;
     int vfunc_index_TextImage_SetTextW;
+    void*(__fastcall* CCareerDifficultyBox_ctor)(void* pthis, int dummy, const char* panelName, void* parent);
+    void(__fastcall* CCareerBaseFrame_Activate)(void* pthis, int dummy);
+    int offset_CCareerBaseBox_m_pTextLabel;
+    int offset_CCareerBaseFrame_m_pPlayerName;
+    int vfunc_index_Label_SetTextW;
     int vfunc_index_ComboBox_GetMenu;
     int vfunc_index_Menu_AddMenuItem;
     int offset_Menu_m_pScroller;

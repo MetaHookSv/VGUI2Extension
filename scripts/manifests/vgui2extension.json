@@ -61,6 +61,11 @@
         "gameui": {
           "CBotButton::SetCharacter(CCareerCharacter const*)": "function",
           "CBotButton.m_pText": "structMember",
+          "CCareerDifficultyBox::CCareerDifficultyBox(char const*, vgui2::Panel*)": "function",
+          "CCareerBaseFrame::Activate()": "function",
+          "CCareerBaseBox.m_pTextLabel": "structMember",
+          "CCareerBaseFrame.m_pPlayerName": "structMember",
+          "vgui2::Label::SetText(wchar_t const*)": "virtualFunction",
           "CCareerCharacter::GetPoints() const": "function",
           "vgui2::TextImage::SetText(wchar_t const*)": "virtualFunction",
           "CCareerBotFrame::CCareerBotFrame(vgui2::Panel*)": "function",
