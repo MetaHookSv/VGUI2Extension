@@ -44,20 +44,27 @@ byte count (including the terminator), preserves the wide `SetText` message and 
 data, and calls `GetMenu` / four-argument `AddMenuItem` through catalog-resolved
 virtual slots. The client-module ComboBox implementation is not hooked.
 
+The Condition Zero career bot-cost fix requires the four records added by
+[GoldSrc_VibeSignatures #378](https://github.com/HLND2T/GoldSrc_VibeSignatures/pull/378).
+On `czero`, it calls the original `CBotButton::SetCharacter`, then replaces only
+the cost text using the complete integer and `#Career_Cost`. The TextImage member
+offset and wide SetText virtual slot come from gamedata; the native overload has
+no extra `bool` argument. Other games do not install this hook.
+
 The declaration is [scripts/manifests/vgui2extension.json](../../scripts/manifests/vgui2extension.json).
 The list below follows its exact module, name and kind and has been checked against the
-source calls. It contains **98 explicit records** across 5 modules, including the
+source calls. It contains **102 explicit records** across 5 modules, including the
 initial `_0` records of **7 numbered patch sets**. Each numbered set can consume
-additional records; 98 is not the total size of every installed catalog.
+additional records; 102 is not the total size of every installed catalog.
 
 | Module | Explicit entries |
 | --- | ---: |
 | `engine` | 14 |
 | `client` | 15 |
-| `gameui` | 63 |
+| `gameui` | 67 |
 | `serverbrowser` | 5 |
 | `vgui2` | 1 |
-| Total | 98 |
+| Total | 102 |
 
 A GameSymbol is identified by its module and name. Identical names in `engine`, `client`,
 `gameui` and `serverbrowser` refer to separate records. Conditions below describe the
@@ -163,6 +170,10 @@ Source: [GameUI.cpp](../../src/GameUI.cpp).
 | GameSymbol | Kind | Manifest condition |
 | --- | --- | --- |
 | `CCareerBotFrame::CCareerBotFrame(vgui2::Panel*)` | `function` | G1 |
+| `CBotButton::SetCharacter(CCareerCharacter const*)` | `function` | G1 |
+| `CBotButton.m_pText` | `structMember` | G1 |
+| `CCareerCharacter::GetPoints() const` | `function` | G1 |
+| `vgui2::TextImage::SetText(wchar_t const*)` | `virtualFunction` | G1 |
 | `CCareerMapFrame::CCareerMapFrame(vgui2::Panel*)` | `function` | G1 |
 | `CCareerProfileFrame::CCareerProfileFrame(vgui2::Panel*)` | `function` | G1 |
 | `CBasePanel::ApplySchemeSettings(vgui2::IScheme*)` | `virtualFunction` | G2 |

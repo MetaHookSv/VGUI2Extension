@@ -5,6 +5,7 @@
 #include <vgui/VGUI.h>
 #include <vgui/IPanel.h>
 #include <vgui/IClientPanel.h>
+#include <vgui/ILocalize.h>
 #include <vgui_controls/Panel.h>
 #include <vgui_controls/Menu.h>
 #include <KeyValues.h>
@@ -51,6 +52,7 @@ static hook_t* g_phook_CCareerMapFrame_ctor                           = NULL;
 static hook_t* g_phook_CCareerBotFrame_ctor                           = NULL;
 static hook_t* g_phook_MissionPackMenu_PerformLayout                  = NULL;
 static hook_t* g_phook_GameUI_ComboBox_AddItemW                       = NULL;
+static hook_t* g_phook_CBotButton_SetCharacter                        = NULL;
 
 static void(__fastcall* g_pfnMissionPackMenu_PerformLayout)(vgui::Panel*, int) = NULL;
 
@@ -2606,6 +2608,44 @@ int __fastcall GameUI_ComboBox_AddItemW(void* pthis, int dummy, const wchar_t* i
     return addMenuItem(menu, 0, caption.c_str(), message, pthis, userData);
 }
 
+void __fastcall CBotButton_SetCharacter(void* pthis, int dummy, const void* character)
+{
+    gPrivateFuncs.CBotButton_SetCharacter(pthis, dummy, character);
+    if (!character)
+        return;
+
+    const auto format = vgui::localize()->Find("#Career_Cost");
+    if (!format)
+        return;
+
+    //The original formats only GetPoints() % 10. Keep the complete integer and
+    //the native localized caption, without changing the character's actual cost.
+    const auto           points = std::to_wstring(gPrivateFuncs.CCareerCharacter_GetPoints(character, 0));
+    std::vector<wchar_t> text(wcslen(format) + points.size() + 1);
+    vgui::localize()->ConstructString(text.data(), static_cast<int>(text.size() * sizeof(wchar_t)), format, 1, points.c_str());
+
+    const auto textImage = *(void**)((byte*)pthis + gPrivateFuncs.offset_CBotButton_m_pText);
+    const auto vtable    = *(void***)textImage;
+    //The native wide overload has no SDK-only clearUnlocalizedSymbol argument.
+    const auto setText = (void(__fastcall*)(void*, int, const wchar_t*))vtable[gPrivateFuncs.vfunc_index_TextImage_SetTextW];
+    setText(textImage, 0, text.data());
+    //The original already invalidated the button's layout; it will measure the
+    //replacement TextImage on the next layout pass.
+}
+
+void GameUI_FillAddress_CBotButton(const mh_dll_info_t& RealDllInfo)
+{
+    if (!g_bIsCZero)
+        return;
+
+    gPrivateFuncs.CBotButton_SetCharacter = (decltype(gPrivateFuncs.CBotButton_SetCharacter))
+        GamedataResolvePtr(RealDllInfo.ImageBase, "gameui", "CBotButton::SetCharacter(CCareerCharacter const*)", MH_GAMESYMBOL_KIND_FUNCTION);
+    gPrivateFuncs.CCareerCharacter_GetPoints = (decltype(gPrivateFuncs.CCareerCharacter_GetPoints))
+        GamedataResolvePtr(RealDllInfo.ImageBase, "gameui", "CCareerCharacter::GetPoints() const", MH_GAMESYMBOL_KIND_FUNCTION);
+    gPrivateFuncs.offset_CBotButton_m_pText      = GamedataResolveStructMember(RealDllInfo.ImageBase, "gameui", "CBotButton.m_pText");
+    gPrivateFuncs.vfunc_index_TextImage_SetTextW = GamedataResolveVFuncIndex(RealDllInfo.ImageBase, "gameui", "vgui2::TextImage::SetText(wchar_t const*)");
+}
+
 void GameUI_FillAddress_ComboBox(const mh_dll_info_t& RealDllInfo)
 {
     gPrivateFuncs.GameUI_ComboBox_AddItemW = (decltype(gPrivateFuncs.GameUI_ComboBox_AddItemW))
@@ -2681,6 +2721,7 @@ void GameUI_FillAddress(void)
 
     GameUI_FillAddress_Menu(g_GameUIDllInfo);
     GameUI_FillAddress_ComboBox(g_GameUIDllInfo);
+    GameUI_FillAddress_CBotButton(g_GameUIDllInfo);
 }
 
 bool GameUI_HasExclusiveInput()
@@ -2796,6 +2837,12 @@ void GameUI_InstallHooks(void)
     }
 
     Install_InlineHook(COptionsDialog_ctor);
+    if (gPrivateFuncs.CBotButton_SetCharacter)
+    {
+        Install_InlineHook(CBotButton_SetCharacter);
+        if (!g_phook_CBotButton_SetCharacter)
+            Sys_Error("Could not install GameUI CBotButton::SetCharacter hook.");
+    }
     Install_InlineHook(GameUI_ComboBox_AddItemW);
     if (!g_phook_GameUI_ComboBox_AddItemW)
         Sys_Error("Could not install GameUI ComboBox::AddItem(wchar_t*) hook.");
@@ -2877,6 +2924,7 @@ void GameUI_UninstallHooks(void)
 
     Uninstall_Hook(MissionPackMenu_PerformLayout);
     Uninstall_Hook(GameUI_ComboBox_AddItemW);
+    Uninstall_Hook(CBotButton_SetCharacter);
     g_pfnMissionPackMenu_PerformLayout = NULL;
 
     Uninstall_Hook(GameUI_Panel_Init);

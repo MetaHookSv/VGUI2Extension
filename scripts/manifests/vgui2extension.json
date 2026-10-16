@@ -59,6 +59,10 @@
       ],
       "symbols": {
         "gameui": {
+          "CBotButton::SetCharacter(CCareerCharacter const*)": "function",
+          "CBotButton.m_pText": "structMember",
+          "CCareerCharacter::GetPoints() const": "function",
+          "vgui2::TextImage::SetText(wchar_t const*)": "virtualFunction",
           "CCareerBotFrame::CCareerBotFrame(vgui2::Panel*)": "function",
           "CCareerMapFrame::CCareerMapFrame(vgui2::Panel*)": "function",
           "CCareerProfileFrame::CCareerProfileFrame(vgui2::Panel*)": "function"

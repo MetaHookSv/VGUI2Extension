@@ -107,6 +107,10 @@ typedef struct
     void(__fastcall* GameUI_Panel_SetMinimumSize)(void* pthis, int dummy, int width, int height);
     void(__fastcall* GameUI_Menu_MakeItemsVisibleInScrollRange)(void* pthis, int dummy);
     int(__fastcall* GameUI_ComboBox_AddItemW)(void* pthis, int dummy, const wchar_t* itemText, const void* userData);
+    void(__fastcall* CBotButton_SetCharacter)(void* pthis, int dummy, const void* character);
+    int(__fastcall* CCareerCharacter_GetPoints)(const void* pthis, int dummy);
+    int offset_CBotButton_m_pText;
+    int vfunc_index_TextImage_SetTextW;
     int vfunc_index_ComboBox_GetMenu;
     int vfunc_index_Menu_AddMenuItem;
     int offset_Menu_m_pScroller;
