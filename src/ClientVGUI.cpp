@@ -55,6 +55,7 @@ static hook_t*              g_phook_ClientVGUI_KeyValues_LoadFromFile   = NULL;
 static hook_t*              g_phook_ClientVGUI_LoadControlSettings      = NULL;
 static hook_t*              g_phook_ClientVGUI_RichText_SetTextW        = NULL;
 static hook_t*              g_phook_TeamMenu_LoadMapPage                = NULL;
+static hook_t*              g_phook_TeamMenu_Update                     = NULL;
 static hook_t*              g_phook_ClientVGUI_ComboBox_AddItemW        = NULL;
 static hook_t*              g_phook_ClientVGUI_ComboBox_UpdateItemW     = NULL;
 static ComboBoxUnicodeSlots g_ClientComboBoxSlots                       = {};
@@ -197,13 +198,12 @@ void __fastcall ClientVGUI_RichText_SetTextW(void* pthis, int dummy, const wchar
 
 void __fastcall TeamMenu_LoadMapPage(void* pthis, int dummy, const char* mapname)
 {
-    bool previous = g_bIsLoadMapPage;
+    CallWithMapPageText(g_bIsLoadMapPage, gPrivateFuncs.TeamMenu_LoadMapPage, pthis, dummy, mapname);
+}
 
-    g_bIsLoadMapPage = true;
-
-    gPrivateFuncs.TeamMenu_LoadMapPage(pthis, dummy, mapname);
-
-    g_bIsLoadMapPage = previous;
+void __fastcall TeamMenu_Update(void* pthis, int dummy, const char* mapname, bool allowSpectators, const char** teamNames, int numTeams)
+{
+    CallWithMapPageText(g_bIsLoadMapPage, gPrivateFuncs.TeamMenu_Update, pthis, dummy, mapname, allowSpectators, teamNames, numTeams);
 }
 
 void __fastcall ClientVGUI_Panel_Init(vgui::Panel* pthis, int dummy, int x, int y, int w, int h)
@@ -1031,8 +1031,12 @@ void NativeClientUI_FillAddress(const mh_dll_info_t& RealDllInfo)
 
     if (g_bIsCounterStrike)
     {
-        gPrivateFuncs.TeamMenu_LoadMapPage = (decltype(gPrivateFuncs.TeamMenu_LoadMapPage))GamedataResolvePtr(
-            RealDllInfo.ImageBase, "client", "CTeamMenu::LoadMapPage(char const*)", MH_GAMESYMBOL_KIND_FUNCTION);
+        gPrivateFuncs.TeamMenu_Update = (TeamMenuUpdateFn)GamedataResolvePtrIfAvailable(
+            RealDllInfo.ImageBase, "client", "CTeamMenu::Update(char const*, bool, char const**, int)", MH_GAMESYMBOL_KIND_FUNCTION);
+        gPrivateFuncs.TeamMenu_LoadMapPage = nullptr;
+        if (!gPrivateFuncs.TeamMenu_Update)
+            gPrivateFuncs.TeamMenu_LoadMapPage = (TeamMenuLoadMapPageFn)GamedataResolvePtr(
+                RealDllInfo.ImageBase, "client", "CTeamMenu::LoadMapPage(char const*)", MH_GAMESYMBOL_KIND_FUNCTION);
         gPrivateFuncs.ClientVGUI_RichText_SetTextW = (decltype(gPrivateFuncs.ClientVGUI_RichText_SetTextW))GamedataResolvePtr(
             RealDllInfo.ImageBase, "client", "vgui2::RichText::SetText(wchar_t const*)", MH_GAMESYMBOL_KIND_FUNCTION);
     }
@@ -1065,6 +1069,14 @@ void NativeClientUI_InstallHooks(void)
     if (gPrivateFuncs.TeamMenu_LoadMapPage)
     {
         Install_InlineHook(TeamMenu_LoadMapPage);
+        if (!g_phook_TeamMenu_LoadMapPage)
+            Sys_Error("Could not install client TeamMenu LoadMapPage hook.");
+    }
+    if (gPrivateFuncs.TeamMenu_Update)
+    {
+        Install_InlineHook(TeamMenu_Update);
+        if (!g_phook_TeamMenu_Update)
+            Sys_Error("Could not install client TeamMenu Update hook.");
     }
     if (gPrivateFuncs.ClientVGUI_RichText_SetTextW)
     {
@@ -1081,6 +1093,7 @@ void NativeClientUI_UninstallHooks(void)
     Uninstall_Hook(ClientVGUI_KeyValues_LoadFromFile);
     Uninstall_Hook(ClientVGUI_Panel_Init);
     Uninstall_Hook(TeamMenu_LoadMapPage);
+    Uninstall_Hook(TeamMenu_Update);
     Uninstall_Hook(ClientVGUI_RichText_SetTextW);
 }
 

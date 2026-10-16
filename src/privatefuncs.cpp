@@ -168,23 +168,16 @@ void Client_FillAddress_VisibleMouse(const mh_dll_info_t& RealDllInfo)
     }
 }
 
+void Client_InitGameType()
+{
+    const auto directory = gEngfuncs.pfnGetGameDirectory();
+    g_bIsCZDS            = !strcmp(directory, "czeror");
+    g_bIsCZero           = g_bIsCZDS || !strcmp(directory, "czero");
+    g_bIsCounterStrike   = g_bIsCZero || !strcmp(directory, "cstrike");
+}
+
 void Client_FillAddress(const mh_dll_info_t& RealDllInfo)
 {
-    if (!strcmp(gEngfuncs.pfnGetGameDirectory(), "cstrike") || !strcmp(gEngfuncs.pfnGetGameDirectory(), "czero") || !strcmp(gEngfuncs.pfnGetGameDirectory(), "czeror"))
-    {
-        g_bIsCounterStrike = true;
-    }
-
-    if (!strcmp(gEngfuncs.pfnGetGameDirectory(), "czero") || !strcmp(gEngfuncs.pfnGetGameDirectory(), "czeror"))
-    {
-        g_bIsCZero = true;
-    }
-
-    if (!strcmp(gEngfuncs.pfnGetGameDirectory(), "czeror"))
-    {
-        g_bIsCZDS = true;
-    }
-
     Client_FillAddress_VisibleMouse(RealDllInfo);
 }
 

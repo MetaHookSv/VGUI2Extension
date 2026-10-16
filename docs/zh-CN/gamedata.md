@@ -44,6 +44,10 @@ Menu `AddMenuItem`、宽字符 Menu `UpdateMenuItem` 和 Panel `InvalidateLayout
 选中玩家名称还通过 `CBottomBar::SetPlayerText` hook 修复，使用客户端的 `m_pPlayerList`
 成员偏移和原生 `TextEntry::SetText(char const*)` 槽位，按实际 UTF-8 字节数转换文本。
 应将扩展后的 GoldSrc_VibeSignatures catalog 与插件一起部署；`v20261016b` 尚不包含新增依赖。
+Windows CS/CZ 10210 的地图说明实现内联在四参数 `CTeamMenu::Update` 中；其余已支持的
+旧 Windows 客户端仍使用单参数 `CTeamMenu::LoadMapPage`。插件根据发布的真实身份选择
+匹配的 wrapper，并在原生 UI hook 解析前初始化游戏类型。不能将此 DLL 与错误地把
+Update 标为 LoadMapPage 的旧 catalog 搭配部署。
 
 零点行动任期模式的 bot 费用修复需要
 [GoldSrc_VibeSignatures #378](https://github.com/HLND2T/GoldSrc_VibeSignatures/pull/378)
@@ -60,17 +64,17 @@ CRT locale，也不经过原有的 31 字节截断。无效 UTF-8 或缺失本�
 
 声明来源为 [scripts/manifests/vgui2extension.json](../../scripts/manifests/vgui2extension.json)。
 以下清单保留 manifest 中的完整 module、名称与 kind，并已对照源码调用核对。
-共 5 个 module、**121 条显式记录**，其中包含 **7 组连续编号补丁**的首条 `_0` 记录。
-每组编号补丁还可能消费后续记录，因此 121 不是每份安装 catalog 的记录总数。
+共 5 个 module、**122 条显式记录**，其中包含 **7 组连续编号补丁**的首条 `_0` 记录。
+每组编号补丁还可能消费后续记录，因此 122 不是每份安装 catalog 的记录总数。
 
 | Module | 显式记录数 |
 | --- | ---: |
 | `engine` | 14 |
-| `client` | 29 |
+| `client` | 30 |
 | `gameui` | 72 |
 | `serverbrowser` | 5 |
 | `vgui2` | 1 |
-| 合计 | 121 |
+| 合计 | 122 |
 
 GameSymbol 由 module 与名称共同定位。`engine`、`client`、`gameui`、`serverbrowser`
 中的同名符号是独立记录。下列条件表示 manifest 的 catalog 裁剪与校验范围；
@@ -92,7 +96,7 @@ GameSymbol 由 module 与名称共同定位。`engine`、`client`、`gameui`、`
 
 ### Manifest 条件
 
-`All` 表示 manifest 顶层的 `gameVersions` 列表；`G1` 至 `G19` 按顺序对应当前
+`All` 表示 manifest 顶层的 `gameVersions` 列表；`G1` 至 `G21` 按顺序对应当前
 `conditionalGroups` 的条目。`cl_time` 的豁免见[运行条件与可选记录](#运行条件与可选记录)。
 
 | 条件 | Manifest 中的 gameVersions |
@@ -117,6 +121,8 @@ GameSymbol 由 module 与名称共同定位。`engine`、`client`、`gameui`、`
 | G17 | `cof-5936`, `hl-3248`, `hl-3266`, `hl-3329`, `hl-3647`, `hl-4554`, `hl-6153`, `hl-8684`, `svencoop-10257`, `svencoop-8948` |
 | G18 | `hl-10210` |
 | G19 | `cof-5936` |
+| G20 | `cstrike-3248`, `cstrike-3647`, `cstrike-4554`, `cstrike-6153`, `cstrike-8684`, `czero-8684`, `czeror-8684` |
+| G21 | `cstrike-10210`, `czero-10210`, `czeror-10210` |
 
 ## 按 module 列出的符号
 
@@ -155,7 +161,8 @@ GameSymbol 由 module 与名称共同定位。`engine`、`client`、`gameui`、`
 | `CounterStrikeViewport::CCSBackGroundPanel.m_offsetX` | `structMember` | G8 |
 | `CounterStrikeViewport::CCSBackGroundPanel.m_offsetY` | `structMember` | G8 |
 | `CounterStrikeViewport::CCSBackGroundPanel::Activate()` | `virtualFunction` | G8 |
-| `CTeamMenu::LoadMapPage(char const*)` | `function` | G9 |
+| `CTeamMenu::LoadMapPage(char const*)` | `function` | G20 |
+| `CTeamMenu::Update(char const*, bool, char const**, int)` | `function` | G21 |
 | `vgui2::ComboBox::GetMenu()` | `virtualFunction` | G9 |
 | `vgui2::ComboBox::IsItemIDValid(int)` | `virtualFunction` | G9 |
 | `vgui2::Panel::InvalidateLayout(bool, bool)` | `virtualFunction` | G9 |
