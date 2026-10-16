@@ -117,6 +117,8 @@ void IPluginsV4::LoadClient(cl_exportfuncs_t* pExportFunc)
     //This must be called before Client_FillAddress
     ClientVGUI_InstallHooks(pExportFunc);
     Client_FillAddress(g_ClientDLLInfo);
+    //Game flags are initialized by Client_FillAddress; resolve CS/CZ hooks now.
+    ClientVGUI_InstallComboBoxHooks();
     Client_InstallHooks();
     InitWindowStuffs();
 

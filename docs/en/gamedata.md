@@ -42,7 +42,16 @@ The GameUI wide-character `ComboBox::AddItem` hook requires the ComboBox/Menu
 records published in GoldSrc_VibeSignatures `v20261013a`. It allocates the exact UTF-8
 byte count (including the terminator), preserves the wide `SetText` message and user
 data, and calls `GetMenu` / four-argument `AddMenuItem` through catalog-resolved
-virtual slots. The client-module ComboBox implementation is not hooked.
+virtual slots. The CS/CZ client now uses the same insertion helper and also hooks
+wide `UpdateItem`: both the menu caption and `SetText` message stay Unicode, while
+invalid IDs return false and successful updates retain deferred layout invalidation.
+The client requires its own `AddItemW`, `UpdateItemW`, `IsItemIDValid`, `GetMenu`,
+four-argument Menu `AddMenuItem`, wide Menu `UpdateMenuItem`, and Panel
+`InvalidateLayout` records. The selected-player caption also hooks
+`CBottomBar::SetPlayerText`, using its client `m_pPlayerList` offset and the native
+`TextEntry::SetText(char const*)` slot with a correctly sized UTF-8 buffer.
+Deploy the extended GoldSrc_VibeSignatures catalog with
+this plugin; the new client dependency records are not in `v20261016b`.
 
 The Condition Zero career bot-cost fix requires the four records added by
 [GoldSrc_VibeSignatures #378](https://github.com/HLND2T/GoldSrc_VibeSignatures/pull/378).
@@ -63,18 +72,18 @@ These hooks are installed only on `czero`.
 
 The declaration is [scripts/manifests/vgui2extension.json](../../scripts/manifests/vgui2extension.json).
 The list below follows its exact module, name and kind and has been checked against the
-source calls. It contains **107 explicit records** across 5 modules, including the
+source calls. It contains **121 explicit records** across 5 modules, including the
 initial `_0` records of **7 numbered patch sets**. Each numbered set can consume
-additional records; 107 is not the total size of every installed catalog.
+additional records; 121 is not the total size of every installed catalog.
 
 | Module | Explicit entries |
 | --- | ---: |
 | `engine` | 14 |
-| `client` | 15 |
+| `client` | 29 |
 | `gameui` | 72 |
 | `serverbrowser` | 5 |
 | `vgui2` | 1 |
-| Total | 107 |
+| Total | 121 |
 
 A GameSymbol is identified by its module and name. Identical names in `engine`, `client`,
 `gameui` and `serverbrowser` refer to separate records. Conditions below describe the
@@ -163,6 +172,20 @@ Sources: [ClientVGUI.cpp](../../src/ClientVGUI.cpp) and [privatefuncs.cpp](../..
 | `CounterStrikeViewport::CCSBackGroundPanel.m_offsetY` | `structMember` | G8 |
 | `CounterStrikeViewport::CCSBackGroundPanel::Activate()` | `virtualFunction` | G8 |
 | `CTeamMenu::LoadMapPage(char const*)` | `function` | G9 |
+| `vgui2::ComboBox::GetMenu()` | `virtualFunction` | G9 |
+| `vgui2::ComboBox::IsItemIDValid(int)` | `virtualFunction` | G9 |
+| `vgui2::Panel::InvalidateLayout(bool, bool)` | `virtualFunction` | G9 |
+| `CBottomBar::SetPlayerText(wchar_t const*)` | `function` | G9 |
+| `CBottomBar.m_pPlayerList` | `structMember` | G9 |
+| `vgui2::TextEntry::SetText(char const*)` | `virtualFunction` | G9 |
+| `vgui2::ComboBox::AddItem(wchar_t const*, KeyValues const*)` | `virtualFunction` | G10 |
+| `vgui2::ComboBox::UpdateItem(int, wchar_t const*, KeyValues const*)` | `virtualFunction` | G10 |
+| `vgui2::Menu::AddMenuItem(char const*, KeyValues*, vgui2::Panel*, KeyValues const*)` | `virtualFunction` | G10 |
+| `vgui2::Menu::UpdateMenuItem(int, wchar_t const*, KeyValues*, KeyValues const*)` | `virtualFunction` | G10 |
+| `vgui2::ComboBox::AddItem(wchar_t const*, vgui2::KeyValues const*)` | `virtualFunction` | G11 |
+| `vgui2::ComboBox::UpdateItem(int, wchar_t const*, vgui2::KeyValues const*)` | `virtualFunction` | G11 |
+| `vgui2::Menu::AddMenuItem(char const*, vgui2::KeyValues*, vgui2::Panel*, vgui2::KeyValues const*)` | `virtualFunction` | G11 |
+| `vgui2::Menu::UpdateMenuItem(int, wchar_t const*, vgui2::KeyValues*, vgui2::KeyValues const*)` | `virtualFunction` | G11 |
 | `vgui2::Frame::Activate()` | `virtualFunction` | G9 |
 | `vgui2::Frame::LoadControlSettings(char const*, char const*)` | `function` | G9 |
 | `vgui2::Panel::Init(int, int, int, int)` | `function` | G9 |

@@ -15,6 +15,8 @@
 #include "plugins.h"
 #include "privatefuncs.h"
 #include "exportfuncs.h"
+#include "ComboBoxUnicode.h"
+#include <KeyValues.h>
 
 #include "DpiManagerInternal.h"
 #include "VGUI2ExtensionInternal.h"
@@ -48,11 +50,17 @@ bool g_bIsPaintWorldMapBackground = false;
 //sanitizer stays scoped to the one caller that trashes Chinese map descriptions.
 static bool g_bIsLoadMapPage = false;
 
-static hook_t* g_phook_ClientVGUI_Panel_Init             = NULL;
-static hook_t* g_phook_ClientVGUI_KeyValues_LoadFromFile = NULL;
-static hook_t* g_phook_ClientVGUI_LoadControlSettings    = NULL;
-static hook_t* g_phook_ClientVGUI_RichText_SetTextW      = NULL;
-static hook_t* g_phook_TeamMenu_LoadMapPage              = NULL;
+static hook_t*              g_phook_ClientVGUI_Panel_Init               = NULL;
+static hook_t*              g_phook_ClientVGUI_KeyValues_LoadFromFile   = NULL;
+static hook_t*              g_phook_ClientVGUI_LoadControlSettings      = NULL;
+static hook_t*              g_phook_ClientVGUI_RichText_SetTextW        = NULL;
+static hook_t*              g_phook_TeamMenu_LoadMapPage                = NULL;
+static hook_t*              g_phook_ClientVGUI_ComboBox_AddItemW        = NULL;
+static hook_t*              g_phook_ClientVGUI_ComboBox_UpdateItemW     = NULL;
+static ComboBoxUnicodeSlots g_ClientComboBoxSlots                       = {};
+static hook_t*              g_phook_ClientVGUI_CBottomBar_SetPlayerText = NULL;
+static DWORD                g_ClientBottomBarPlayerListOffset           = 0;
+static int                  g_ClientComboBoxSetTextSlot                 = 0;
 
 static void(__fastcall* m_pfnCClientVGUI_Initialize)(void* pthis, int, CreateInterfaceFn* factories, int count) = NULL;
 static void(__fastcall* m_pfnCClientVGUI_Start)(void* pthis, int)                                               = NULL;
@@ -78,6 +86,28 @@ bool ClientVGUI_NativeClientHasVGUI1()
 ClientVGUI inline hook
 ============================================================
 */
+
+int __fastcall ClientVGUI_ComboBox_AddItemW(void* pthis, int dummy, const wchar_t* text, const void* userData)
+{
+    const auto itemID = AddUnicodeComboBoxItem<KeyValues>(pthis, text, userData, g_ClientComboBoxSlots);
+    if (!itemID)
+    {
+        Sys_Error("Could not convert client ComboBox item text to UTF-8.");
+        return -1;
+    }
+    return *itemID;
+}
+
+bool __fastcall ClientVGUI_ComboBox_UpdateItemW(void* pthis, int dummy, int itemID, const wchar_t* text, const void* userData)
+{
+    return UpdateUnicodeComboBoxItem<KeyValues>(pthis, itemID, text, userData, g_ClientComboBoxSlots);
+}
+
+void __fastcall ClientVGUI_CBottomBar_SetPlayerText(void* pthis, int dummy, const wchar_t* text)
+{
+    if (!SetUnicodeSpectatorCaption(pthis, text, g_ClientBottomBarPlayerListOffset, g_ClientComboBoxSetTextSlot))
+        Sys_Error("Could not convert spectator selected-player text to UTF-8.");
+}
 
 //Valve populate SetTextW with invalid chars.
 void __fastcall ClientVGUI_RichText_SetTextW(void* pthis, int dummy, const wchar_t* text)
@@ -948,6 +978,41 @@ void ClientUIProxy_Start_FillAddress(CClientVGUIProxy* pthis, const mh_dll_info_
 	Purpose : Install hooks for native ClientUI interface
 */
 
+static void ClientVGUI_FillAddress_ComboBox(const mh_dll_info_t& dll)
+{
+    gPrivateFuncs.ClientVGUI_ComboBox_AddItemW = (decltype(gPrivateFuncs.ClientVGUI_ComboBox_AddItemW))
+        GamedataResolveIfAvailable(dll.ImageBase, "client",
+                                   {"vgui2::ComboBox::AddItem(wchar_t const*, KeyValues const*)",
+                                    "vgui2::ComboBox::AddItem(wchar_t const*, vgui2::KeyValues const*)"},
+                                   MH_GAMESYMBOL_KIND_VIRTUAL_FUNCTION);
+    Sig_FuncNotFound(ClientVGUI_ComboBox_AddItemW);
+    gPrivateFuncs.ClientVGUI_ComboBox_UpdateItemW = (decltype(gPrivateFuncs.ClientVGUI_ComboBox_UpdateItemW))
+        GamedataResolveIfAvailable(dll.ImageBase, "client",
+                                   {"vgui2::ComboBox::UpdateItem(int, wchar_t const*, KeyValues const*)",
+                                    "vgui2::ComboBox::UpdateItem(int, wchar_t const*, vgui2::KeyValues const*)"},
+                                   MH_GAMESYMBOL_KIND_VIRTUAL_FUNCTION);
+    Sig_FuncNotFound(ClientVGUI_ComboBox_UpdateItemW);
+    gPrivateFuncs.ClientVGUI_CBottomBar_SetPlayerText = (decltype(gPrivateFuncs.ClientVGUI_CBottomBar_SetPlayerText))
+        GamedataResolvePtr(dll.ImageBase, "client", "CBottomBar::SetPlayerText(wchar_t const*)", MH_GAMESYMBOL_KIND_FUNCTION);
+    g_ClientBottomBarPlayerListOffset = GamedataResolveStructMember(dll.ImageBase, "client", "CBottomBar.m_pPlayerList");
+    g_ClientComboBoxSetTextSlot       = GamedataResolveVFuncIndex(dll.ImageBase, "client", "vgui2::TextEntry::SetText(char const*)");
+
+    auto resolveSlot = [&](const char* symbol, const char* legacy) {
+        if (g_pMetaHookAPI->IsGameSymbolAvailable(dll.ImageBase, symbol) != MH_GAMESYMBOL_OK)
+            symbol = legacy;
+        return GamedataResolveVFuncIndex(dll.ImageBase, "client", symbol);
+    };
+    g_ClientComboBoxSlots.getMenu          = GamedataResolveVFuncIndex(dll.ImageBase, "client", "vgui2::ComboBox::GetMenu()");
+    g_ClientComboBoxSlots.isItemIDValid    = GamedataResolveVFuncIndex(dll.ImageBase, "client", "vgui2::ComboBox::IsItemIDValid(int)");
+    g_ClientComboBoxSlots.invalidateLayout = GamedataResolveVFuncIndex(dll.ImageBase, "client", "vgui2::Panel::InvalidateLayout(bool, bool)");
+    g_ClientComboBoxSlots.addMenuItem      = resolveSlot(
+        "vgui2::Menu::AddMenuItem(char const*, KeyValues*, vgui2::Panel*, KeyValues const*)",
+        "vgui2::Menu::AddMenuItem(char const*, vgui2::KeyValues*, vgui2::Panel*, vgui2::KeyValues const*)");
+    g_ClientComboBoxSlots.updateMenuItemW = resolveSlot(
+        "vgui2::Menu::UpdateMenuItem(int, wchar_t const*, KeyValues*, KeyValues const*)",
+        "vgui2::Menu::UpdateMenuItem(int, wchar_t const*, vgui2::KeyValues*, vgui2::KeyValues const*)");
+}
+
 void NativeClientUI_FillAddress(const mh_dll_info_t& RealDllInfo)
 {
     gPrivateFuncs.ClientVGUI_Panel_Init = (decltype(gPrivateFuncs.ClientVGUI_Panel_Init))GamedataResolvePtrIfAvailable(
@@ -970,6 +1035,19 @@ void NativeClientUI_FillAddress(const mh_dll_info_t& RealDllInfo)
             RealDllInfo.ImageBase, "client", "CTeamMenu::LoadMapPage(char const*)", MH_GAMESYMBOL_KIND_FUNCTION);
         gPrivateFuncs.ClientVGUI_RichText_SetTextW = (decltype(gPrivateFuncs.ClientVGUI_RichText_SetTextW))GamedataResolvePtr(
             RealDllInfo.ImageBase, "client", "vgui2::RichText::SetText(wchar_t const*)", MH_GAMESYMBOL_KIND_FUNCTION);
+    }
+}
+
+void ClientVGUI_InstallComboBoxHooks()
+{
+    if (g_IsNativeClientVGUI2 && g_bIsCounterStrike)
+    {
+        ClientVGUI_FillAddress_ComboBox(g_ClientDLLInfo);
+        Install_InlineHook(ClientVGUI_ComboBox_AddItemW);
+        Install_InlineHook(ClientVGUI_ComboBox_UpdateItemW);
+        Install_InlineHook(ClientVGUI_CBottomBar_SetPlayerText);
+        if (!g_phook_ClientVGUI_ComboBox_AddItemW || !g_phook_ClientVGUI_ComboBox_UpdateItemW || !g_phook_ClientVGUI_CBottomBar_SetPlayerText)
+            Sys_Error("Could not install client ComboBox Unicode hooks.");
     }
 }
 
@@ -996,6 +1074,9 @@ void NativeClientUI_InstallHooks(void)
 
 void NativeClientUI_UninstallHooks(void)
 {
+    Uninstall_Hook(ClientVGUI_ComboBox_AddItemW);
+    Uninstall_Hook(ClientVGUI_ComboBox_UpdateItemW);
+    Uninstall_Hook(ClientVGUI_CBottomBar_SetPlayerText);
     Uninstall_Hook(ClientVGUI_LoadControlSettings);
     Uninstall_Hook(ClientVGUI_KeyValues_LoadFromFile);
     Uninstall_Hook(ClientVGUI_Panel_Init);
