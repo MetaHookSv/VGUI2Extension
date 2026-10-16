@@ -50,6 +50,11 @@ four-argument Menu `AddMenuItem`, wide Menu `UpdateMenuItem`, and Panel
 `InvalidateLayout` records. The selected-player caption also hooks
 `CBottomBar::SetPlayerText`, using its client `m_pPlayerList` offset and the native
 `TextEntry::SetText(char const*)` slot with a correctly sized UTF-8 buffer.
+For Windows CS/CZ 10210 the map-page implementation is inlined into four-argument
+`CTeamMenu::Update`; older supported Windows clients use one-argument
+`CTeamMenu::LoadMapPage`. The plugin resolves the actual published identity and
+uses a matching wrapper. Game flags are initialized before native UI hook lookup.
+Do not deploy this DLL with older catalogs that mislabeled Update as LoadMapPage.
 Deploy the extended GoldSrc_VibeSignatures catalog with
 this plugin; the new client dependency records are not in `v20261016b`.
 
@@ -72,18 +77,18 @@ These hooks are installed only on `czero`.
 
 The declaration is [scripts/manifests/vgui2extension.json](../../scripts/manifests/vgui2extension.json).
 The list below follows its exact module, name and kind and has been checked against the
-source calls. It contains **121 explicit records** across 5 modules, including the
+source calls. It contains **122 explicit records** across 5 modules, including the
 initial `_0` records of **7 numbered patch sets**. Each numbered set can consume
-additional records; 121 is not the total size of every installed catalog.
+additional records; 122 is not the total size of every installed catalog.
 
 | Module | Explicit entries |
 | --- | ---: |
 | `engine` | 14 |
-| `client` | 29 |
+| `client` | 30 |
 | `gameui` | 72 |
 | `serverbrowser` | 5 |
 | `vgui2` | 1 |
-| Total | 121 |
+| Total | 122 |
 
 A GameSymbol is identified by its module and name. Identical names in `engine`, `client`,
 `gameui` and `serverbrowser` refer to separate records. Conditions below describe the
@@ -107,7 +112,7 @@ API 115's `mh_gamesymbol_t::vfuncIndex`.
 
 ### Manifest conditions
 
-`All` is the manifest's top-level `gameVersions` list. `G1` through `G18` identify the
+`All` is the manifest's top-level `gameVersions` list. `G1` through `G21` identify the
 current `conditionalGroups` entries in order. The `cl_time` exemption is explained under
 [Runtime conditions and optional records](#runtime-conditions-and-optional-records).
 
@@ -133,6 +138,8 @@ current `conditionalGroups` entries in order. The `cl_time` exemption is explain
 | G17 | `cof-5936`, `hl-3248`, `hl-3266`, `hl-3329`, `hl-3647`, `hl-4554`, `hl-6153`, `hl-8684`, `svencoop-10257`, `svencoop-8948` |
 | G18 | `hl-10210` |
 | G19 | `cof-5936` |
+| G20 | `cstrike-3248`, `cstrike-3647`, `cstrike-4554`, `cstrike-6153`, `cstrike-8684`, `czero-8684`, `czeror-8684` |
+| G21 | `cstrike-10210`, `czero-10210`, `czeror-10210` |
 
 ## Symbols by module
 
@@ -171,7 +178,8 @@ Sources: [ClientVGUI.cpp](../../src/ClientVGUI.cpp) and [privatefuncs.cpp](../..
 | `CounterStrikeViewport::CCSBackGroundPanel.m_offsetX` | `structMember` | G8 |
 | `CounterStrikeViewport::CCSBackGroundPanel.m_offsetY` | `structMember` | G8 |
 | `CounterStrikeViewport::CCSBackGroundPanel::Activate()` | `virtualFunction` | G8 |
-| `CTeamMenu::LoadMapPage(char const*)` | `function` | G9 |
+| `CTeamMenu::LoadMapPage(char const*)` | `function` | G20 |
+| `CTeamMenu::Update(char const*, bool, char const**, int)` | `function` | G21 |
 | `vgui2::ComboBox::GetMenu()` | `virtualFunction` | G9 |
 | `vgui2::ComboBox::IsItemIDValid(int)` | `virtualFunction` | G9 |
 | `vgui2::Panel::InvalidateLayout(bool, bool)` | `virtualFunction` | G9 |

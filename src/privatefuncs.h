@@ -8,6 +8,7 @@
 #include <tier0/basetypes.h>
 #include <cvardef.h>
 #include "enginedef.h"
+#include "TeamMenuText.h"
 
 class vgui1_TextImage;
 class KeyValues;
@@ -53,9 +54,9 @@ typedef struct
     bool(__fastcall* ClientVGUI_ComboBox_UpdateItemW)(void* pthis, int dummy, int itemID, const wchar_t* text, const void* userData);
     void(__fastcall* ClientVGUI_CBottomBar_SetPlayerText)(void* pthis, int dummy, const wchar_t* text);
 
-    //Valve populate SetTextW with invalid chars, and CTeamMenu::LoadMapPage is the
-    //only caller that hands it the corrupted map description text.
-    void(__fastcall* TeamMenu_LoadMapPage)(void* pthis, int dummy, const char* mapname);
+    //LoadMapPage can be inlined into Update. Each gamedata identity has its own ABI.
+    TeamMenuLoadMapPageFn TeamMenu_LoadMapPage;
+    TeamMenuUpdateFn      TeamMenu_Update;
 
     //void** ClientVGUI_BuildGroup_vftable;
     //void(__fastcall* ClientVGUI_BuildGroup_ApplySettings)(void* pthis, int dummy, void* resourceData);
@@ -234,6 +235,7 @@ PVOID VGUIClient001_CreateInterface(HINTERFACEMODULE hModule);
 void* Sys_GetMainWindow();
 
 void Client_FillAddress(const mh_dll_info_t& RealDllInfo);
+void Client_InitGameType();
 void Client_InstallHooks(void);
 void Client_UninstallHooks(void);
 void SDL2_FillAddress(void);

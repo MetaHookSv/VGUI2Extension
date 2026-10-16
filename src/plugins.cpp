@@ -114,10 +114,12 @@ void IPluginsV4::LoadClient(cl_exportfuncs_t* pExportFunc)
 
     g_hClientModule = g_pMetaHookAPI->GetClientModule();
 
+    //Native UI hooks consume game flags before address lookup for the mouse state.
+    Client_InitGameType();
     //This must be called before Client_FillAddress
     ClientVGUI_InstallHooks(pExportFunc);
     Client_FillAddress(g_ClientDLLInfo);
-    //Game flags are initialized by Client_FillAddress; resolve CS/CZ hooks now.
+    //The native client UI has now been identified.
     ClientVGUI_InstallComboBoxHooks();
     Client_InstallHooks();
     InitWindowStuffs();

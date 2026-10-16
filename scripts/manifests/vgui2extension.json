@@ -280,7 +280,6 @@
       ],
       "symbols": {
         "client": {
-          "CTeamMenu::LoadMapPage(char const*)": "function",
           "CBottomBar::SetPlayerText(wchar_t const*)": "function",
           "CBottomBar.m_pPlayerList": "structMember",
           "vgui2::TextEntry::SetText(char const*)": "virtualFunction",
@@ -489,6 +488,22 @@
           "prefix": "FileSystem_AddFallbackGameDir_V_strncpy_callsite"
         }
       ]
+    },
+    {
+      "when": ["cstrike-3248", "cstrike-3647", "cstrike-4554", "cstrike-6153", "cstrike-8684", "czero-8684", "czeror-8684"],
+      "symbols": {
+        "client": {
+          "CTeamMenu::LoadMapPage(char const*)": "function"
+        }
+      }
+    },
+    {
+      "when": ["cstrike-10210", "czero-10210", "czeror-10210"],
+      "symbols": {
+        "client": {
+          "CTeamMenu::Update(char const*, bool, char const**, int)": "function"
+        }
+      }
     }
   ]
 }
