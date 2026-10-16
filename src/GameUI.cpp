@@ -2594,24 +2594,14 @@ void GameUI_FillAddress_Panel_Init(const mh_dll_info_t& RealDllInfo)
 
 int __fastcall GameUI_ComboBox_AddItemW(void* pthis, int dummy, const wchar_t* itemText, const void* userData)
 {
-    std::string caption;
-    if (!ConvertComboBoxItemToUTF8(itemText, caption))
+    const ComboBoxUnicodeSlots slots{gPrivateFuncs.vfunc_index_ComboBox_GetMenu, gPrivateFuncs.vfunc_index_Menu_AddMenuItem};
+    const auto                 itemID = AddUnicodeComboBoxItem<KeyValues>(pthis, itemText, userData, slots);
+    if (!itemID)
     {
         Sys_Error("Could not convert GameUI ComboBox item text to UTF-8.");
-        return 0;
+        return -1;
     }
-
-    //Dispatch through the native virtual slots, retaining overrides without assuming
-    //the SDK's ComboBox member layout or its vtable ordering.
-    const auto comboVtable = *(void***)pthis;
-    const auto getMenu     = (void*(__fastcall*)(void*, int))comboVtable[gPrivateFuncs.vfunc_index_ComboBox_GetMenu];
-    auto       menu        = getMenu(pthis, 0);
-    const auto menuVtable  = *(void***)menu;
-    const auto addMenuItem = (int(__fastcall*)(void*, int, const char*, KeyValues*, void*, const void*))menuVtable[gPrivateFuncs.vfunc_index_Menu_AddMenuItem];
-
-    //The menu takes ownership of the message; selected text must remain a WSTRING.
-    auto message = new KeyValues("SetText", "text", itemText);
-    return addMenuItem(menu, 0, caption.c_str(), message, pthis, userData);
+    return *itemID;
 }
 
 void __fastcall CBotButton_SetCharacter(void* pthis, int dummy, const void* character)

@@ -49,6 +49,9 @@ typedef struct
     bool(__fastcall* ClientVGUI_KeyValues_LoadFromFile)(void* pthis, int dummy, IFileSystem* pFileSystem, const char* resourceName, const char* pathId);
 
     void(__fastcall* ClientVGUI_RichText_SetTextW)(void* pthis, int dummy, const wchar_t* text);
+    int(__fastcall* ClientVGUI_ComboBox_AddItemW)(void* pthis, int dummy, const wchar_t* text, const void* userData);
+    bool(__fastcall* ClientVGUI_ComboBox_UpdateItemW)(void* pthis, int dummy, int itemID, const wchar_t* text, const void* userData);
+    void(__fastcall* ClientVGUI_CBottomBar_SetPlayerText)(void* pthis, int dummy, const wchar_t* text);
 
     //Valve populate SetTextW with invalid chars, and CTeamMenu::LoadMapPage is the
     //only caller that hands it the corrupted map description text.
@@ -251,6 +254,7 @@ void ServerBrowser_UninstallHooks(void);
 void ClientVGUI_InstallHooks(cl_exportfuncs_t* pExportFunc);
 void ClientVGUI_UninstallHooks(void);
 void NativeClientUI_UninstallHooks(void);
+void ClientVGUI_InstallComboBoxHooks();
 void VGUI1_InstallHooks(void);
 void VGUI1_PostInstallHooks(void);
 void VGUI1_Shutdown(void);

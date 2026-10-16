@@ -281,6 +281,12 @@
       "symbols": {
         "client": {
           "CTeamMenu::LoadMapPage(char const*)": "function",
+          "CBottomBar::SetPlayerText(wchar_t const*)": "function",
+          "CBottomBar.m_pPlayerList": "structMember",
+          "vgui2::TextEntry::SetText(char const*)": "virtualFunction",
+          "vgui2::ComboBox::GetMenu()": "virtualFunction",
+          "vgui2::ComboBox::IsItemIDValid(int)": "virtualFunction",
+          "vgui2::Panel::InvalidateLayout(bool, bool)": "virtualFunction",
           "vgui2::Frame::Activate()": "virtualFunction",
           "vgui2::Frame::LoadControlSettings(char const*, char const*)": "function",
           "vgui2::Panel::Init(int, int, int, int)": "function",
@@ -301,7 +307,11 @@
       ],
       "symbols": {
         "client": {
-          "KeyValues::LoadFromFile(IFileSystem*, char const*, char const*)": "virtualFunction"
+          "KeyValues::LoadFromFile(IFileSystem*, char const*, char const*)": "virtualFunction",
+          "vgui2::ComboBox::AddItem(wchar_t const*, KeyValues const*)": "virtualFunction",
+          "vgui2::ComboBox::UpdateItem(int, wchar_t const*, KeyValues const*)": "virtualFunction",
+          "vgui2::Menu::AddMenuItem(char const*, KeyValues*, vgui2::Panel*, KeyValues const*)": "virtualFunction",
+          "vgui2::Menu::UpdateMenuItem(int, wchar_t const*, KeyValues*, KeyValues const*)": "virtualFunction"
         }
       }
     },
@@ -312,7 +322,11 @@
       ],
       "symbols": {
         "client": {
-          "vgui2::KeyValues::LoadFromFile(IFileSystem*, char const*, char const*)": "virtualFunction"
+          "vgui2::KeyValues::LoadFromFile(IFileSystem*, char const*, char const*)": "virtualFunction",
+          "vgui2::ComboBox::AddItem(wchar_t const*, vgui2::KeyValues const*)": "virtualFunction",
+          "vgui2::ComboBox::UpdateItem(int, wchar_t const*, vgui2::KeyValues const*)": "virtualFunction",
+          "vgui2::Menu::AddMenuItem(char const*, vgui2::KeyValues*, vgui2::Panel*, vgui2::KeyValues const*)": "virtualFunction",
+          "vgui2::Menu::UpdateMenuItem(int, wchar_t const*, vgui2::KeyValues*, vgui2::KeyValues const*)": "virtualFunction"
         }
       }
     },

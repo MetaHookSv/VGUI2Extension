@@ -37,7 +37,13 @@ hook 仍依赖 Legacy/HL25 中 `m_pScroller` 相邻成员的布局；PropertyShe
 GameUI 宽字符 `ComboBox::AddItem` hook 需要 GoldSrc_VibeSignatures `v20261013a`
 发布的 ComboBox/Menu 记录。它按 UTF-8 实际字节数（含终止符）分配缓冲区，保留宽字符
 `SetText` 消息与 userData，并通过 catalog 中的虚函数槽位调用 `GetMenu` 和四参数
-`AddMenuItem`。本次不 hook client 模块的 ComboBox 实现。
+`AddMenuItem`。CS/CZ 客户端现在复用该新增逻辑，并 hook 宽字符 `UpdateItem`：
+菜单文字及 `SetText` 消息全程保持宽字符；无效 ID 返回 false，成功更新保留延迟布局刷新。
+客户端需要本模块的 `AddItemW`、`UpdateItemW`、`IsItemIDValid`、`GetMenu`、四参数
+Menu `AddMenuItem`、宽字符 Menu `UpdateMenuItem` 和 Panel `InvalidateLayout` 记录。
+选中玩家名称还通过 `CBottomBar::SetPlayerText` hook 修复，使用客户端的 `m_pPlayerList`
+成员偏移和原生 `TextEntry::SetText(char const*)` 槽位，按实际 UTF-8 字节数转换文本。
+应将扩展后的 GoldSrc_VibeSignatures catalog 与插件一起部署；`v20261016b` 尚不包含新增依赖。
 
 零点行动任期模式的 bot 费用修复需要
 [GoldSrc_VibeSignatures #378](https://github.com/HLND2T/GoldSrc_VibeSignatures/pull/378)
@@ -54,17 +60,17 @@ CRT locale，也不经过原有的 31 字节截断。无效 UTF-8 或缺失本�
 
 声明来源为 [scripts/manifests/vgui2extension.json](../../scripts/manifests/vgui2extension.json)。
 以下清单保留 manifest 中的完整 module、名称与 kind，并已对照源码调用核对。
-共 5 个 module、**107 条显式记录**，其中包含 **7 组连续编号补丁**的首条 `_0` 记录。
-每组编号补丁还可能消费后续记录，因此 107 不是每份安装 catalog 的记录总数。
+共 5 个 module、**121 条显式记录**，其中包含 **7 组连续编号补丁**的首条 `_0` 记录。
+每组编号补丁还可能消费后续记录，因此 121 不是每份安装 catalog 的记录总数。
 
 | Module | 显式记录数 |
 | --- | ---: |
 | `engine` | 14 |
-| `client` | 15 |
+| `client` | 29 |
 | `gameui` | 72 |
 | `serverbrowser` | 5 |
 | `vgui2` | 1 |
-| 合计 | 107 |
+| 合计 | 121 |
 
 GameSymbol 由 module 与名称共同定位。`engine`、`client`、`gameui`、`serverbrowser`
 中的同名符号是独立记录。下列条件表示 manifest 的 catalog 裁剪与校验范围；
@@ -150,6 +156,20 @@ GameSymbol 由 module 与名称共同定位。`engine`、`client`、`gameui`、`
 | `CounterStrikeViewport::CCSBackGroundPanel.m_offsetY` | `structMember` | G8 |
 | `CounterStrikeViewport::CCSBackGroundPanel::Activate()` | `virtualFunction` | G8 |
 | `CTeamMenu::LoadMapPage(char const*)` | `function` | G9 |
+| `vgui2::ComboBox::GetMenu()` | `virtualFunction` | G9 |
+| `vgui2::ComboBox::IsItemIDValid(int)` | `virtualFunction` | G9 |
+| `vgui2::Panel::InvalidateLayout(bool, bool)` | `virtualFunction` | G9 |
+| `CBottomBar::SetPlayerText(wchar_t const*)` | `function` | G9 |
+| `CBottomBar.m_pPlayerList` | `structMember` | G9 |
+| `vgui2::TextEntry::SetText(char const*)` | `virtualFunction` | G9 |
+| `vgui2::ComboBox::AddItem(wchar_t const*, KeyValues const*)` | `virtualFunction` | G10 |
+| `vgui2::ComboBox::UpdateItem(int, wchar_t const*, KeyValues const*)` | `virtualFunction` | G10 |
+| `vgui2::Menu::AddMenuItem(char const*, KeyValues*, vgui2::Panel*, KeyValues const*)` | `virtualFunction` | G10 |
+| `vgui2::Menu::UpdateMenuItem(int, wchar_t const*, KeyValues*, KeyValues const*)` | `virtualFunction` | G10 |
+| `vgui2::ComboBox::AddItem(wchar_t const*, vgui2::KeyValues const*)` | `virtualFunction` | G11 |
+| `vgui2::ComboBox::UpdateItem(int, wchar_t const*, vgui2::KeyValues const*)` | `virtualFunction` | G11 |
+| `vgui2::Menu::AddMenuItem(char const*, vgui2::KeyValues*, vgui2::Panel*, vgui2::KeyValues const*)` | `virtualFunction` | G11 |
+| `vgui2::Menu::UpdateMenuItem(int, wchar_t const*, vgui2::KeyValues*, vgui2::KeyValues const*)` | `virtualFunction` | G11 |
 | `vgui2::Frame::Activate()` | `virtualFunction` | G9 |
 | `vgui2::Frame::LoadControlSettings(char const*, char const*)` | `function` | G9 |
 | `vgui2::Panel::Init(int, int, int, int)` | `function` | G9 |
