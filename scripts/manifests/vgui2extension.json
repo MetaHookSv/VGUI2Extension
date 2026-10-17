@@ -515,6 +515,14 @@
           "CBaseGamesPage_ApplyGameFilters_to_strftime_callsite_0": "patch"
         }
       }
+    },
+    {
+      "when": ["hl-10210"],
+      "symbols": {
+        "gameui": {
+          "CCreateMultiplayerGameGameplayPage::LoadGameOptionsList()": "function"
+        }
+      }
     }
   ]
 }

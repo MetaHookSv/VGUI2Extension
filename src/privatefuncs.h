@@ -129,6 +129,7 @@ typedef struct
     void*(__fastcall* MessageBox_ctor)(void* pthis, int dummy, const char* title, const char* text, void* parent);
     void(__fastcall* MessageBox_ApplySchemeSettings)(void* pthis, int dummy, void* pScheme);
     void*(__fastcall* CCreateMultiplayerGameDialog_ctor)(void* pthis, int dummy, void* parent);
+    void(__fastcall* GameUI_LoadGameOptionsList)(void* pthis, int dummy);
     void*(__fastcall* CGameConsoleDialog_ctor)(void* pthis, int dummy);
     void*(__fastcall* COptionsDialog_ctor)(void* pthis, int dummy, void* parent);
 

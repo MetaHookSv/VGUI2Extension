@@ -77,18 +77,18 @@ These hooks are installed only on `czero`.
 
 The declaration is [scripts/manifests/vgui2extension.json](../../scripts/manifests/vgui2extension.json).
 The list below follows its exact module, name and kind and has been checked against the
-source calls. It contains **126 explicit records** across 5 modules, including the
+source calls. It contains **127 explicit records** across 5 modules, including the
 initial `_0` records of **7 numbered patch sets**. Each numbered set can consume
-additional records; 126 is not the total size of every installed catalog.
+additional records; 127 is not the total size of every installed catalog.
 
 | Module | Explicit entries |
 | --- | ---: |
 | `engine` | 14 |
 | `client` | 30 |
-| `gameui` | 72 |
+| `gameui` | 73 |
 | `serverbrowser` | 9 |
 | `vgui2` | 1 |
-| Total | 126 |
+| Total | 127 |
 
 A GameSymbol is identified by its module and name. Identical names in `engine`, `client`,
 `gameui` and `serverbrowser` refer to separate records. Conditions below describe the
@@ -113,7 +113,7 @@ API 115's `mh_gamesymbol_t::vfuncIndex`.
 
 ### Manifest conditions
 
-`All` is the manifest's top-level `gameVersions` list. `G1` through `G22` identify the
+`All` is the manifest's top-level `gameVersions` list. `G1` through `G23` identify the
 current `conditionalGroups` entries in order. The `cl_time` exemption is explained under
 [Runtime conditions and optional records](#runtime-conditions-and-optional-records).
 
@@ -142,6 +142,7 @@ current `conditionalGroups` entries in order. The `cl_time` exemption is explain
 | G20 | `cstrike-3248`, `cstrike-3647`, `cstrike-4554`, `cstrike-6153`, `cstrike-8684`, `czero-8684`, `czeror-8684` |
 | G21 | `cstrike-10210`, `czero-10210`, `czeror-10210` |
 | G22 | `hl-8684`, `hl-10210`, `svencoop-8948`, `svencoop-10257` |
+| G23 | `hl-10210` |
 
 ## Symbols by module
 
@@ -227,6 +228,7 @@ Source: [GameUI.cpp](../../src/GameUI.cpp).
 | `CBasePanel::ApplySchemeSettings(vgui2::IScheme*)` | `virtualFunction` | G2 |
 | `CBasePanel::CBasePanel()` | `function` | G2 |
 | `CCreateMultiplayerGameDialog::CCreateMultiplayerGameDialog(vgui2::Panel*)` | `function` | G2 |
+| `CCreateMultiplayerGameGameplayPage::LoadGameOptionsList()` | `function` | G23 |
 | `CGameConsoleDialog::CGameConsoleDialog()` | `function` | G2 |
 | `COptionsDialog::COptionsDialog(vgui2::Panel*)` | `function` | G2 |
 | `COptionsSubAudio::COptionsSubAudio(vgui2::Panel*)` | `function` | G2 |
@@ -356,6 +358,13 @@ other engine group (G4) declares just the two required `_0` records.
 
 ## Runtime conditions and optional records
 
+- HL25's default server-name hook requires the new `LoadGameOptionsList` record.
+  After the original creates its controls, it finds `hostname` / `DescEdit` through
+  the VGUI2 tree and sends a UTF-8 `SetText` message. It preserves the Steam persona
+  name and truncates at a complete UTF-8 boundary to fit the native 63-byte payload,
+  including `"'s Server"`. Missing Steam API/name or invalid UTF-8 preserves native
+  text. User editing and the launch/apply paths are unchanged. Ship the new catalog
+  with the DLL; `v20261017a` does not contain this record.
 - `engine / cl_time` is exempted by the manifest on the ten CS/CZ/CZDS versions in G9.
   This is a catalog validation exemption. The source still performs a required lookup;
   the exemption does not make the runtime symbol optional.

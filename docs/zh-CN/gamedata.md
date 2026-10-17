@@ -64,17 +64,17 @@ CRT locale，也不经过原有的 31 字节截断。无效 UTF-8 或缺失本�
 
 声明来源为 [scripts/manifests/vgui2extension.json](../../scripts/manifests/vgui2extension.json)。
 以下清单保留 manifest 中的完整 module、名称与 kind，并已对照源码调用核对。
-共 5 个 module、**126 条显式记录**，其中包含 **7 组连续编号补丁**的首条 `_0` 记录。
-每组编号补丁还可能消费后续记录，因此 126 不是每份安装 catalog 的记录总数。
+共 5 个 module、**127 条显式记录**，其中包含 **7 组连续编号补丁**的首条 `_0` 记录。
+每组编号补丁还可能消费后续记录，因此 127 不是每份安装 catalog 的记录总数。
 
 | Module | 显式记录数 |
 | --- | ---: |
 | `engine` | 14 |
 | `client` | 30 |
-| `gameui` | 72 |
+| `gameui` | 73 |
 | `serverbrowser` | 9 |
 | `vgui2` | 1 |
-| 合计 | 126 |
+| 合计 | 127 |
 
 GameSymbol 由 module 与名称共同定位。`engine`、`client`、`gameui`、`serverbrowser`
 中的同名符号是独立记录。下列条件表示 manifest 的 catalog 裁剪与校验范围；
@@ -97,7 +97,7 @@ GameSymbol 由 module 与名称共同定位。`engine`、`client`、`gameui`、`
 
 ### Manifest 条件
 
-`All` 表示 manifest 顶层的 `gameVersions` 列表；`G1` 至 `G22` 按顺序对应当前
+`All` 表示 manifest 顶层的 `gameVersions` 列表；`G1` 至 `G23` 按顺序对应当前
 `conditionalGroups` 的条目。`cl_time` 的豁免见[运行条件与可选记录](#运行条件与可选记录)。
 
 | 条件 | Manifest 中的 gameVersions |
@@ -125,6 +125,7 @@ GameSymbol 由 module 与名称共同定位。`engine`、`client`、`gameui`、`
 | G20 | `cstrike-3248`, `cstrike-3647`, `cstrike-4554`, `cstrike-6153`, `cstrike-8684`, `czero-8684`, `czeror-8684` |
 | G21 | `cstrike-10210`, `czero-10210`, `czeror-10210` |
 | G22 | `hl-8684`, `hl-10210`, `svencoop-8948`, `svencoop-10257` |
+| G23 | `hl-10210` |
 
 ## 按 module 列出的符号
 
@@ -210,6 +211,7 @@ GameSymbol 由 module 与名称共同定位。`engine`、`client`、`gameui`、`
 | `CBasePanel::ApplySchemeSettings(vgui2::IScheme*)` | `virtualFunction` | G2 |
 | `CBasePanel::CBasePanel()` | `function` | G2 |
 | `CCreateMultiplayerGameDialog::CCreateMultiplayerGameDialog(vgui2::Panel*)` | `function` | G2 |
+| `CCreateMultiplayerGameGameplayPage::LoadGameOptionsList()` | `function` | G23 |
 | `CGameConsoleDialog::CGameConsoleDialog()` | `function` | G2 |
 | `COptionsDialog::COptionsDialog(vgui2::Panel*)` | `function` | G2 |
 | `COptionsSubAudio::COptionsSubAudio(vgui2::Panel*)` | `function` | G2 |
@@ -334,6 +336,11 @@ engine 的两个语言补丁同样是连续编号的：多数引擎把 Steam 语
 
 ## 运行条件与可选记录
 
+- HL25 默认服务器名修复需要新增的 `LoadGameOptionsList` 记录。原函数创建控件后，
+  通过 VGUI2 控件树找到 `hostname` / `DescEdit` 并发送 UTF-8 `SetText` 消息。
+  保留 Steam 昵称，并按完整 UTF-8 字符截断，使包含 `"'s Server"` 的结果最多为
+  63 字节。无法取得 Steam API/昵称或 UTF-8 无效时保留原文字；用户编辑及启动、
+  应用流程保持原样。新 catalog 必须与 DLL 一起部署；`v20261017a` 不含此记录。
 - manifest 对 G9 中十个 CS/CZ/CZDS 版本豁免 `engine / cl_time`。
   这是 catalog 校验豁免；源码仍执行必需解析，不能将其理解为运行时可选。
 - 先查询 `engine / VGUIClient001_CreateInterface`；缺少该记录时，
