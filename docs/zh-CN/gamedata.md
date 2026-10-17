@@ -278,6 +278,8 @@ callsite，并通过公开 ABI 槽位 hook 本模块 KeyValues 的 `SetString`�
 LC_TIME locale 生成宽字符日期，保留原生窄字符格式化及大小写处理，仅在 `LastPlayed`
 缓冲区匹配时转发至 `SetWString`。不 hook 两个所属函数。日期补丁要求
 GoldSrc_VibeSignatures v20261017a 或更新版本；旧版过滤循环没有日期 callsite。
+游戏语言为 `schinese` 或 `tchinese` 时显示 `YYYY-MM-DD HH:MM`（24 小时制）；
+其他游戏语言保留现有本地化日期格式。
 
 | GameSymbol | Kind | Manifest 条件 |
 | --- | --- | --- |

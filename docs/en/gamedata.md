@@ -296,6 +296,8 @@ It captures a wide date using an explicit default LC_TIME locale, preserves nati
 narrow formatting/lowercasing, and substitutes `SetWString` only for a matching
 `LastPlayed` buffer. It does not hook either owner function. The date patches require
 GoldSrc_VibeSignatures v20261017a or newer; older filter loops have no date callsite.
+For `schinese` and `tchinese`, dates use `YYYY-MM-DD HH:MM` (24-hour time);
+other game languages retain the existing localized date format.
 
 | GameSymbol | Kind | Manifest condition |
 | --- | --- | --- |

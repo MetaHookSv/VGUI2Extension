@@ -17,10 +17,11 @@ namespace
 {
 // Public GoldSrc IBaseKeyValues ABI (MetaHook SDK Interface/IBaseKeyValues.h).
 // Only the table address is module-private; never use the plugin's KeyValues table.
-constexpr int     kSetStringSlot      = 17;
-constexpr size_t  kDateBufferCapacity = 64;
-constexpr char    kDateFormat[]       = "%a %d %b %I:%M%p";
-constexpr wchar_t kWideDateFormat[]   = L"%a %d %b %I:%M%p";
+constexpr int     kSetStringSlot       = 17;
+constexpr size_t  kDateBufferCapacity  = 64;
+constexpr char    kDateFormat[]        = "%a %d %b %I:%M%p";
+constexpr wchar_t kWideDateFormat[]    = L"%a %d %b %I:%M%p";
+constexpr wchar_t kChineseDateFormat[] = L"%Y-%m-%d %H:%M";
 
 constexpr std::array<const char*, 2> kDateCallsites = {
     "CBaseGamesPage_ServerResponded_to_strftime_callsite_0",
@@ -64,7 +65,10 @@ size_t __cdecl HistoryStrftime(char* buffer, size_t capacity, const char* format
     if (result && result < capacity && buffer && time && format &&
         !std::strcmp(format, kDateFormat) && s_TimeLocale)
     {
-        const size_t length = _wcsftime_l(pending.text.data(), pending.text.size(), kWideDateFormat, &savedTime, s_TimeLocale);
+        const char*    language   = GetCurrentGameLanguage();
+        const bool     chinese    = !std::strcmp(language, "schinese") || !std::strcmp(language, "tchinese");
+        const wchar_t* wideFormat = chinese ? kChineseDateFormat : kWideDateFormat;
+        const size_t   length     = _wcsftime_l(pending.text.data(), pending.text.size(), wideFormat, &savedTime, s_TimeLocale);
         if (length && length < pending.text.size())
         {
             // Preserve the native English am/pm presentation without applying
