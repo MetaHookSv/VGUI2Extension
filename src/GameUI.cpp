@@ -20,6 +20,7 @@
 #include "VGUI2ExtensionInternal.h"
 #include "ComboBoxUnicode.h"
 #include "CareerPlayerName.h"
+#include "DefaultServerName.h"
 #include "ServerBrowserHistory.h"
 
 static hook_t* g_phook_ServerBrowser_Panel_Init                       = NULL;
@@ -28,6 +29,7 @@ static hook_t* g_phook_GameUI_Panel_Init                              = NULL;
 static hook_t* g_phook_GameUI_KeyValues_LoadFromFile                  = NULL;
 static hook_t* g_phook_CGameConsoleDialog_ctor                        = NULL;
 static hook_t* g_phook_CCreateMultiplayerGameDialog_ctor              = NULL;
+static hook_t* g_phook_GameUI_LoadGameOptionsList                     = NULL;
 static hook_t* g_phook_COptionsDialog_ctor                            = NULL;
 static hook_t* g_phook_COptionsSubVideo_ctor                          = NULL;
 static hook_t* g_phook_COptionsSubVideo_OnApplyChanges                = NULL;
@@ -2630,6 +2632,47 @@ void __fastcall CBotButton_SetCharacter(void* pthis, int dummy, const void* char
     //replacement TextImage on the next layout pass.
 }
 
+static const char* GetDefaultServerPersonaName()
+{
+    //Use the loaded game's public Steam API without initializing another context.
+    const auto steamAPI = GetModuleHandleA("steam_api.dll");
+    if (!steamAPI)
+        return nullptr;
+    const auto steamFriends   = reinterpret_cast<void*(__cdecl*)()>(GetProcAddress(steamAPI, "SteamAPI_SteamFriends_v017"));
+    const auto getPersonaName = reinterpret_cast<const char*(__cdecl*)(void*)>(GetProcAddress(steamAPI, "SteamAPI_ISteamFriends_GetPersonaName"));
+    if (!steamFriends || !getPersonaName)
+        return nullptr;
+    const auto friends = steamFriends();
+    return friends ? getPersonaName(friends) : nullptr;
+}
+
+void __fastcall GameUI_LoadGameOptionsList(vgui::Panel* pthis, int dummy)
+{
+    gPrivateFuncs.GameUI_LoadGameOptionsList(pthis, dummy);
+
+    std::string name;
+    if (!BuildDefaultServerName(GetDefaultServerPersonaName(), name))
+        return;
+    //Every option has a DescEdit. Scope the lookup to the hostname row, and
+    //find it afresh because the original recreates the option controls.
+    auto* row  = pthis->FindChildByName("hostname", true);
+    auto* edit = row ? row->FindChildByName("DescEdit") : nullptr;
+    if (!edit)
+        return;
+    auto* message = new KeyValues("SetText", "text", name.c_str());
+    vgui::ipanel()->SendMessage(edit->GetVPanel(), message, pthis->GetVPanel());
+    message->deleteThis();
+}
+
+void GameUI_FillAddress_DefaultServerName(const mh_dll_info_t& RealDllInfo)
+{
+    //Only HL25 generates a default hostname from the Steam persona name.
+    if (g_iEngineType != ENGINE_GOLDSRC_HL25)
+        return;
+    gPrivateFuncs.GameUI_LoadGameOptionsList = (decltype(gPrivateFuncs.GameUI_LoadGameOptionsList))
+        GamedataResolvePtr(RealDllInfo.ImageBase, "gameui", "CCreateMultiplayerGameGameplayPage::LoadGameOptionsList()", MH_GAMESYMBOL_KIND_FUNCTION);
+}
+
 static void SetCareerLabelText(void* owner, int memberOffset, const wchar_t* text)
 {
     const auto label = *(void**)((byte*)owner + memberOffset);
@@ -2764,6 +2807,7 @@ void GameUI_FillAddress(void)
     GameUI_FillAddress_ComboBox(g_GameUIDllInfo);
     GameUI_FillAddress_CBotButton(g_GameUIDllInfo);
     GameUI_FillAddress_CareerPlayerName(g_GameUIDllInfo);
+    GameUI_FillAddress_DefaultServerName(g_GameUIDllInfo);
 }
 
 bool GameUI_HasExclusiveInput()
@@ -2851,6 +2895,13 @@ void GameUI_InstallHooks(void)
     Install_InlineHook(GameUI_Panel_Init);
     Install_InlineHook(CGameConsoleDialog_ctor);
     Install_InlineHook(CCreateMultiplayerGameDialog_ctor);
+
+    if (gPrivateFuncs.GameUI_LoadGameOptionsList)
+    {
+        Install_InlineHook(GameUI_LoadGameOptionsList);
+        if (!g_phook_GameUI_LoadGameOptionsList)
+            Sys_Error("Could not hook default server name generation.");
+    }
 
     if (gPrivateFuncs.CTaskBar_ctor)
     {
@@ -2988,6 +3039,7 @@ void GameUI_UninstallHooks(void)
     Uninstall_Hook(GameUI_Panel_Init);
     Uninstall_Hook(CGameConsoleDialog_ctor);
     Uninstall_Hook(CCreateMultiplayerGameDialog_ctor);
+    Uninstall_Hook(GameUI_LoadGameOptionsList);
 
     Uninstall_Hook(CTaskBar_ctor);
     Uninstall_Hook(CTaskBar_OnCommand);
