@@ -19,6 +19,7 @@ set(VGUI2EXTENSION_SOURCES
     "src/FontManager.cpp"
     "src/FontTextureCache.cpp"
     "src/GameUI.cpp"
+    "src/ServerBrowserHistory.cpp"
     "src/KeyValuesSystemHook.cpp"
     "src/plugins.cpp"
     "src/Scheme2.cpp"

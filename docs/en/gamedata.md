@@ -77,18 +77,18 @@ These hooks are installed only on `czero`.
 
 The declaration is [scripts/manifests/vgui2extension.json](../../scripts/manifests/vgui2extension.json).
 The list below follows its exact module, name and kind and has been checked against the
-source calls. It contains **122 explicit records** across 5 modules, including the
+source calls. It contains **126 explicit records** across 5 modules, including the
 initial `_0` records of **7 numbered patch sets**. Each numbered set can consume
-additional records; 122 is not the total size of every installed catalog.
+additional records; 126 is not the total size of every installed catalog.
 
 | Module | Explicit entries |
 | --- | ---: |
 | `engine` | 14 |
 | `client` | 30 |
 | `gameui` | 72 |
-| `serverbrowser` | 5 |
+| `serverbrowser` | 9 |
 | `vgui2` | 1 |
-| Total | 122 |
+| Total | 126 |
 
 A GameSymbol is identified by its module and name. Identical names in `engine`, `client`,
 `gameui` and `serverbrowser` refer to separate records. Conditions below describe the
@@ -103,6 +103,7 @@ these groups must not be interpreted as runtime mod-directory checks.
 | `function` | Resolve a function entry |
 | `global` | Resolve a global variable's address |
 | `virtualFunction` | Resolve a virtual method entry or query its owning vtable slot |
+| `vtable` | Resolve a module-owned virtual table for public-interface hooks |
 | `structMember` | Query a member's byte offset from the object base |
 | `patch` | Resolve an instruction or branch site to redirect or patch |
 
@@ -112,7 +113,7 @@ API 115's `mh_gamesymbol_t::vfuncIndex`.
 
 ### Manifest conditions
 
-`All` is the manifest's top-level `gameVersions` list. `G1` through `G21` identify the
+`All` is the manifest's top-level `gameVersions` list. `G1` through `G22` identify the
 current `conditionalGroups` entries in order. The `cl_time` exemption is explained under
 [Runtime conditions and optional records](#runtime-conditions-and-optional-records).
 
@@ -140,6 +141,7 @@ current `conditionalGroups` entries in order. The `cl_time` exemption is explain
 | G19 | `cof-5936` |
 | G20 | `cstrike-3248`, `cstrike-3647`, `cstrike-4554`, `cstrike-6153`, `cstrike-8684`, `czero-8684`, `czeror-8684` |
 | G21 | `cstrike-10210`, `czero-10210`, `czeror-10210` |
+| G22 | `hl-8684`, `hl-10210`, `svencoop-8948`, `svencoop-10257` |
 
 ## Symbols by module
 
@@ -288,6 +290,15 @@ Source: [GameUI.cpp](../../src/GameUI.cpp).
 
 Source: the ServerBrowser handlers in [GameUI.cpp](../../src/GameUI.cpp).
 
+[ServerBrowserHistory.cpp](../../src/ServerBrowserHistory.cpp) redirects the date
+`strftime` callsites and hooks the module's KeyValues `SetString` public ABI slot.
+It captures a wide date using an explicit default LC_TIME locale, preserves native
+narrow formatting/lowercasing, and substitutes `SetWString` only for a matching
+`LastPlayed` buffer. It does not hook either owner function. The date patches require
+GoldSrc_VibeSignatures v20261017a or newer; older filter loops have no date callsite.
+For `schinese` and `tchinese`, dates use `YYYY-MM-DD HH:MM` (24-hour time);
+other game languages retain the existing localized date format.
+
 | GameSymbol | Kind | Manifest condition |
 | --- | --- | --- |
 | `vgui2::Panel::Init(int, int, int, int)` | `function` | G2 |
@@ -295,6 +306,10 @@ Source: the ServerBrowser handlers in [GameUI.cpp](../../src/GameUI.cpp).
 | `vgui2::KeyValues::LoadFromFile(IFileSystem*, char const*, char const*)` | `virtualFunction` | G14 |
 | `vgui2_Panel_SetSize_Const_callsite_0` | `patch` | G17 |
 | `vgui2_Panel_SetMinimumSize_Const_callsite_0` | `patch` | G17 |
+| `KeyValues` | `vtable` | G3 |
+| `vgui2::KeyValues` | `vtable` | G14 |
+| `CBaseGamesPage_ServerResponded_to_strftime_callsite_0` | `patch` | G2 |
+| `CBaseGamesPage_ApplyGameFilters_to_strftime_callsite_0` | `patch` | G22 |
 
 ### vgui2
 

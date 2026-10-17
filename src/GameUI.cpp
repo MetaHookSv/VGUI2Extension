@@ -20,6 +20,7 @@
 #include "VGUI2ExtensionInternal.h"
 #include "ComboBoxUnicode.h"
 #include "CareerPlayerName.h"
+#include "ServerBrowserHistory.h"
 
 static hook_t* g_phook_ServerBrowser_Panel_Init                       = NULL;
 static hook_t* g_phook_ServerBrowser_KeyValues_LoadFromFile           = NULL;
@@ -3084,6 +3085,8 @@ void ServerBrowser_InstallHooks(void)
 {
     ServerBrowser_PatchPanelSize();
 
+    ServerBrowserHistory_InstallHooks();
+
     Install_InlineHook(ServerBrowser_Panel_Init);
     Install_InlineHook(ServerBrowser_KeyValues_LoadFromFile);
 
@@ -3092,6 +3095,8 @@ void ServerBrowser_InstallHooks(void)
 
 void ServerBrowser_UninstallHooks(void)
 {
+    ServerBrowserHistory_UninstallHooks();
+
     Uninstall_Hook(ServerBrowser_Panel_Init);
     Uninstall_Hook(ServerBrowser_KeyValues_LoadFromFile);
 

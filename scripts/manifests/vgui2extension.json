@@ -150,6 +150,7 @@
           "vgui2_EditablePanel_OnSizeChanged_call_GetChild_callsite_0": "patch"
         },
         "serverbrowser": {
+          "CBaseGamesPage_ServerResponded_to_strftime_callsite_0": "patch",
           "vgui2::Panel::Init(int, int, int, int)": "function"
         },
         "vgui2": {
@@ -175,6 +176,7 @@
           "vgui2::Menu::AddMenuItem(char const*, KeyValues*, vgui2::Panel*, KeyValues const*)": "virtualFunction"
         },
         "serverbrowser": {
+          "KeyValues": "vtable",
           "KeyValues::LoadFromFile(IFileSystem*, char const*, char const*)": "virtualFunction"
         }
       }
@@ -369,6 +371,7 @@
           "vgui2::Menu::AddMenuItem(char const*, vgui2::KeyValues*, vgui2::Panel*, vgui2::KeyValues const*)": "virtualFunction"
         },
         "serverbrowser": {
+          "vgui2::KeyValues": "vtable",
           "vgui2::KeyValues::LoadFromFile(IFileSystem*, char const*, char const*)": "virtualFunction"
         }
       }
@@ -502,6 +505,14 @@
       "symbols": {
         "client": {
           "CTeamMenu::Update(char const*, bool, char const**, int)": "function"
+        }
+      }
+    },
+    {
+      "when": ["hl-8684", "hl-10210", "svencoop-8948", "svencoop-10257"],
+      "symbols": {
+        "serverbrowser": {
+          "CBaseGamesPage_ApplyGameFilters_to_strftime_callsite_0": "patch"
         }
       }
     }

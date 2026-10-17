@@ -64,17 +64,17 @@ CRT locale，也不经过原有的 31 字节截断。无效 UTF-8 或缺失本�
 
 声明来源为 [scripts/manifests/vgui2extension.json](../../scripts/manifests/vgui2extension.json)。
 以下清单保留 manifest 中的完整 module、名称与 kind，并已对照源码调用核对。
-共 5 个 module、**122 条显式记录**，其中包含 **7 组连续编号补丁**的首条 `_0` 记录。
-每组编号补丁还可能消费后续记录，因此 122 不是每份安装 catalog 的记录总数。
+共 5 个 module、**126 条显式记录**，其中包含 **7 组连续编号补丁**的首条 `_0` 记录。
+每组编号补丁还可能消费后续记录，因此 126 不是每份安装 catalog 的记录总数。
 
 | Module | 显式记录数 |
 | --- | ---: |
 | `engine` | 14 |
 | `client` | 30 |
 | `gameui` | 72 |
-| `serverbrowser` | 5 |
+| `serverbrowser` | 9 |
 | `vgui2` | 1 |
-| 合计 | 122 |
+| 合计 | 126 |
 
 GameSymbol 由 module 与名称共同定位。`engine`、`client`、`gameui`、`serverbrowser`
 中的同名符号是独立记录。下列条件表示 manifest 的 catalog 裁剪与校验范围；
@@ -88,6 +88,7 @@ GameSymbol 由 module 与名称共同定位。`engine`、`client`、`gameui`、`
 | `function` | 解析函数入口 |
 | `global` | 解析全局变量地址 |
 | `virtualFunction` | 解析虚函数入口，或查询所属 vtable 槽位 |
+| `vtable` | 解析模块自身的虚表，用于公开接口 hook |
 | `structMember` | 查询成员相对对象起点的字节偏移 |
 | `patch` | 解析需重定向或修改的指令、分支位置 |
 
@@ -96,7 +97,7 @@ GameSymbol 由 module 与名称共同定位。`engine`、`client`、`gameui`、`
 
 ### Manifest 条件
 
-`All` 表示 manifest 顶层的 `gameVersions` 列表；`G1` 至 `G21` 按顺序对应当前
+`All` 表示 manifest 顶层的 `gameVersions` 列表；`G1` 至 `G22` 按顺序对应当前
 `conditionalGroups` 的条目。`cl_time` 的豁免见[运行条件与可选记录](#运行条件与可选记录)。
 
 | 条件 | Manifest 中的 gameVersions |
@@ -123,6 +124,7 @@ GameSymbol 由 module 与名称共同定位。`engine`、`client`、`gameui`、`
 | G19 | `cof-5936` |
 | G20 | `cstrike-3248`, `cstrike-3647`, `cstrike-4554`, `cstrike-6153`, `cstrike-8684`, `czero-8684`, `czeror-8684` |
 | G21 | `cstrike-10210`, `czero-10210`, `czeror-10210` |
+| G22 | `hl-8684`, `hl-10210`, `svencoop-8948`, `svencoop-10257` |
 
 ## 按 module 列出的符号
 
@@ -271,6 +273,14 @@ GameSymbol 由 module 与名称共同定位。`engine`、`client`、`gameui`、`
 
 源码：[GameUI.cpp](../../src/GameUI.cpp) 中的 ServerBrowser 处理逻辑。
 
+[ServerBrowserHistory.cpp](../../src/ServerBrowserHistory.cpp) 重定向日期 `strftime`
+callsite，并通过公开 ABI 槽位 hook 本模块 KeyValues 的 `SetString`。使用显式的默认
+LC_TIME locale 生成宽字符日期，保留原生窄字符格式化及大小写处理，仅在 `LastPlayed`
+缓冲区匹配时转发至 `SetWString`。不 hook 两个所属函数。日期补丁要求
+GoldSrc_VibeSignatures v20261017a 或更新版本；旧版过滤循环没有日期 callsite。
+游戏语言为 `schinese` 或 `tchinese` 时显示 `YYYY-MM-DD HH:MM`（24 小时制）；
+其他游戏语言保留现有本地化日期格式。
+
 | GameSymbol | Kind | Manifest 条件 |
 | --- | --- | --- |
 | `vgui2::Panel::Init(int, int, int, int)` | `function` | G2 |
@@ -278,6 +288,10 @@ GameSymbol 由 module 与名称共同定位。`engine`、`client`、`gameui`、`
 | `vgui2::KeyValues::LoadFromFile(IFileSystem*, char const*, char const*)` | `virtualFunction` | G14 |
 | `vgui2_Panel_SetSize_Const_callsite_0` | `patch` | G17 |
 | `vgui2_Panel_SetMinimumSize_Const_callsite_0` | `patch` | G17 |
+| `KeyValues` | `vtable` | G3 |
+| `vgui2::KeyValues` | `vtable` | G14 |
+| `CBaseGamesPage_ServerResponded_to_strftime_callsite_0` | `patch` | G2 |
+| `CBaseGamesPage_ApplyGameFilters_to_strftime_callsite_0` | `patch` | G22 |
 
 ### vgui2
 
