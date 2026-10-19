@@ -5,6 +5,7 @@
 #include <vgui/IScheme.h>
 #include <vgui/IVGui.h>
 #include <vgui/IInput.h>
+#include <vgui/IPanel.h>
 #include <vgui/IMouseControl.h>
 #include <vgui.h>
 #include <VGUI_controls/Controls.h>
@@ -16,6 +17,7 @@
 #include "privatefuncs.h"
 #include "exportfuncs.h"
 #include "ComboBoxUnicode.h"
+#include "CareerPopupOrder.h"
 #include <KeyValues.h>
 
 #include "DpiManagerInternal.h"
@@ -62,6 +64,40 @@ static ComboBoxUnicodeSlots g_ClientComboBoxSlots                       = {};
 static hook_t*              g_phook_ClientVGUI_CBottomBar_SetPlayerText = NULL;
 static DWORD                g_ClientBottomBarPlayerListOffset           = 0;
 static int                  g_ClientComboBoxSetTextSlot                 = 0;
+
+static hook_t*              g_phook_CounterStrikeViewport_OnTick = nullptr;
+static hook_t*              g_phook_CCareerBaseBox_BringToFront  = nullptr;
+static vgui::IClientPanel** g_pCareerCurrentBox                  = nullptr;
+static bool                 g_bInCareerViewportTick              = false;
+
+struct CareerPopupPanels
+{
+    int          GetPopupCount() { return vgui::surface()->GetPopupCount(); }
+    vgui::VPANEL GetPopup(int index) { return vgui::surface()->GetPopup(index); }
+    vgui::VPANEL GetParent(vgui::VPANEL panel) { return vgui::ipanel()->GetParent(panel); }
+    bool         IsVisible(vgui::VPANEL panel) { return vgui::ipanel()->IsVisible(panel); }
+    bool         IsPopup(vgui::VPANEL panel) { return vgui::ipanel()->IsPopup(panel); }
+};
+
+void __fastcall CounterStrikeViewport_OnTick(void* pthis, int dummy)
+{
+    CareerViewportTickScope scope(g_bInCareerViewportTick);
+    gPrivateFuncs.CounterStrikeViewport_OnTick(pthis, dummy);
+}
+
+//This is a static void(void) function, including when OnTick tail-jumps to it.
+void __cdecl CCareerBaseBox_BringToFront()
+{
+    if (g_bInCareerViewportTick && g_pCareerCurrentBox && *g_pCareerCurrentBox)
+    {
+        const auto        box = (*g_pCareerCurrentBox)->GetVPanel();
+        CareerPopupPanels panels;
+        if (ShouldPreserveCareerPopupOrder(g_bInCareerViewportTick, box, vgui::input()->GetAppModalSurface(), panels))
+            return;
+    }
+
+    gPrivateFuncs.CCareerBaseBox_BringToFront();
+}
 
 static void(__fastcall* m_pfnCClientVGUI_Initialize)(void* pthis, int, CreateInterfaceFn* factories, int count) = NULL;
 static void(__fastcall* m_pfnCClientVGUI_Start)(void* pthis, int)                                               = NULL;
@@ -1040,6 +1076,16 @@ void NativeClientUI_FillAddress(const mh_dll_info_t& RealDllInfo)
         gPrivateFuncs.ClientVGUI_RichText_SetTextW = (decltype(gPrivateFuncs.ClientVGUI_RichText_SetTextW))GamedataResolvePtr(
             RealDllInfo.ImageBase, "client", "vgui2::RichText::SetText(wchar_t const*)", MH_GAMESYMBOL_KIND_FUNCTION);
     }
+
+    if (g_bIsCZero && !g_bIsCZDS)
+    {
+        gPrivateFuncs.CounterStrikeViewport_OnTick = (decltype(gPrivateFuncs.CounterStrikeViewport_OnTick))GamedataResolvePtr(
+            RealDllInfo.ImageBase, "client", "CounterStrikeViewport::OnTick()", MH_GAMESYMBOL_KIND_VIRTUAL_FUNCTION);
+        gPrivateFuncs.CCareerBaseBox_BringToFront = (decltype(gPrivateFuncs.CCareerBaseBox_BringToFront))GamedataResolvePtr(
+            RealDllInfo.ImageBase, "client", "CCareerBaseBox::BringToFront()", MH_GAMESYMBOL_KIND_FUNCTION);
+        g_pCareerCurrentBox = (vgui::IClientPanel**)GamedataResolvePtr(
+            RealDllInfo.ImageBase, "client", "CCareerBaseBox::s_currentBox", MH_GAMESYMBOL_KIND_GLOBAL);
+    }
 }
 
 void ClientVGUI_InstallComboBoxHooks()
@@ -1082,10 +1128,21 @@ void NativeClientUI_InstallHooks(void)
     {
         Install_InlineHook(ClientVGUI_RichText_SetTextW);
     }
+    if (g_bIsCZero && !g_bIsCZDS)
+    {
+        Install_InlineHook(CCareerBaseBox_BringToFront);
+        Install_InlineHook(CounterStrikeViewport_OnTick);
+        if (!g_phook_CounterStrikeViewport_OnTick || !g_phook_CCareerBaseBox_BringToFront)
+            Sys_Error("Could not install client Career popup ordering hooks.");
+    }
 }
 
 void NativeClientUI_UninstallHooks(void)
 {
+    Uninstall_Hook(CounterStrikeViewport_OnTick);
+    Uninstall_Hook(CCareerBaseBox_BringToFront);
+    g_pCareerCurrentBox     = nullptr;
+    g_bInCareerViewportTick = false;
     Uninstall_Hook(ClientVGUI_ComboBox_AddItemW);
     Uninstall_Hook(ClientVGUI_ComboBox_UpdateItemW);
     Uninstall_Hook(ClientVGUI_CBottomBar_SetPlayerText);
