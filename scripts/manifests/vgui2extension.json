@@ -523,6 +523,16 @@
           "CCreateMultiplayerGameGameplayPage::LoadGameOptionsList()": "function"
         }
       }
+    },
+    {
+      "when": ["czero-10210", "czero-8684"],
+      "symbols": {
+        "client": {
+          "CounterStrikeViewport::OnTick()": "virtualFunction",
+          "CCareerBaseBox::BringToFront()": "function",
+          "CCareerBaseBox::s_currentBox": "global"
+        }
+      }
     }
   ]
 }

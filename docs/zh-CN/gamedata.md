@@ -62,19 +62,26 @@ UTF-8 name cvar 显式转换成 Unicode，通过 gamedata 提供的宽字符 Lab
 gamedata 提供，包含继承自 `CCareerBaseBox` 的 `m_pTextLabel`。替换文字不再依赖
 CRT locale，也不经过原有的 31 字节截断。无效 UTF-8 或缺失本地化时保留原文字。
 
+零点行动购买包编辑界面的 popup 层级修复需要 GoldSrc_VibeSignatures `v20261020a`
+发布的三个 client 记录：`CounterStrikeViewport::OnTick()`、静态函数
+`CCareerBaseBox::BringToFront()` 和指针存储位置 `CCareerBaseBox::s_currentBox`。
+仅在原生 Tick 内，当前可见对话框已是 app-modal surface 且有可见子 popup 时，
+跳过重复激活，防止对话框覆盖下拉菜单。首次激活、其他调用方和模态设置保留原行为；
+关闭 popup 后恢复原生处理。仅 `czero` 安装这组 hook；CS 和 CZDS 不发布这组 client 记录。
+
 声明来源为 [scripts/manifests/vgui2extension.json](../../scripts/manifests/vgui2extension.json)。
 以下清单保留 manifest 中的完整 module、名称与 kind，并已对照源码调用核对。
-共 5 个 module、**127 条显式记录**，其中包含 **7 组连续编号补丁**的首条 `_0` 记录。
-每组编号补丁还可能消费后续记录，因此 127 不是每份安装 catalog 的记录总数。
+共 5 个 module、**130 条显式记录**，其中包含 **7 组连续编号补丁**的首条 `_0` 记录。
+每组编号补丁还可能消费后续记录，因此 130 不是每份安装 catalog 的记录总数。
 
 | Module | 显式记录数 |
 | --- | ---: |
 | `engine` | 14 |
-| `client` | 30 |
+| `client` | 33 |
 | `gameui` | 73 |
 | `serverbrowser` | 9 |
 | `vgui2` | 1 |
-| 合计 | 127 |
+| 合计 | 130 |
 
 GameSymbol 由 module 与名称共同定位。`engine`、`client`、`gameui`、`serverbrowser`
 中的同名符号是独立记录。下列条件表示 manifest 的 catalog 裁剪与校验范围；
@@ -97,7 +104,7 @@ GameSymbol 由 module 与名称共同定位。`engine`、`client`、`gameui`、`
 
 ### Manifest 条件
 
-`All` 表示 manifest 顶层的 `gameVersions` 列表；`G1` 至 `G23` 按顺序对应当前
+`All` 表示 manifest 顶层的 `gameVersions` 列表；`G1` 至 `G24` 按顺序对应当前
 `conditionalGroups` 的条目。`cl_time` 的豁免见[运行条件与可选记录](#运行条件与可选记录)。
 
 | 条件 | Manifest 中的 gameVersions |
@@ -126,6 +133,7 @@ GameSymbol 由 module 与名称共同定位。`engine`、`client`、`gameui`、`
 | G21 | `cstrike-10210`, `czero-10210`, `czeror-10210` |
 | G22 | `hl-8684`, `hl-10210`, `svencoop-8948`, `svencoop-10257` |
 | G23 | `hl-10210` |
+| G24 | `czero-10210`, `czero-8684` |
 
 ## 按 module 列出的符号
 
@@ -160,6 +168,9 @@ GameSymbol 由 module 与名称共同定位。`engine`、`client`、`gameui`、`
 | GameSymbol | Kind | Manifest 条件 |
 | --- | --- | --- |
 | `g_iVisibleMouse` | `global` | G5 |
+| `CounterStrikeViewport::OnTick()` | `virtualFunction` | G24 |
+| `CCareerBaseBox::BringToFront()` | `function` | G24 |
+| `CCareerBaseBox::s_currentBox` | `global` | G24 |
 | `CounterStrikeViewport.m_pCSBackGround` | `structMember` | G8 |
 | `CounterStrikeViewport::CCSBackGroundPanel.m_offsetX` | `structMember` | G8 |
 | `CounterStrikeViewport::CCSBackGroundPanel.m_offsetY` | `structMember` | G8 |

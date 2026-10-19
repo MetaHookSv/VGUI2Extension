@@ -75,20 +75,29 @@ virtual slot. The frame retains the localized difficulty from the public
 replacement name. Invalid UTF-8 or missing localization leaves the original text.
 These hooks are installed only on `czero`.
 
+The Condition Zero buy-preset popup-order fix requires the three client records
+published in GoldSrc_VibeSignatures `v20261020a`: `CounterStrikeViewport::OnTick()`,
+static `CCareerBaseBox::BringToFront()` and the `CCareerBaseBox::s_currentBox`
+pointer-storage global. During the original Tick only, defer repeated activation
+when the current visible box is already the app-modal surface and has a visible
+descendant popup. This keeps the dropdown above its owner without changing initial
+activation, other callers or modal setup. Closing the popup resumes native behavior.
+Only `czero` installs these hooks; CS and CZDS do not publish these client records.
+
 The declaration is [scripts/manifests/vgui2extension.json](../../scripts/manifests/vgui2extension.json).
 The list below follows its exact module, name and kind and has been checked against the
-source calls. It contains **127 explicit records** across 5 modules, including the
+source calls. It contains **130 explicit records** across 5 modules, including the
 initial `_0` records of **7 numbered patch sets**. Each numbered set can consume
-additional records; 127 is not the total size of every installed catalog.
+additional records; 130 is not the total size of every installed catalog.
 
 | Module | Explicit entries |
 | --- | ---: |
 | `engine` | 14 |
-| `client` | 30 |
+| `client` | 33 |
 | `gameui` | 73 |
 | `serverbrowser` | 9 |
 | `vgui2` | 1 |
-| Total | 127 |
+| Total | 130 |
 
 A GameSymbol is identified by its module and name. Identical names in `engine`, `client`,
 `gameui` and `serverbrowser` refer to separate records. Conditions below describe the
@@ -113,7 +122,7 @@ API 115's `mh_gamesymbol_t::vfuncIndex`.
 
 ### Manifest conditions
 
-`All` is the manifest's top-level `gameVersions` list. `G1` through `G23` identify the
+`All` is the manifest's top-level `gameVersions` list. `G1` through `G24` identify the
 current `conditionalGroups` entries in order. The `cl_time` exemption is explained under
 [Runtime conditions and optional records](#runtime-conditions-and-optional-records).
 
@@ -143,6 +152,7 @@ current `conditionalGroups` entries in order. The `cl_time` exemption is explain
 | G21 | `cstrike-10210`, `czero-10210`, `czeror-10210` |
 | G22 | `hl-8684`, `hl-10210`, `svencoop-8948`, `svencoop-10257` |
 | G23 | `hl-10210` |
+| G24 | `czero-10210`, `czero-8684` |
 
 ## Symbols by module
 
@@ -177,6 +187,9 @@ Sources: [ClientVGUI.cpp](../../src/ClientVGUI.cpp) and [privatefuncs.cpp](../..
 | GameSymbol | Kind | Manifest condition |
 | --- | --- | --- |
 | `g_iVisibleMouse` | `global` | G5 |
+| `CounterStrikeViewport::OnTick()` | `virtualFunction` | G24 |
+| `CCareerBaseBox::BringToFront()` | `function` | G24 |
+| `CCareerBaseBox::s_currentBox` | `global` | G24 |
 | `CounterStrikeViewport.m_pCSBackGround` | `structMember` | G8 |
 | `CounterStrikeViewport::CCSBackGroundPanel.m_offsetX` | `structMember` | G8 |
 | `CounterStrikeViewport::CCSBackGroundPanel.m_offsetY` | `structMember` | G8 |

@@ -53,6 +53,8 @@ typedef struct
     int(__fastcall* ClientVGUI_ComboBox_AddItemW)(void* pthis, int dummy, const wchar_t* text, const void* userData);
     bool(__fastcall* ClientVGUI_ComboBox_UpdateItemW)(void* pthis, int dummy, int itemID, const wchar_t* text, const void* userData);
     void(__fastcall* ClientVGUI_CBottomBar_SetPlayerText)(void* pthis, int dummy, const wchar_t* text);
+    void(__fastcall* CounterStrikeViewport_OnTick)(void* pthis, int dummy);
+    void(__cdecl* CCareerBaseBox_BringToFront)();
 
     //LoadMapPage can be inlined into Update. Each gamedata identity has its own ABI.
     TeamMenuLoadMapPageFn TeamMenu_LoadMapPage;
