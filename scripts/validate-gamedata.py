@@ -634,7 +634,8 @@ def validate_snapshot(doc, game_version):
             if isinstance(signature, str) and not validate_signature(signature):
                 errors.append(f"'{game_version}': virtualFunction '{name}' has a malformed signature")
                 continue
-            rec = {"kind": "virtualFunction", "rva": func_rva, "size": func_size, "module": mod}
+            rec = {"kind": "virtualFunction", "rva": func_rva, "size": func_size, "module": mod,
+                   "vfuncIndex": vfunc_index}
             if key in symbols and symbols[key] != rec:
                 errors.append(f"'{game_version}': conflicting duplicate symbol '{name}'")
             symbols[key] = rec
@@ -1194,14 +1195,29 @@ CAREER_STORAGE_HL10210_SCALARS = {
     'CProfileButton_OnMouseDoublePressed_select_command_format_callsite_0_instruction_length': 5,
     'CProfileButton_OnMouseDoublePressed_select_command_format_callsite_count': 1,
     'CProfileButton_name_capacity': 32,
+    'CareerStorage_runtime_contract_version': 1,
+    'CCareerNewProfileBox_native_input_capacity': 64,
+}
+
+CAREER_STORAGE_HL10210_MEMBERS = {
+    'CProfileButton.m_name': 0x13c,
+    'CProfileButton.m_active': 0x110,
+    'CCareerProfileFrame.m_name': 0x1f8,
+    'CCareerDefinitionManager.m_activeCareer': 12,
+    'CCareerDefinition.m_saveDir': 24,
+    'CCareerGame.m_profileWriter': 8,
+    'CCareerGame.m_needAutosave': 66,
+    'BufferWriter.m_overflow': 8,
+    'CCareerNewProfileBox.m_pNameEntry': 324,
+    'vgui2::TextEntry.m_textLength': 136,
 }
 
 
 def validate_career_storage(symbols, game_version):
     """Validate the complete Windows storage contract when it is advertised.
 
-    The plugin handlers are tracked separately by #20. Observation sites with
-    strategy 1/2 must never be sent to InlinePatchRedirectBranch.
+    Observation sites with strategy 1/2 must never be sent to
+    InlinePatchRedirectBranch. Runtime preflight/input records are mandatory.
     """
     marker = 'CCareerGame_u8hex_storage_contract_version'
     if ('gameui', marker) not in symbols:
@@ -1214,13 +1230,23 @@ def validate_career_storage(symbols, game_version):
         value = record.get('value')
         if record.get('kind') != 'scalar' or type(value) is not int or value != expected:
             errors.append(f"'{game_version}': Career storage scalar '{name}' must equal {expected}")
-    for name, offset in (('CProfileButton.m_name', 0x13c),
-                         ('CProfileButton.m_active', 0x110),
-                         ('CCareerProfileFrame.m_name', 0x1f8)):
+    for name, offset in CAREER_STORAGE_HL10210_MEMBERS.items():
         record = symbols.get(('gameui', name), {})
         actual = record.get('offset')
         if record.get('kind') != 'structMember' or actual != offset:
             errors.append(f"'{game_version}': Career storage member '{name}' has an unreviewed offset")
+    for name, kind in (
+        ('CareerStorage_Definitions', 'global'), ('CareerStorage_Game', 'global'),
+        ('CareerStorage_FileSystem', 'global'),
+        ('CCareerGame::CreateProfileBuffer(CCareerProfileData*, unsigned char*, int, bool)', 'function'),
+        ('vgui2::TextEntry::GetText(wchar_t*, int)', 'virtualFunction'),
+    ):
+        record = symbols.get(('gameui', name), {})
+        if record.get('kind') != kind:
+            errors.append(f"'{game_version}': missing Career runtime {kind} '{name}'")
+    wide = symbols.get(('gameui', 'vgui2::TextEntry::GetText(wchar_t*, int)'), {})
+    if wide.get('vfuncIndex') != 136:
+        errors.append(f"'{game_version}': Career wide input getter has an unreviewed slot")
     for name in CAREER_STORAGE_HL10210_SCALARS:
         if not name.endswith('_count'):
             continue

@@ -60,6 +60,34 @@ When enabled, the following resource directories are added with the `SKIN` tag:
 2. `(GameDirectory)\(ModDirectory)_hidpi`
    For example: `\Sven Co-op\svencoop_hidpi` or `\Half-Life\valve_hidpi`.
 
+## Condition Zero career profiles
+
+Windows x86 czero with the verified hl-10210 GameUI uses `u8hex-` followed by the
+lowercase hex of the complete UTF-8 player name for every new save, including
+ASCII names. Chinese names, `A/a`, and names sharing their first 31 bytes retain
+separate identities. Names remain readable in the UI and inside CZP files.
+Unsupported builds and Deleted Scenes do not enable this storage integration.
+The additional runtime [gamedata contract](gamedata.md#career-storage-contract-g25g26)
+must be published before distributing this implementation.
+
+Progress stays in the active mission pack's saveDir. Personal CFG files remain in
+`Save/` and are shared by the same complete name across packs. Valid legacy CZPs
+are read only when canonical progress is absent and their internal name matches
+exactly. A normal save creates canonical progress and keeps the legacy copy;
+the list deduplicates them. Confirmed deletion removes only verified copies in
+the current pack and preserves personal CFGs.
+
+Back up existing saves. Data already overwritten by the old underscore collision
+cannot be recovered. Legacy CFGs are neither imported nor executed automatically.
+Corrupt, unreadable or differently owned canonical targets block the operation.
+Unsafe input and names exceeding the complete path/command capacity are rejected
+without truncation. Disabling the plugin does not give the original game reliable
+resume/delete support for these new keys.
+
+CZP open, short-write and observable flush errors are reported. CFG logging says
+that writing was requested; the engine executes that request later. This does
+not provide atomic replacement after a short write or power-loss durability.
+
 ## Launch parameters
 
 | Parameter | Effect |

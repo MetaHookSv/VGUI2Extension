@@ -105,7 +105,7 @@ GameSymbol 由 module 与名称共同定位。`engine`、`client`、`gameui`、`
 
 ### Manifest 条件
 
-`All` 表示 manifest 顶层的 `gameVersions` 列表；`G1` 至 `G25` 按顺序对应当前
+`All` 表示 manifest 顶层的 `gameVersions` 列表；`G1` 至 `G26` 按顺序对应当前
 `conditionalGroups` 的条目。`cl_time` 的豁免见[运行条件与可选记录](#运行条件与可选记录)。
 
 | 条件 | Manifest 中的 gameVersions |
@@ -136,6 +136,7 @@ GameSymbol 由 module 与名称共同定位。`engine`、`client`、`gameui`、`
 | G23 | `hl-10210` |
 | G24 | `czero-10210`, `czero-8684` |
 | G25 | `hl-10210` |
+| G26 | `hl-10210` |
 
 ## 按 module 列出的符号
 
@@ -379,16 +380,17 @@ engine 的两个语言补丁同样是连续编号的：多数引擎把 Steam 语
 
 符号名称、kind、module、版本条件或连续编号组变化时，随 manifest 更新本清单。
 
-## 战役存储契约（G25）
+## 战役存储契约（G25/G26）
 
 此组为 [#20](https://github.com/MetaHookSv/VGUI2Extension/issues/20) 的 u8hex
-方案预留 92 条记录，对应[上游 #390](https://github.com/HLND2T/GoldSrc_VibeSignatures/issues/390)。
+方案提供 92 条基础记录，对应[上游 #390](https://github.com/HLND2T/GoldSrc_VibeSignatures/issues/390)。
 此契约依赖可保留上游 release
 [v20261020b](https://github.com/HLND2T/GoldSrc_VibeSignatures/releases/tag/v20261020b)
-发布的记录。本变更不安装存储 hook、不迁移文件。
+发布的记录。运行实现还依赖 G26 的 14 条入口预检/输入记录；这批记录不在 v20261020b 中，
+须先发布上游契约再分发消费端。本地验证使用 candidate catalog。
 
 记录全部归属共享的 `hl-10210/gameui/windows`，不放入 `czero/client`，也不要求其他 GameUI identity
-提供这些记录。未来安装还须在既有游戏类型初始化阶段确认 `g_bIsCZero`。Linux 数据仅用于静态 ABI
+提供这些记录。安装还须在既有游戏类型初始化阶段确认 `g_bIsCZero && !g_bIsCZDS`。Linux 数据仅用于静态 ABI
 交叉核验，不代表 Windows 插件支持 Linux。
 
 manifest 明确列出函数、虚函数、成员、scalar 及 12 组连续编号调用点。DeleteProfile 路径和按钮双击
@@ -417,7 +419,35 @@ PopulateProfiles 选择命令为 62，legacy/name 字段为 32，序列化缓冲
 UI sidecar 需在截断前捕获完整名字，覆盖默认/焦点选择及按钮双击；返回式格式化替身需保证字符串
 在同步命令链内存活。
 
-未来安装任何新存储 hook 前必须完整解析版本契约，核对组数量、ABI、策略、容量及实际调用指令；
+安装任何新存储 hook 前必须完整解析版本契约，核对组数量、ABI、策略、容量及实际调用指令；
 缺失/冲突时整体 fail closed。区分原始名、legacy key、canonical key 和枚举真实文件名。
 BuildProfileList 保留 native STL 返回，不跨 CRT 接收；CreateBlankProfile 原型为 void，失败通过操作
-上下文传播；PopulateProfiles 返回 EAX 中的 int 档案数量。真实游戏存储与迁移验收、未归因磁盘错误由 #20 继续跟踪。
+上下文传播；PopulateProfiles 返回 EAX 中的 int 档案数量。未归因磁盘错误及短写后的原子替换属于后续独立工作。
+
+G26 的 runtime contract v1 仅适用于 Windows hl-10210，消费以下 `gameui` 记录：
+
+| GameSymbol | Kind |
+| --- | --- |
+| `CareerStorage_runtime_contract_version` (=1) | `scalar` |
+| `CCareerNewProfileBox_native_input_capacity` (=64) | `scalar` |
+| `CareerStorage_Definitions` | `global` |
+| `CareerStorage_Game` | `global` |
+| `CareerStorage_FileSystem` | `global` |
+| `CCareerDefinitionManager.m_activeCareer` | `structMember` |
+| `CCareerDefinition.m_saveDir` | `structMember` |
+| `CCareerGame.m_profileWriter` | `structMember` |
+| `CCareerGame.m_needAutosave` | `structMember` |
+| `BufferWriter.m_overflow` | `structMember` |
+| `CCareerNewProfileBox.m_pNameEntry` | `structMember` |
+| `vgui2::TextEntry.m_textLength` | `structMember` |
+| `CCareerGame::CreateProfileBuffer(CCareerProfileData*, unsigned char*, int, bool)` | `function` |
+| `vgui2::TextEntry::GetText(wchar_t*, int)` | `virtualFunction` |
+
+活动 saveDir 是 manager 指针链中的字符串指针，不是内联数组。serializer 返回长度不能证明数据完整；
+必须在 `wb Open` 截断目标前核对 writer overflow 标志、完整 CZP 结构及 raw name。
+该 binary 的宽 GetText 虚槽 136 按 wchar_t 字符数计容量，虽然外部 SDK 参数名写 bufLenInBytes，
+实际应传 `textLength + 1` 个字符。NewProfileBox Ok 在旧 64 字节 apply 缓冲区之前截获；
+sidecar 保存完整名字和生命周期句柄，GameUI 仍拥有其原生分配。
+原生枚举可能跨搜索路径重复返回同一 basename：按实际 Open 的胜出文件检查，每次 Populate 仅允许一次。
+物理读取根与写入根可能分别为 `czero_schinese`、`czero`；同时检查两个根的路径容量和目录错误，
+已有文件还需先解析实际本地路径再读取。

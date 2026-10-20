@@ -20,6 +20,7 @@
 #include "VGUI2ExtensionInternal.h"
 #include "ComboBoxUnicode.h"
 #include "CareerPlayerName.h"
+#include "CareerProfileStorageHooks.h"
 #include "DefaultServerName.h"
 #include "ServerBrowserHistory.h"
 
@@ -1521,11 +1522,14 @@ void CGameUIProxy::Start(struct cl_enginefuncs_s* engineFuncs, int interfaceVers
 
     g_pfnCGameUI_Start(this, 0, engineFuncs, interfaceVersion, system);
 
+    CareerStorage_InstallHooks();
+
     VGUI2ExtensionInternal()->GameUI_Start(engineFuncs, interfaceVersion, system);
 }
 
 void CGameUIProxy::Shutdown(void)
 {
+    CareerStorage_UninstallHooks();
     VGUI2ExtensionInternal()->GameUI_Shutdown();
 
     g_pfnCGameUI_Shutdown(this, 0);
@@ -2686,9 +2690,9 @@ static void SetCareerLabelText(void* owner, int memberOffset, const wchar_t* tex
 
 void* __fastcall CCareerDifficultyBox_ctor(void* pthis, int dummy, const char* panelName, void* parent)
 {
-    const auto   result = gPrivateFuncs.CCareerDifficultyBox_ctor(pthis, dummy, panelName, parent);
+    const auto   result = CareerStorage_ConstructDifficulty(gPrivateFuncs.CCareerDifficultyBox_ctor, pthis, dummy, panelName, parent);
     std::wstring text;
-    if (ConvertCareerPlayerNameToUnicode(gEngfuncs.pfnGetCvarString("name"), text))
+    if (result && ConvertCareerPlayerNameToUnicode(gEngfuncs.pfnGetCvarString("name"), text))
         SetCareerLabelText(pthis, gPrivateFuncs.offset_CCareerBaseBox_m_pTextLabel, text.c_str());
     return result;
 }
@@ -2808,6 +2812,7 @@ void GameUI_FillAddress(void)
     GameUI_FillAddress_CBotButton(g_GameUIDllInfo);
     GameUI_FillAddress_CareerPlayerName(g_GameUIDllInfo);
     GameUI_FillAddress_DefaultServerName(g_GameUIDllInfo);
+    CareerStorage_FillAddress();
 }
 
 bool GameUI_HasExclusiveInput()
@@ -3026,6 +3031,7 @@ void GameUI_InstallHooks(void)
 
 void GameUI_UninstallHooks(void)
 {
+    CareerStorage_UninstallHooks();
     VGUI2ExtensionInternal()->UnregisterKeyValuesCallbacks(&s_ContentControlKeyValuesCallbacks);
 
     Uninstall_Hook(MissionPackMenu_PerformLayout);

@@ -22,10 +22,17 @@ class CareerStorageContractTests(unittest.TestCase):
                 prefix = name.removesuffix('_count')
                 for index in range(value):
                     add(f'{prefix}_{index}', 'patch', {'patch_rva': '0x2000'})
-        for name, offset in [('CProfileButton.m_name', 0x13c), ('CProfileButton.m_active', 0x110),
-                             ('CCareerProfileFrame.m_name', 0x1f8)]:
+        for name, offset in validator.CAREER_STORAGE_HL10210_MEMBERS.items():
             struct, member = name.split('.')
             add(name, 'structMember', {'struct_name': struct, 'member_name': member, 'offset': hex(offset)})
+        for name in ('CareerStorage_Definitions', 'CareerStorage_Game', 'CareerStorage_FileSystem'):
+            add(name, 'global', {'gv_name': name, 'gv_rva': '0x1000', 'gv_va': '0x10001000',
+                                 'gv_sig_va': '0x10002000', 'gv_sig': 'A1 ?? ?? ?? ??',
+                                 'gv_inst_offset': '0x0', 'gv_inst_disp': '0x1', 'gv_inst_length': '0x5'})
+        add('CCareerGame::CreateProfileBuffer(CCareerProfileData*, unsigned char*, int, bool)',
+            'function', {'func_rva': '0x2000', 'func_size': '0x100'})
+        add('vgui2::TextEntry::GetText(wchar_t*, int)', 'virtualFunction',
+            {'vfunc_index': 136, 'vtable_name': 'vgui2::TextEntry', 'func_rva': '0x3000', 'func_size': '0x42'})
         snapshot = {'schemaVersion': 5,
                     'source': {'snapshotSchemaVersion': 8, 'analysisOutputContractVersion': 3},
                     'binaries': {'gameui': {'windows': {'crc64': '0000000000000001'}}},
@@ -70,6 +77,17 @@ class CareerStorageContractTests(unittest.TestCase):
 
     def test_unreviewed_identity_cannot_reuse_a_complete_contract(self):
         self.assertTrue(validator.validate_career_storage(self.fixture(), 'hl-8684'))
+
+    def test_missing_preflight_and_changed_wide_getter_fail_closed(self):
+        for name in ('CareerStorage_Definitions', 'CCareerDefinition.m_saveDir',
+                     'BufferWriter.m_overflow', 'CareerStorage_runtime_contract_version'):
+            with self.subTest(name=name):
+                symbols = self.fixture()
+                del symbols['gameui', name]
+                self.assertTrue(validator.validate_career_storage(symbols, 'hl-10210'))
+        symbols = self.fixture()
+        symbols['gameui', 'vgui2::TextEntry::GetText(wchar_t*, int)']['vfuncIndex'] = 135
+        self.assertTrue(validator.validate_career_storage(symbols, 'hl-10210'))
 
 
 if __name__ == '__main__':

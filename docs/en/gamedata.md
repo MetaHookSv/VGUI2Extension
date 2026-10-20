@@ -123,7 +123,7 @@ API 115's `mh_gamesymbol_t::vfuncIndex`.
 
 ### Manifest conditions
 
-`All` is the manifest's top-level `gameVersions` list. `G1` through `G25` identify the
+`All` is the manifest's top-level `gameVersions` list. `G1` through `G26` identify the
 current `conditionalGroups` entries in order. The `cl_time` exemption is explained under
 [Runtime conditions and optional records](#runtime-conditions-and-optional-records).
 
@@ -155,6 +155,7 @@ current `conditionalGroups` entries in order. The `cl_time` exemption is explain
 | G23 | `hl-10210` |
 | G24 | `czero-10210`, `czero-8684` |
 | G25 | `hl-10210` |
+| G26 | `hl-10210` |
 
 ## Symbols by module
 
@@ -409,18 +410,20 @@ other engine group (G4) declares just the two required `_0` records.
 Update this inventory with the manifest when symbol names, kinds, modules, version
 conditions or numbered patch sets change.
 
-## Career storage contract (G25)
+## Career storage contract (G25/G26)
 
-This group reserves 92 records for the u8hex storage implementation tracked by
+G25 supplies 92 records for the u8hex storage implementation tracked by
 [issue #20](https://github.com/MetaHookSv/VGUI2Extension/issues/20), from
 [upstream #390](https://github.com/HLND2T/GoldSrc_VibeSignatures/issues/390).
 It requires the records published in the retained upstream release
 [v20261020b](https://github.com/HLND2T/GoldSrc_VibeSignatures/releases/tag/v20261020b).
-It does not install storage hooks or migrate saves.
+The runtime implementation also requires G26's 14 preflight/input records.
+These additional records are not in v20261020b and must be published upstream
+before distributing this consumer; local validation uses a candidate catalog.
 
 All records belong to shared `hl-10210/gameui/windows`; `czero/client` and other
-GameUI identities do not acquire this dependency. Future installation must also
-require `g_bIsCZero` at the existing game-type initialization stage. Linux data is
+GameUI identities do not acquire this dependency. Installation also requires
+`g_bIsCZero && !g_bIsCZDS` at the existing game-type initialization stage. Linux data is
 static ABI corroboration, not Windows plugin platform support.
 
 The manifest names every function, virtual function, member and scalar, and all
@@ -467,5 +470,36 @@ and fail closed on a missing/conflicting record. Keep raw names, legacy keys,
 canonical keys and enumerated real filenames separate. BuildProfileList retains
 its native STL return and is not called across CRTs. Missing files and failed
 writes must propagate through operation context; the original CreateBlankProfile
-returns void; PopulateProfiles returns an int profile count in EAX. Real-game storage/migration acceptance and unrelated disk errors
-remain outside this static data delivery.
+returns void; PopulateProfiles returns an int profile count in EAX. Unrelated disk
+errors and atomic replacement of a partially written CZP remain separate work.
+
+G26 consumes the following `gameui` records. Runtime contract version 1 is specific
+to Windows hl-10210. The serializer overflow flag must be checked before `wb Open`;
+a returned length alone does not prove that the complete profile fitted.
+
+| GameSymbol | Kind |
+| --- | --- |
+| `CareerStorage_runtime_contract_version` (=1) | `scalar` |
+| `CCareerNewProfileBox_native_input_capacity` (=64) | `scalar` |
+| `CareerStorage_Definitions` | `global` |
+| `CareerStorage_Game` | `global` |
+| `CareerStorage_FileSystem` | `global` |
+| `CCareerDefinitionManager.m_activeCareer` | `structMember` |
+| `CCareerDefinition.m_saveDir` | `structMember` |
+| `CCareerGame.m_profileWriter` | `structMember` |
+| `CCareerGame.m_needAutosave` | `structMember` |
+| `BufferWriter.m_overflow` | `structMember` |
+| `CCareerNewProfileBox.m_pNameEntry` | `structMember` |
+| `vgui2::TextEntry.m_textLength` | `structMember` |
+| `CCareerGame::CreateProfileBuffer(CCareerProfileData*, unsigned char*, int, bool)` | `function` |
+| `vgui2::TextEntry::GetText(wchar_t*, int)` | `virtualFunction` |
+
+The active saveDir is a pointer reached through the definition manager, not an
+inline array. This binary's wide GetText slot 136 counts wchar_t elements despite
+the external SDK parameter name `bufLenInBytes`; pass `textLength + 1` characters.
+Intercept NewProfileBox Ok before the old 64-byte apply buffer. Sidecars retain
+complete names and lifecycle handles; native GameUI keeps its own allocations.
+Native enumeration can repeat a virtual basename across search paths: inspect its
+winning Open result once and allow it only once per Populate. Physical read and
+write roots can differ (`czero_schinese` versus `czero`); check both path lengths
+and directory errors, and resolve an existing file's actual local path before reading.

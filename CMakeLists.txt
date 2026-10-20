@@ -82,12 +82,13 @@ install(DIRECTORY "${VGUI2EXTENSION_GAMEDATA_DIR}/" DESTINATION svencoop/metahoo
 option(VGUI2EXTENSION_BUILD_TESTS "Build existing language and IME regression tests" OFF)
 if(VGUI2EXTENSION_BUILD_TESTS)
     enable_testing()
-    foreach(test language_registry_tests ime_window_message_test combobox_unicode_tests career_player_name_tests teammenu_hook_tests default_server_name_tests career_popup_order_tests)
+    foreach(test language_registry_tests ime_window_message_test combobox_unicode_tests career_player_name_tests teammenu_hook_tests default_server_name_tests career_popup_order_tests career_profile_storage_tests)
         add_executable(${test} "tests/${test}.cpp")
         target_compile_features(${test} PRIVATE cxx_std_17)
         target_compile_options(${test} PRIVATE /W4 /WX /UNDEBUG)
         add_test(NAME ${test} COMMAND ${test})
     endforeach()
+    target_sources(career_profile_storage_tests PRIVATE src/CareerProfileStorage.cpp)
 endif()
 
 # The aggregate solution owns its single LaunchGame target.
