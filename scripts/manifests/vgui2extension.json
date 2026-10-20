@@ -493,7 +493,15 @@
       ]
     },
     {
-      "when": ["cstrike-3248", "cstrike-3647", "cstrike-4554", "cstrike-6153", "cstrike-8684", "czero-8684", "czeror-8684"],
+      "when": [
+        "cstrike-3248",
+        "cstrike-3647",
+        "cstrike-4554",
+        "cstrike-6153",
+        "cstrike-8684",
+        "czero-8684",
+        "czeror-8684"
+      ],
       "symbols": {
         "client": {
           "CTeamMenu::LoadMapPage(char const*)": "function"
@@ -501,7 +509,11 @@
       }
     },
     {
-      "when": ["cstrike-10210", "czero-10210", "czeror-10210"],
+      "when": [
+        "cstrike-10210",
+        "czero-10210",
+        "czeror-10210"
+      ],
       "symbols": {
         "client": {
           "CTeamMenu::Update(char const*, bool, char const**, int)": "function"
@@ -509,7 +521,12 @@
       }
     },
     {
-      "when": ["hl-8684", "hl-10210", "svencoop-8948", "svencoop-10257"],
+      "when": [
+        "hl-8684",
+        "hl-10210",
+        "svencoop-8948",
+        "svencoop-10257"
+      ],
       "symbols": {
         "serverbrowser": {
           "CBaseGamesPage_ApplyGameFilters_to_strftime_callsite_0": "patch"
@@ -517,7 +534,9 @@
       }
     },
     {
-      "when": ["hl-10210"],
+      "when": [
+        "hl-10210"
+      ],
       "symbols": {
         "gameui": {
           "CCreateMultiplayerGameGameplayPage::LoadGameOptionsList()": "function"
@@ -525,7 +544,10 @@
       }
     },
     {
-      "when": ["czero-10210", "czero-8684"],
+      "when": [
+        "czero-10210",
+        "czero-8684"
+      ],
       "symbols": {
         "client": {
           "CounterStrikeViewport::OnTick()": "virtualFunction",
@@ -533,6 +555,157 @@
           "CCareerBaseBox::s_currentBox": "global"
         }
       }
+    },
+    {
+      "when": [
+        "hl-10210"
+      ],
+      "symbols": {
+        "gameui": {
+          "CCareerGame::CreateBlankProfile()": "function",
+          "CCareerGame::DeleteProfile(char const*)": "function",
+          "CCareerGame::GetProfileForName(char const*)": "function",
+          "CCareerGame::LoadProfile(CareerDifficultyType)": "function",
+          "CCareerGame::SaveProfile(bool)": "function",
+          "CCareerGame::SendMatchCommand()": "function",
+          "CCareerGame_BuildProfileList_ReadFile_callsite_0": "patch",
+          "CCareerGame_BuildProfileList_ReadFile_callsite_0_abi": "scalar",
+          "CCareerGame_BuildProfileList_ReadFile_callsite_0_hook_strategy": "scalar",
+          "CCareerGame_BuildProfileList_ReadFile_callsite_0_instruction_length": "scalar",
+          "CCareerGame_BuildProfileList_ReadFile_callsite_count": "scalar",
+          "CCareerGame_BuildProfileList_enumerated_path_capacity": "scalar",
+          "CCareerGame_CreateBlankProfile_profile_path_format_callsite_0": "patch",
+          "CCareerGame_CreateBlankProfile_profile_path_format_callsite_0_abi": "scalar",
+          "CCareerGame_CreateBlankProfile_profile_path_format_callsite_0_hook_strategy": "scalar",
+          "CCareerGame_CreateBlankProfile_profile_path_format_callsite_0_instruction_length": "scalar",
+          "CCareerGame_CreateBlankProfile_profile_path_format_callsite_count": "scalar",
+          "CCareerGame_CreateBlankProfile_profile_path_format_callsite_destination_capacity": "scalar",
+          "CCareerGame_DeleteProfile_profile_path_format_callsite_0": "patch",
+          "CCareerGame_DeleteProfile_profile_path_format_callsite_0_abi": "scalar",
+          "CCareerGame_DeleteProfile_profile_path_format_callsite_0_hook_strategy": "scalar",
+          "CCareerGame_DeleteProfile_profile_path_format_callsite_0_instruction_length": "scalar",
+          "CCareerGame_DeleteProfile_profile_path_format_callsite_count": "scalar",
+          "CCareerGame_DeleteProfile_profile_path_format_callsite_destination_capacity": "scalar",
+          "CCareerGame_GetProfileForName_profile_path_format_callsite_0": "patch",
+          "CCareerGame_GetProfileForName_profile_path_format_callsite_0_abi": "scalar",
+          "CCareerGame_GetProfileForName_profile_path_format_callsite_0_hook_strategy": "scalar",
+          "CCareerGame_GetProfileForName_profile_path_format_callsite_0_instruction_length": "scalar",
+          "CCareerGame_GetProfileForName_profile_path_format_callsite_count": "scalar",
+          "CCareerGame_GetProfileForName_profile_path_format_callsite_destination_capacity": "scalar",
+          "CCareerGame_LoadProfile_profile_path_format_callsite_0": "patch",
+          "CCareerGame_LoadProfile_profile_path_format_callsite_0_abi": "scalar",
+          "CCareerGame_LoadProfile_profile_path_format_callsite_0_hook_strategy": "scalar",
+          "CCareerGame_LoadProfile_profile_path_format_callsite_0_instruction_length": "scalar",
+          "CCareerGame_LoadProfile_profile_path_format_callsite_count": "scalar",
+          "CCareerGame_LoadProfile_profile_path_format_callsite_destination_capacity": "scalar",
+          "CCareerGame_SaveProfile_config_command_format_callsite_0": "patch",
+          "CCareerGame_SaveProfile_config_command_format_callsite_0_abi": "scalar",
+          "CCareerGame_SaveProfile_config_command_format_callsite_0_hook_strategy": "scalar",
+          "CCareerGame_SaveProfile_config_command_format_callsite_0_instruction_length": "scalar",
+          "CCareerGame_SaveProfile_config_command_format_callsite_count": "scalar",
+          "CCareerGame_SaveProfile_config_command_format_callsite_destination_capacity": "scalar",
+          "CCareerGame_SaveProfile_profile_path_format_callsite_0": "patch",
+          "CCareerGame_SaveProfile_profile_path_format_callsite_0_abi": "scalar",
+          "CCareerGame_SaveProfile_profile_path_format_callsite_0_hook_strategy": "scalar",
+          "CCareerGame_SaveProfile_profile_path_format_callsite_0_instruction_length": "scalar",
+          "CCareerGame_SaveProfile_profile_path_format_callsite_count": "scalar",
+          "CCareerGame_SaveProfile_profile_path_format_callsite_destination_capacity": "scalar",
+          "CCareerGame_SendMatchCommand_config_command_format_callsite_0": "patch",
+          "CCareerGame_SendMatchCommand_config_command_format_callsite_0_abi": "scalar",
+          "CCareerGame_SendMatchCommand_config_command_format_callsite_0_hook_strategy": "scalar",
+          "CCareerGame_SendMatchCommand_config_command_format_callsite_0_instruction_length": "scalar",
+          "CCareerGame_SendMatchCommand_config_command_format_callsite_count": "scalar",
+          "CCareerGame_SendMatchCommand_config_command_format_callsite_destination_capacity": "scalar",
+          "CCareerGame_legacy_key_capacity": "scalar",
+          "CCareerGame_profile_buffer_capacity": "scalar",
+          "CCareerGame_u8hex_storage_contract_version": "scalar",
+          "CCareerNewProfileBox::OnCommand(char const*)": "virtualFunction",
+          "CCareerProfileFrame.m_name": "structMember",
+          "CCareerProfileFrame::OnCommand(char const*)": "virtualFunction",
+          "CCareerProfileFrame::PopulateProfiles()": "function",
+          "CCareerProfileFrame::UpdateSelectedProfile(char const*)": "function",
+          "CCareerProfileFrame_PopulateProfiles_select_command_format_callsite_0": "patch",
+          "CCareerProfileFrame_PopulateProfiles_select_command_format_callsite_0_abi": "scalar",
+          "CCareerProfileFrame_PopulateProfiles_select_command_format_callsite_0_hook_strategy": "scalar",
+          "CCareerProfileFrame_PopulateProfiles_select_command_format_callsite_0_instruction_length": "scalar",
+          "CCareerProfileFrame_PopulateProfiles_select_command_format_callsite_count": "scalar",
+          "CCareerProfileFrame_PopulateProfiles_select_command_format_callsite_destination_capacity": "scalar",
+          "CCareerProfileFrame_ResumeProfile_name_set_callsite_0": "patch",
+          "CCareerProfileFrame_ResumeProfile_name_set_callsite_0_abi": "scalar",
+          "CCareerProfileFrame_ResumeProfile_name_set_callsite_0_hook_strategy": "scalar",
+          "CCareerProfileFrame_ResumeProfile_name_set_callsite_0_instruction_length": "scalar",
+          "CCareerProfileFrame_ResumeProfile_name_set_callsite_count": "scalar",
+          "CCareerProfileFrame_selected_name_capacity": "scalar",
+          "CCareerProfileFrame_selected_name_copy_callsite_0": "patch",
+          "CCareerProfileFrame_selected_name_copy_callsite_0_abi": "scalar",
+          "CCareerProfileFrame_selected_name_copy_callsite_0_hook_strategy": "scalar",
+          "CCareerProfileFrame_selected_name_copy_callsite_0_instruction_length": "scalar",
+          "CCareerProfileFrame_selected_name_copy_callsite_1": "patch",
+          "CCareerProfileFrame_selected_name_copy_callsite_1_abi": "scalar",
+          "CCareerProfileFrame_selected_name_copy_callsite_1_hook_strategy": "scalar",
+          "CCareerProfileFrame_selected_name_copy_callsite_1_instruction_length": "scalar",
+          "CCareerProfileFrame_selected_name_copy_callsite_count": "scalar",
+          "CProfileButton.m_active": "structMember",
+          "CProfileButton.m_name": "structMember",
+          "CProfileButton::SetProfileName(char const*)": "function",
+          "CProfileButton_OnMouseDoublePressed_select_command_format_callsite_0": "patch",
+          "CProfileButton_OnMouseDoublePressed_select_command_format_callsite_0_abi": "scalar",
+          "CProfileButton_OnMouseDoublePressed_select_command_format_callsite_0_hook_strategy": "scalar",
+          "CProfileButton_OnMouseDoublePressed_select_command_format_callsite_0_instruction_length": "scalar",
+          "CProfileButton_OnMouseDoublePressed_select_command_format_callsite_count": "scalar",
+          "CProfileButton_name_capacity": "scalar"
+        }
+      },
+      "numberedPatchSets": [
+        {
+          "module": "gameui",
+          "prefix": "CCareerGame_CreateBlankProfile_profile_path_format_callsite"
+        },
+        {
+          "module": "gameui",
+          "prefix": "CCareerGame_SaveProfile_profile_path_format_callsite"
+        },
+        {
+          "module": "gameui",
+          "prefix": "CCareerGame_LoadProfile_profile_path_format_callsite"
+        },
+        {
+          "module": "gameui",
+          "prefix": "CCareerGame_GetProfileForName_profile_path_format_callsite"
+        },
+        {
+          "module": "gameui",
+          "prefix": "CCareerGame_DeleteProfile_profile_path_format_callsite"
+        },
+        {
+          "module": "gameui",
+          "prefix": "CCareerGame_SaveProfile_config_command_format_callsite"
+        },
+        {
+          "module": "gameui",
+          "prefix": "CCareerGame_SendMatchCommand_config_command_format_callsite"
+        },
+        {
+          "module": "gameui",
+          "prefix": "CCareerProfileFrame_PopulateProfiles_select_command_format_callsite"
+        },
+        {
+          "module": "gameui",
+          "prefix": "CCareerProfileFrame_selected_name_copy_callsite"
+        },
+        {
+          "module": "gameui",
+          "prefix": "CCareerProfileFrame_ResumeProfile_name_set_callsite"
+        },
+        {
+          "module": "gameui",
+          "prefix": "CProfileButton_OnMouseDoublePressed_select_command_format_callsite"
+        },
+        {
+          "module": "gameui",
+          "prefix": "CCareerGame_BuildProfileList_ReadFile_callsite"
+        }
+      ]
     }
   ]
 }

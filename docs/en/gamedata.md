@@ -86,18 +86,18 @@ Only `czero` installs these hooks; CS and CZDS do not publish these client recor
 
 The declaration is [scripts/manifests/vgui2extension.json](../../scripts/manifests/vgui2extension.json).
 The list below follows its exact module, name and kind and has been checked against the
-source calls. It contains **130 explicit records** across 5 modules, including the
-initial `_0` records of **7 numbered patch sets**. Each numbered set can consume
-additional records; 130 is not the total size of every installed catalog.
+source calls. It contains **222 explicit records** across 5 modules, including the
+initial `_0` records of **19 numbered patch sets**. Each numbered set can consume
+additional records; 222 is not the total size of every installed catalog.
 
 | Module | Explicit entries |
 | --- | ---: |
 | `engine` | 14 |
 | `client` | 33 |
-| `gameui` | 73 |
+| `gameui` | 165 |
 | `serverbrowser` | 9 |
 | `vgui2` | 1 |
-| Total | 130 |
+| Total | 222 |
 
 A GameSymbol is identified by its module and name. Identical names in `engine`, `client`,
 `gameui` and `serverbrowser` refer to separate records. Conditions below describe the
@@ -113,6 +113,7 @@ these groups must not be interpreted as runtime mod-directory checks.
 | `global` | Resolve a global variable's address |
 | `virtualFunction` | Resolve a virtual method entry or query its owning vtable slot |
 | `vtable` | Resolve a module-owned virtual table for public-interface hooks |
+| `scalar` | Read an identity-specific numeric capacity, ABI or hook strategy |
 | `structMember` | Query a member's byte offset from the object base |
 | `patch` | Resolve an instruction or branch site to redirect or patch |
 
@@ -122,7 +123,7 @@ API 115's `mh_gamesymbol_t::vfuncIndex`.
 
 ### Manifest conditions
 
-`All` is the manifest's top-level `gameVersions` list. `G1` through `G24` identify the
+`All` is the manifest's top-level `gameVersions` list. `G1` through `G25` identify the
 current `conditionalGroups` entries in order. The `cl_time` exemption is explained under
 [Runtime conditions and optional records](#runtime-conditions-and-optional-records).
 
@@ -153,6 +154,7 @@ current `conditionalGroups` entries in order. The `cl_time` exemption is explain
 | G22 | `hl-8684`, `hl-10210`, `svencoop-8948`, `svencoop-10257` |
 | G23 | `hl-10210` |
 | G24 | `czero-10210`, `czero-8684` |
+| G25 | `hl-10210` |
 
 ## Symbols by module
 
@@ -406,3 +408,56 @@ other engine group (G4) declares just the two required `_0` records.
 
 Update this inventory with the manifest when symbol names, kinds, modules, version
 conditions or numbered patch sets change.
+
+## Career storage contract (G25)
+
+This group reserves 92 records for the u8hex storage implementation tracked by
+[issue #20](https://github.com/MetaHookSv/VGUI2Extension/issues/20), from
+[upstream #390](https://github.com/HLND2T/GoldSrc_VibeSignatures/issues/390).
+It does not install storage hooks or migrate saves. A retained upstream release
+containing these records must be published before this manifest is deployed.
+
+All records belong to shared `hl-10210/gameui/windows`; `czero/client` and other
+GameUI identities do not acquire this dependency. Future installation must also
+require `g_bIsCZero` at the existing game-type initialization stage. Linux data is
+static ABI corroboration, not Windows plugin platform support.
+
+The manifest names every function, virtual function, member and scalar, and all
+12 numbered groups. The extra DeleteProfile path and button double-click command
+are required. The selected-name copy group contains exactly two Windows sites.
+The complete difficulty constructor reuses its existing symbolName.
+
+Each patch has companion `_instruction_length`, `_hook_strategy` and `_abi`
+scalars. Strategy 0 uses the branch redirect API. Strategy 1 is the 3-byte
+BuildProfileList filesystem Open observation point: hook the public Open slot and
+filter by return address `site + length`, receiver, `rb` and enumeration scope.
+Strategy 2 is the 2-byte ResumeProfile `call eax` observation point: hook the
+public engine `Cvar_Set` target and filter by the exact return address and scope.
+Neither observation point can be overwritten with a five-byte CALL. Obtain the
+original target from the real public instance/table, not an indirect-branch
+address decoder. Existing hook handles restore the complete original instruction
+or slot when uninstalled; no MetaHook public API extension is required.
+
+ABI numbers are 1 `sprintf(dst,fmt,...)`, 2 `snprintf(dst,n,fmt,...)`, 3 fortified
+sprintf, 4 fortified snprintf, 5 `strncpy`, 6 returning `UTIL_va(fmt,...)`, 7
+thiscall filesystem Open, 8 cdecl Open, 9 cdecl ReadFile, 10 ReadFile with EAX path
+and EDX length pointer, and 11 cdecl `Cvar_Set(name,value)`. All formatters are
+caller-cleanup varargs; preserve all original arguments. Linux-only ABI values
+are not adapters implemented by this plugin.
+
+Windows verified capacities are 260 for each CZP path and SaveProfile CFG command,
+1024 for SendMatchCommand, 62 for PopulateProfiles selection commands, 32 for the
+legacy/name fields and 16384 for serialization. A 31-byte name produces a 68-byte
+key: write it directly into the final checked path/command destination, never
+into a 32-byte field. UI sidecars must capture the full name before truncation,
+including default/focus selection and button double-click; the returning
+formatter replacement owns its string storage for the synchronous command chain.
+
+Before installing any new storage hook, resolve the entire versioned contract,
+check group counts, ABI, strategy, capacities and every actual patch instruction,
+and fail closed on a missing/conflicting record. Keep raw names, legacy keys,
+canonical keys and enumerated real filenames separate. BuildProfileList retains
+its native STL return and is not called across CRTs. Missing files and failed
+writes must propagate through operation context; the original CreateBlankProfile
+returns void; PopulateProfiles returns an int profile count in EAX. Real-game storage/migration acceptance and unrelated disk errors
+remain outside this static data delivery.
