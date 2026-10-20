@@ -71,17 +71,17 @@ CRT locale，也不经过原有的 31 字节截断。无效 UTF-8 或缺失本�
 
 声明来源为 [scripts/manifests/vgui2extension.json](../../scripts/manifests/vgui2extension.json)。
 以下清单保留 manifest 中的完整 module、名称与 kind，并已对照源码调用核对。
-共 5 个 module、**130 条显式记录**，其中包含 **7 组连续编号补丁**的首条 `_0` 记录。
-每组编号补丁还可能消费后续记录，因此 130 不是每份安装 catalog 的记录总数。
+共 5 个 module、**222 条显式记录**，其中包含 **19 组连续编号补丁**的首条 `_0` 记录。
+每组编号补丁还可能消费后续记录，因此 222 不是每份安装 catalog 的记录总数。
 
 | Module | 显式记录数 |
 | --- | ---: |
 | `engine` | 14 |
 | `client` | 33 |
-| `gameui` | 73 |
+| `gameui` | 165 |
 | `serverbrowser` | 9 |
 | `vgui2` | 1 |
-| 合计 | 130 |
+| 合计 | 222 |
 
 GameSymbol 由 module 与名称共同定位。`engine`、`client`、`gameui`、`serverbrowser`
 中的同名符号是独立记录。下列条件表示 manifest 的 catalog 裁剪与校验范围；
@@ -96,6 +96,7 @@ GameSymbol 由 module 与名称共同定位。`engine`、`client`、`gameui`、`
 | `global` | 解析全局变量地址 |
 | `virtualFunction` | 解析虚函数入口，或查询所属 vtable 槽位 |
 | `vtable` | 解析模块自身的虚表，用于公开接口 hook |
+| `scalar` | 读取对应 identity 的容量、ABI 或 hook 策略整数 |
 | `structMember` | 查询成员相对对象起点的字节偏移 |
 | `patch` | 解析需重定向或修改的指令、分支位置 |
 
@@ -104,7 +105,7 @@ GameSymbol 由 module 与名称共同定位。`engine`、`client`、`gameui`、`
 
 ### Manifest 条件
 
-`All` 表示 manifest 顶层的 `gameVersions` 列表；`G1` 至 `G24` 按顺序对应当前
+`All` 表示 manifest 顶层的 `gameVersions` 列表；`G1` 至 `G25` 按顺序对应当前
 `conditionalGroups` 的条目。`cl_time` 的豁免见[运行条件与可选记录](#运行条件与可选记录)。
 
 | 条件 | Manifest 中的 gameVersions |
@@ -134,6 +135,7 @@ GameSymbol 由 module 与名称共同定位。`engine`、`client`、`gameui`、`
 | G22 | `hl-8684`, `hl-10210`, `svencoop-8948`, `svencoop-10257` |
 | G23 | `hl-10210` |
 | G24 | `czero-10210`, `czero-8684` |
+| G25 | `hl-10210` |
 
 ## 按 module 列出的符号
 
@@ -376,3 +378,46 @@ engine 的两个语言补丁同样是连续编号的：多数引擎把 Steam 语
   清单列出所有可能的消费，不表示启动时一次性查询全部记录。
 
 符号名称、kind、module、版本条件或连续编号组变化时，随 manifest 更新本清单。
+
+## 战役存储契约（G25）
+
+此组为 [#20](https://github.com/MetaHookSv/VGUI2Extension/issues/20) 的 u8hex
+方案预留 92 条记录，对应[上游 #390](https://github.com/HLND2T/GoldSrc_VibeSignatures/issues/390)。
+此契约依赖可保留上游 release
+[v20261020b](https://github.com/HLND2T/GoldSrc_VibeSignatures/releases/tag/v20261020b)
+发布的记录。本变更不安装存储 hook、不迁移文件。
+
+记录全部归属共享的 `hl-10210/gameui/windows`，不放入 `czero/client`，也不要求其他 GameUI identity
+提供这些记录。未来安装还须在既有游戏类型初始化阶段确认 `g_bIsCZero`。Linux 数据仅用于静态 ABI
+交叉核验，不代表 Windows 插件支持 Linux。
+
+manifest 明确列出函数、虚函数、成员、scalar 及 12 组连续编号调用点。DeleteProfile 路径和按钮双击
+命令同样必需；Windows selected-name copy 组恰好有两项。难度框完整构造函数复用已有真实 symbolName。
+
+每个 patch 同时消费 `_instruction_length`、`_hook_strategy` 与 `_abi` scalar。
+策略 0 使用分支重定向。策略 1 是 BuildProfileList 内联读取中的 3 字节 filesystem Open 观察点：
+hook 公开 Open 槽位，用 `site + length` 返回地址、真实 receiver、`rb` 和枚举 scope 过滤。
+策略 2 是 ResumeProfile 的 2 字节 `call eax` 观察点：hook 公开 engine `Cvar_Set` 目标，用精确返回地址
+与 scope 过滤。这两种观察点均不能写入五字节 CALL。原目标从真实公开实例/表取得，不能依靠间接
+分支地址解析器。卸载时由现有 hook handle 恢复完整原指令或槽位，无需扩展 MetaHook 公共 API。
+
+Windows hl-10210 GameUI 请求 `VFileSystem009`，实际使用旧版公开 `IFileSystem` ABI：
+原生 Read/Write 调用的字节偏移分别为 `0x54`/`0x58`，Open/Close 为 `0x28`/`0x2c`。
+应按真实 GameUI receiver 选择公开接口，不能仅按 engine build 选用 `IFileSystem_HL25`。
+Open/Write/Close/Flush/IsOk 均复用该 SDK 接口，不再发布另一套 filesystem 私有槽位表。
+
+ABI 编号：1 为 `sprintf(dst,fmt,...)`，2 为 `snprintf(dst,n,fmt,...)`，3/4 为对应 fortified
+变体，5 为 `strncpy`，6 为返回字符串的 `UTIL_va(fmt,...)`，7/8 为 thiscall/cdecl filesystem
+Open，9 为 cdecl ReadFile，10 为 EAX=path、EDX=length 指针的 ReadFile，11 为 cdecl
+`Cvar_Set(name,value)`。变参格式化均由调用方清栈，必须保留全部原参数；Linux 编号不表示插件已实现对应 adapter。
+
+Windows 已核验容量：CZP 路径与 SaveProfile CFG 命令均为 260，SendMatchCommand 为 1024，
+PopulateProfiles 选择命令为 62，legacy/name 字段为 32，序列化缓冲区为 16384。31 字节名字会生成
+68 字符 key，必须直接写入经容量检查的最终路径/命令，不能经过旧 32 字节字段。
+UI sidecar 需在截断前捕获完整名字，覆盖默认/焦点选择及按钮双击；返回式格式化替身需保证字符串
+在同步命令链内存活。
+
+未来安装任何新存储 hook 前必须完整解析版本契约，核对组数量、ABI、策略、容量及实际调用指令；
+缺失/冲突时整体 fail closed。区分原始名、legacy key、canonical key 和枚举真实文件名。
+BuildProfileList 保留 native STL 返回，不跨 CRT 接收；CreateBlankProfile 原型为 void，失败通过操作
+上下文传播；PopulateProfiles 返回 EAX 中的 int 档案数量。真实游戏存储与迁移验收、未归因磁盘错误由 #20 继续跟踪。

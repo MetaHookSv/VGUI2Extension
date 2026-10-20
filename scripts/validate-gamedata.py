@@ -1128,13 +1128,119 @@ def _publishes_keyvalues_loadfromfile(symbols, module):
     return any((module, name) in symbols for name in VGUI2EXTENSION_KEYVALUES_LOADFROMFILE_ALIASES)
 
 
+CAREER_STORAGE_HL10210_SCALARS = {
+    'CCareerGame_BuildProfileList_ReadFile_callsite_0_abi': 7,
+    'CCareerGame_BuildProfileList_ReadFile_callsite_0_hook_strategy': 1,
+    'CCareerGame_BuildProfileList_ReadFile_callsite_0_instruction_length': 3,
+    'CCareerGame_BuildProfileList_ReadFile_callsite_count': 1,
+    'CCareerGame_BuildProfileList_enumerated_path_capacity': 260,
+    'CCareerGame_CreateBlankProfile_profile_path_format_callsite_0_abi': 1,
+    'CCareerGame_CreateBlankProfile_profile_path_format_callsite_0_hook_strategy': 0,
+    'CCareerGame_CreateBlankProfile_profile_path_format_callsite_0_instruction_length': 5,
+    'CCareerGame_CreateBlankProfile_profile_path_format_callsite_count': 1,
+    'CCareerGame_CreateBlankProfile_profile_path_format_callsite_destination_capacity': 260,
+    'CCareerGame_DeleteProfile_profile_path_format_callsite_0_abi': 1,
+    'CCareerGame_DeleteProfile_profile_path_format_callsite_0_hook_strategy': 0,
+    'CCareerGame_DeleteProfile_profile_path_format_callsite_0_instruction_length': 5,
+    'CCareerGame_DeleteProfile_profile_path_format_callsite_count': 1,
+    'CCareerGame_DeleteProfile_profile_path_format_callsite_destination_capacity': 260,
+    'CCareerGame_GetProfileForName_profile_path_format_callsite_0_abi': 1,
+    'CCareerGame_GetProfileForName_profile_path_format_callsite_0_hook_strategy': 0,
+    'CCareerGame_GetProfileForName_profile_path_format_callsite_0_instruction_length': 5,
+    'CCareerGame_GetProfileForName_profile_path_format_callsite_count': 1,
+    'CCareerGame_GetProfileForName_profile_path_format_callsite_destination_capacity': 260,
+    'CCareerGame_LoadProfile_profile_path_format_callsite_0_abi': 1,
+    'CCareerGame_LoadProfile_profile_path_format_callsite_0_hook_strategy': 0,
+    'CCareerGame_LoadProfile_profile_path_format_callsite_0_instruction_length': 5,
+    'CCareerGame_LoadProfile_profile_path_format_callsite_count': 1,
+    'CCareerGame_LoadProfile_profile_path_format_callsite_destination_capacity': 260,
+    'CCareerGame_SaveProfile_config_command_format_callsite_0_abi': 2,
+    'CCareerGame_SaveProfile_config_command_format_callsite_0_hook_strategy': 0,
+    'CCareerGame_SaveProfile_config_command_format_callsite_0_instruction_length': 5,
+    'CCareerGame_SaveProfile_config_command_format_callsite_count': 1,
+    'CCareerGame_SaveProfile_config_command_format_callsite_destination_capacity': 260,
+    'CCareerGame_SaveProfile_profile_path_format_callsite_0_abi': 1,
+    'CCareerGame_SaveProfile_profile_path_format_callsite_0_hook_strategy': 0,
+    'CCareerGame_SaveProfile_profile_path_format_callsite_0_instruction_length': 5,
+    'CCareerGame_SaveProfile_profile_path_format_callsite_count': 1,
+    'CCareerGame_SaveProfile_profile_path_format_callsite_destination_capacity': 260,
+    'CCareerGame_SendMatchCommand_config_command_format_callsite_0_abi': 2,
+    'CCareerGame_SendMatchCommand_config_command_format_callsite_0_hook_strategy': 0,
+    'CCareerGame_SendMatchCommand_config_command_format_callsite_0_instruction_length': 5,
+    'CCareerGame_SendMatchCommand_config_command_format_callsite_count': 1,
+    'CCareerGame_SendMatchCommand_config_command_format_callsite_destination_capacity': 1024,
+    'CCareerGame_legacy_key_capacity': 32,
+    'CCareerGame_profile_buffer_capacity': 16384,
+    'CCareerGame_u8hex_storage_contract_version': 1,
+    'CCareerProfileFrame_PopulateProfiles_select_command_format_callsite_0_abi': 2,
+    'CCareerProfileFrame_PopulateProfiles_select_command_format_callsite_0_hook_strategy': 0,
+    'CCareerProfileFrame_PopulateProfiles_select_command_format_callsite_0_instruction_length': 5,
+    'CCareerProfileFrame_PopulateProfiles_select_command_format_callsite_count': 1,
+    'CCareerProfileFrame_PopulateProfiles_select_command_format_callsite_destination_capacity': 62,
+    'CCareerProfileFrame_ResumeProfile_name_set_callsite_0_abi': 11,
+    'CCareerProfileFrame_ResumeProfile_name_set_callsite_0_hook_strategy': 2,
+    'CCareerProfileFrame_ResumeProfile_name_set_callsite_0_instruction_length': 2,
+    'CCareerProfileFrame_ResumeProfile_name_set_callsite_count': 1,
+    'CCareerProfileFrame_selected_name_capacity': 32,
+    'CCareerProfileFrame_selected_name_copy_callsite_0_abi': 5,
+    'CCareerProfileFrame_selected_name_copy_callsite_0_hook_strategy': 0,
+    'CCareerProfileFrame_selected_name_copy_callsite_0_instruction_length': 6,
+    'CCareerProfileFrame_selected_name_copy_callsite_1_abi': 5,
+    'CCareerProfileFrame_selected_name_copy_callsite_1_hook_strategy': 0,
+    'CCareerProfileFrame_selected_name_copy_callsite_1_instruction_length': 6,
+    'CCareerProfileFrame_selected_name_copy_callsite_count': 2,
+    'CProfileButton_OnMouseDoublePressed_select_command_format_callsite_0_abi': 6,
+    'CProfileButton_OnMouseDoublePressed_select_command_format_callsite_0_hook_strategy': 0,
+    'CProfileButton_OnMouseDoublePressed_select_command_format_callsite_0_instruction_length': 5,
+    'CProfileButton_OnMouseDoublePressed_select_command_format_callsite_count': 1,
+    'CProfileButton_name_capacity': 32,
+}
+
+
+def validate_career_storage(symbols, game_version):
+    """Validate the complete Windows storage contract when it is advertised.
+
+    The plugin handlers are tracked separately by #20. Observation sites with
+    strategy 1/2 must never be sent to InlinePatchRedirectBranch.
+    """
+    marker = 'CCareerGame_u8hex_storage_contract_version'
+    if ('gameui', marker) not in symbols:
+        return []  # Manifest coverage reports a missing required marker.
+    if game_version != 'hl-10210':
+        return [f"'{game_version}': unreviewed Windows Career storage identity"]
+    errors = []
+    for name, expected in CAREER_STORAGE_HL10210_SCALARS.items():
+        record = symbols.get(('gameui', name), {})
+        value = record.get('value')
+        if record.get('kind') != 'scalar' or type(value) is not int or value != expected:
+            errors.append(f"'{game_version}': Career storage scalar '{name}' must equal {expected}")
+    for name, offset in (('CProfileButton.m_name', 0x13c),
+                         ('CProfileButton.m_active', 0x110),
+                         ('CCareerProfileFrame.m_name', 0x1f8)):
+        record = symbols.get(('gameui', name), {})
+        actual = record.get('offset')
+        if record.get('kind') != 'structMember' or actual != offset:
+            errors.append(f"'{game_version}': Career storage member '{name}' has an unreviewed offset")
+    for name in CAREER_STORAGE_HL10210_SCALARS:
+        if not name.endswith('_count'):
+            continue
+        prefix = name.removesuffix('_count') + '_'
+        expected = CAREER_STORAGE_HL10210_SCALARS[name]
+        actual = {symbol for (module, symbol), record in symbols.items()
+                  if module == 'gameui' and record.get('kind') == 'patch'
+                  and symbol.startswith(prefix) and symbol[len(prefix):].isdigit()}
+        if actual != {prefix + str(i) for i in range(expected)}:
+            errors.append(f"'{game_version}': Career storage patch group '{prefix}' is incomplete or conflicting")
+    return errors
+
+
 def validate_vgui2extension(symbols, game_version, include_engine=True):
     """Check native client UI entry coverage without requiring it on non-CS clients.
 
     include_engine is False for the client-only snapshots, which publish neither
     an engine module nor a gameui / serverbrowser module.
     """
-    errors = []
+    errors = validate_career_storage(symbols, game_version)
     if include_engine:
         errors += _consumer_check(symbols, game_version, VGUI2EXTENSION_GAMEUI_FUNCTIONS,
                                   "function", "gameui", "VGUI2Extension")
@@ -1495,6 +1601,8 @@ def validate_manifest_coverage(manifest, game_symbols):
                         errors.append(f"'{gv}': manifest '{name}': '{symbol}' must be a {expected_kind} record")
 
         # Required (unconditional) numbered sets, plus any inside an active group.
+        errors += validate_career_storage(symbols, gv)
+
         numbered_sets = list(manifest["numberedPatchSets"])
         for group in manifest["conditionalGroups"]:
             if gv in group["exempt"]:
