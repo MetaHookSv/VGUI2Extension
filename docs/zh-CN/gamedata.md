@@ -383,7 +383,9 @@ engine 的两个语言补丁同样是连续编号的：多数引擎把 Steam 语
 
 此组为 [#20](https://github.com/MetaHookSv/VGUI2Extension/issues/20) 的 u8hex
 方案预留 92 条记录，对应[上游 #390](https://github.com/HLND2T/GoldSrc_VibeSignatures/issues/390)。
-本变更不安装存储 hook、不迁移文件；部署此 manifest 前必须先发布包含这些记录的可保留上游 release。
+此契约依赖可保留上游 release
+[v20261020b](https://github.com/HLND2T/GoldSrc_VibeSignatures/releases/tag/v20261020b)
+发布的记录。本变更不安装存储 hook、不迁移文件。
 
 记录全部归属共享的 `hl-10210/gameui/windows`，不放入 `czero/client`，也不要求其他 GameUI identity
 提供这些记录。未来安装还须在既有游戏类型初始化阶段确认 `g_bIsCZero`。Linux 数据仅用于静态 ABI
@@ -398,6 +400,11 @@ hook 公开 Open 槽位，用 `site + length` 返回地址、真实 receiver、`
 策略 2 是 ResumeProfile 的 2 字节 `call eax` 观察点：hook 公开 engine `Cvar_Set` 目标，用精确返回地址
 与 scope 过滤。这两种观察点均不能写入五字节 CALL。原目标从真实公开实例/表取得，不能依靠间接
 分支地址解析器。卸载时由现有 hook handle 恢复完整原指令或槽位，无需扩展 MetaHook 公共 API。
+
+Windows hl-10210 GameUI 请求 `VFileSystem009`，实际使用旧版公开 `IFileSystem` ABI：
+原生 Read/Write 调用的字节偏移分别为 `0x54`/`0x58`，Open/Close 为 `0x28`/`0x2c`。
+应按真实 GameUI receiver 选择公开接口，不能仅按 engine build 选用 `IFileSystem_HL25`。
+Open/Write/Close/Flush/IsOk 均复用该 SDK 接口，不再发布另一套 filesystem 私有槽位表。
 
 ABI 编号：1 为 `sprintf(dst,fmt,...)`，2 为 `snprintf(dst,n,fmt,...)`，3/4 为对应 fortified
 变体，5 为 `strncpy`，6 为返回字符串的 `UTIL_va(fmt,...)`，7/8 为 thiscall/cdecl filesystem

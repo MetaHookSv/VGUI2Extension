@@ -414,8 +414,9 @@ conditions or numbered patch sets change.
 This group reserves 92 records for the u8hex storage implementation tracked by
 [issue #20](https://github.com/MetaHookSv/VGUI2Extension/issues/20), from
 [upstream #390](https://github.com/HLND2T/GoldSrc_VibeSignatures/issues/390).
-It does not install storage hooks or migrate saves. A retained upstream release
-containing these records must be published before this manifest is deployed.
+It requires the records published in the retained upstream release
+[v20261020b](https://github.com/HLND2T/GoldSrc_VibeSignatures/releases/tag/v20261020b).
+It does not install storage hooks or migrate saves.
 
 All records belong to shared `hl-10210/gameui/windows`; `czero/client` and other
 GameUI identities do not acquire this dependency. Future installation must also
@@ -437,6 +438,13 @@ Neither observation point can be overwritten with a five-byte CALL. Obtain the
 original target from the real public instance/table, not an indirect-branch
 address decoder. Existing hook handles restore the complete original instruction
 or slot when uninstalled; no MetaHook public API extension is required.
+
+Windows hl-10210 GameUI requests `VFileSystem009` and uses the legacy public
+`IFileSystem` ABI: its native Read and Write calls use byte offsets `0x54` and
+`0x58`, alongside Open `0x28` and Close `0x2c`. Select the public interface for
+the actual GameUI receiver; the engine build alone does not select
+`IFileSystem_HL25`. Use that SDK interface for Open/Write/Close/Flush/IsOk,
+without publishing another private filesystem slot map.
 
 ABI numbers are 1 `sprintf(dst,fmt,...)`, 2 `snprintf(dst,n,fmt,...)`, 3 fortified
 sprintf, 4 fortified snprintf, 5 `strncpy`, 6 returning `UTIL_va(fmt,...)`, 7
