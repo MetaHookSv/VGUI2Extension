@@ -10,6 +10,8 @@ set(VGUI2EXTENSION_SOURCES
     "src/BaseUI.cpp"
     "src/ClientVGUI.cpp"
     "src/CounterStrikeViewport.cpp"
+    "src/CareerProfileStorage.cpp"
+    "src/CareerProfileStorageHooks.cpp"
     "src/DpiManagerInternal.cpp"
     "src/EngineSurfaceHook.cpp"
     "src/InputWin32.cpp"

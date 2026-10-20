@@ -53,6 +53,24 @@ HiDPI 支持为 VGUI2 控件应用 HDProportional 缩放，并通过文件系统
 2. `(GameDirectory)\(ModDirectory)_hidpi`
    例如：`\Sven Co-op\svencoop_hidpi` 或 `\Half-Life\valve_hidpi`。
 
+## Condition Zero 战役档案
+
+Windows x86 czero 配合已核验的 hl-10210 GameUI，所有新档案均使用 `u8hex-` 加完整 UTF-8
+原名的小写十六进制，包括纯 ASCII 名字。中文名、`A/a`、前 31 字节相同的长名字保持独立身份；
+UI 与 CZP 内仍保留原名。其他构建和 Deleted Scenes 不启用此存储接入。
+分发此实现前，须先发布新增的运行时 [gamedata 契约](gamedata.md#战役存储契约g25g26)。
+
+进度仍写入活动 mission pack 的 saveDir；个人 CFG 仍位于 `Save/`，同一完整原名跨 pack 共享。
+仅当 canonical 进度确实不存在、旧 CZP 内原名逐字节匹配时读取 legacy。正常保存生成 canonical，
+保留旧副本，列表去重。确认删除仅清理当前 pack 中已验证归属的副本，保留个人 CFG。
+
+请先备份已有档案。旧下划线冲突已覆盖的数据无法恢复；共享 legacy CFG 不会自动导入或执行。
+canonical 损坏、不可读或属于其他名字时阻止操作。危险字符和超出完整路径/命令容量的名字明确拒绝，
+不截断。关闭插件后，原版不能可靠地恢复或删除这些新 key 对应的档案。
+
+CZP 打开失败、短写和可观察的 flush 错误会明确报告。CFG 日志只表示已请求写入，实际由引擎稍后执行。
+这不提供短写后的原子替换，也不保证断电持久性。
+
 ## 启动参数
 
 | 参数 | 作用 |

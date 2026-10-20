@@ -706,6 +706,27 @@
           "prefix": "CCareerGame_BuildProfileList_ReadFile_callsite"
         }
       ]
+    },
+    {
+      "when": ["hl-10210"],
+      "symbols": {
+        "gameui": {
+          "CareerStorage_runtime_contract_version": "scalar",
+          "CCareerNewProfileBox_native_input_capacity": "scalar",
+          "CareerStorage_Definitions": "global",
+          "CareerStorage_Game": "global",
+          "CareerStorage_FileSystem": "global",
+          "CCareerDefinitionManager.m_activeCareer": "structMember",
+          "CCareerDefinition.m_saveDir": "structMember",
+          "CCareerGame.m_profileWriter": "structMember",
+          "CCareerGame.m_needAutosave": "structMember",
+          "BufferWriter.m_overflow": "structMember",
+          "CCareerNewProfileBox.m_pNameEntry": "structMember",
+          "vgui2::TextEntry.m_textLength": "structMember",
+          "vgui2::TextEntry::GetText(wchar_t*, int)": "virtualFunction",
+          "CCareerGame::CreateProfileBuffer(CCareerProfileData*, unsigned char*, int, bool)": "function"
+        }
+      }
     }
   ]
 }
