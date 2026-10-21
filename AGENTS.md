@@ -15,6 +15,7 @@ This file provides guidance and important rules working with code in this reposi
 
 - Project overview and codebase entry points: `project_overview`
 - Build commands, dependency pinning, gamedata sync, verification status: `build_and_verification`
+- C/C++ formatting toolchain, commands and check scope: `CppFormatting`
 
 ### When notes are insufficient: source entry points (query and read on demand)
 
