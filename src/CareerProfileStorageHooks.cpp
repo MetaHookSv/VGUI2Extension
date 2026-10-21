@@ -1652,13 +1652,13 @@ void CareerStorage_FillAddress()
         auto member = [&](const char* name) {
             return GamedataResolveStructMember(g_GameUIDllInfo.ImageBase, "gameui", name);
         };
-        activeOffset       = member("CCareerDefinitionManager.m_activeCareer");
-        directoryOffset    = member("CCareerDefinition.m_saveDir");
-        writerOffset       = member("CCareerGame.m_profileWriter");
+        activeOffset       = member("CareerDefinitionManager.m_activeCareer");
+        directoryOffset    = member("CareerDefinition.m_saveDir");
+        writerOffset       = member("CCareerGame.m_writer");
         overflowOffset     = member("BufferWriter.m_overflow");
         needAutosaveOffset = member("CCareerGame.m_needAutosave");
-        entryOffset        = member("CCareerNewProfileBox.m_pNameEntry");
-        textLengthOffset   = member("vgui2::TextEntry.m_textLength");
+        entryOffset        = member("CCareerNewProfileBox.m_pEntry");
+        textLengthOffset   = member("vgui2::TextEntry.m_TextStream.m_Size");
         frameNameOffset    = member("CCareerProfileFrame.m_name");
         buttonNameOffset   = member("CProfileButton.m_name");
         buttonActiveOffset = member("CProfileButton.m_active");
@@ -1667,9 +1667,9 @@ void CareerStorage_FillAddress()
         auto global = [&](const char* name) {
             return static_cast<void**>(GamedataResolvePtr(g_GameUIDllInfo.ImageBase, "gameui", name, MH_GAMESYMBOL_KIND_GLOBAL));
         };
-        definitionsStorage = global("CareerStorage_Definitions");
-        gameStorage        = global("CareerStorage_Game");
-        filesystemStorage  = global("CareerStorage_FileSystem");
+        definitionsStorage = global("TheCareerDefinitions");
+        gameStorage        = global("TheCareerGame");
+        filesystemStorage  = global("vgui2::g_pFileSystemInterface");
         supported          = true;
     }
     catch (const std::exception& error)
