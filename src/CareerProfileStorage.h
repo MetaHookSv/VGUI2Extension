@@ -124,10 +124,13 @@ public:
     Status Finish() const;
 
 private:
-    Status   Fail(Error next);
+    Status Fail(Error next);
+
     Error    error  = Error::None;
     size_t   length = 0;
-    unsigned opens = 0, writes = 0, closes = 0;
+    unsigned opens  = 0;
+    unsigned writes = 0;
+    unsigned closes = 0;
 };
 
 enum class FileState
@@ -164,6 +167,7 @@ class ProfileIndex
 {
 public:
     explicit ProfileIndex(std::string_view saveDirectory);
+
     //Call only after a complete directory scan and independent inspection.
     //Invalid/unreadable observations remain indexed to prevent legacy fallback.
     Status Add(ObservedProfile observed);
@@ -183,9 +187,10 @@ private:
         bool            canonical = false;
     };
 
-    Error                   CheckIdentity(const Identity& identity) const;
-    const Record*           Find(std::string_view path) const;
-    Result<std::string>     Resolve(std::string_view rawUtf8, std::string_view canonicalPath) const;
+    Error               CheckIdentity(const Identity& identity) const;
+    const Record*       Find(std::string_view path) const;
+    Result<std::string> Resolve(std::string_view rawUtf8, std::string_view canonicalPath) const;
+
     std::string             directory;
     std::vector<Record>     records;
     std::vector<Diagnostic> diagnostics;
@@ -220,8 +225,10 @@ class OperationScope
 public:
     explicit OperationScope(OperationContext context);
     ~OperationScope();
-    OperationScope(const OperationScope&)                     = delete;
-    OperationScope&          operator=(const OperationScope&) = delete;
+
+    OperationScope(const OperationScope&)            = delete;
+    OperationScope& operator=(const OperationScope&) = delete;
+
     static OperationContext* Current() noexcept;
     OperationContext&        Context() noexcept { return context; }
 
@@ -245,6 +252,7 @@ class IdentitySidecars
 {
 public:
     explicit IdentitySidecars(std::function<bool(PanelHandle)> isLive);
+
     Status                                           BeginPopulate(PanelHandle frame, std::string_view saveDirectory);
     Result<std::string>                              AddButton(PanelHandle frame, PanelHandle button, std::string_view rawUtf8);
     Result<std::string>                              ButtonName(PanelHandle button) const;
@@ -265,6 +273,7 @@ private:
         PanelHandle button;
         std::string rawUtf8;
     };
+
     struct Frame
     {
         std::string                    directory;
@@ -275,15 +284,17 @@ private:
         std::string                    confirmedName;
         Operation                      confirmedOperation = Operation::Query;
     };
+
     struct Button
     {
         PanelHandle frame;
         std::string rawUtf8;
     };
 
-    Frame*                           GetFrame(PanelHandle frame);
-    const Frame*                     GetFrame(PanelHandle frame) const;
-    Result<std::string>              NewToken();
+    Frame*              GetFrame(PanelHandle frame);
+    const Frame*        GetFrame(PanelHandle frame) const;
+    Result<std::string> NewToken();
+
     std::function<bool(PanelHandle)> isLive;
     std::map<PanelHandle, Frame>     frames;
     std::map<PanelHandle, Button>    buttons;
