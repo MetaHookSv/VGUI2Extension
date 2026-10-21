@@ -1203,13 +1203,13 @@ CAREER_STORAGE_HL10210_MEMBERS = {
     'CProfileButton.m_name': 0x13c,
     'CProfileButton.m_active': 0x110,
     'CCareerProfileFrame.m_name': 0x1f8,
-    'CCareerDefinitionManager.m_activeCareer': 12,
-    'CCareerDefinition.m_saveDir': 24,
-    'CCareerGame.m_profileWriter': 8,
+    'CareerDefinitionManager.m_activeCareer': 12,
+    'CareerDefinition.m_saveDir': 24,
+    'CCareerGame.m_writer': 8,
     'CCareerGame.m_needAutosave': 66,
     'BufferWriter.m_overflow': 8,
-    'CCareerNewProfileBox.m_pNameEntry': 324,
-    'vgui2::TextEntry.m_textLength': 136,
+    'CCareerNewProfileBox.m_pEntry': 324,
+    'vgui2::TextEntry.m_TextStream.m_Size': 136,
 }
 
 
@@ -1236,8 +1236,8 @@ def validate_career_storage(symbols, game_version):
         if record.get('kind') != 'structMember' or actual != offset:
             errors.append(f"'{game_version}': Career storage member '{name}' has an unreviewed offset")
     for name, kind in (
-        ('CareerStorage_Definitions', 'global'), ('CareerStorage_Game', 'global'),
-        ('CareerStorage_FileSystem', 'global'),
+        ('TheCareerDefinitions', 'global'), ('TheCareerGame', 'global'),
+        ('vgui2::g_pFileSystemInterface', 'global'),
         ('CCareerGame::CreateProfileBuffer(CCareerProfileData*, unsigned char*, int, bool)', 'function'),
         ('vgui2::TextEntry::GetText(wchar_t*, int)', 'virtualFunction'),
     ):

@@ -481,16 +481,16 @@ a returned length alone does not prove that the complete profile fitted.
 | --- | --- |
 | `CareerStorage_runtime_contract_version` (=1) | `scalar` |
 | `CCareerNewProfileBox_native_input_capacity` (=64) | `scalar` |
-| `CareerStorage_Definitions` | `global` |
-| `CareerStorage_Game` | `global` |
-| `CareerStorage_FileSystem` | `global` |
-| `CCareerDefinitionManager.m_activeCareer` | `structMember` |
-| `CCareerDefinition.m_saveDir` | `structMember` |
-| `CCareerGame.m_profileWriter` | `structMember` |
+| `TheCareerDefinitions` | `global` |
+| `TheCareerGame` | `global` |
+| `vgui2::g_pFileSystemInterface` | `global` |
+| `CareerDefinitionManager.m_activeCareer` | `structMember` |
+| `CareerDefinition.m_saveDir` | `structMember` |
+| `CCareerGame.m_writer` | `structMember` |
 | `CCareerGame.m_needAutosave` | `structMember` |
 | `BufferWriter.m_overflow` | `structMember` |
-| `CCareerNewProfileBox.m_pNameEntry` | `structMember` |
-| `vgui2::TextEntry.m_textLength` | `structMember` |
+| `CCareerNewProfileBox.m_pEntry` | `structMember` |
+| `vgui2::TextEntry.m_TextStream.m_Size` | `structMember` |
 | `CCareerGame::CreateProfileBuffer(CCareerProfileData*, unsigned char*, int, bool)` | `function` |
 | `vgui2::TextEntry::GetText(wchar_t*, int)` | `virtualFunction` |
 

@@ -23,9 +23,9 @@ class CareerStorageContractTests(unittest.TestCase):
                 for index in range(value):
                     add(f'{prefix}_{index}', 'patch', {'patch_rva': '0x2000'})
         for name, offset in validator.CAREER_STORAGE_HL10210_MEMBERS.items():
-            struct, member = name.split('.')
+            struct, member = name.split('.', 1)
             add(name, 'structMember', {'struct_name': struct, 'member_name': member, 'offset': hex(offset)})
-        for name in ('CareerStorage_Definitions', 'CareerStorage_Game', 'CareerStorage_FileSystem'):
+        for name in ('TheCareerDefinitions', 'TheCareerGame', 'vgui2::g_pFileSystemInterface'):
             add(name, 'global', {'gv_name': name, 'gv_rva': '0x1000', 'gv_va': '0x10001000',
                                  'gv_sig_va': '0x10002000', 'gv_sig': 'A1 ?? ?? ?? ??',
                                  'gv_inst_offset': '0x0', 'gv_inst_disp': '0x1', 'gv_inst_length': '0x5'})
@@ -79,7 +79,7 @@ class CareerStorageContractTests(unittest.TestCase):
         self.assertTrue(validator.validate_career_storage(self.fixture(), 'hl-8684'))
 
     def test_missing_preflight_and_changed_wide_getter_fail_closed(self):
-        for name in ('CareerStorage_Definitions', 'CCareerDefinition.m_saveDir',
+        for name in ('TheCareerDefinitions', 'CareerDefinition.m_saveDir',
                      'BufferWriter.m_overflow', 'CareerStorage_runtime_contract_version'):
             with self.subTest(name=name):
                 symbols = self.fixture()
