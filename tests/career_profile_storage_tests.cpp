@@ -314,7 +314,8 @@ void NativeWriteFailures()
             assert(audit.Opening());
             audit.Opened(failure != Error::OpenFailed);
             audit.Written(length, failure == Error::ShortWrite ? length - 1 : length);
-            if (failure != Error::CoverageMismatch) audit.Closed(failure != Error::FlushFailed);
+            if (failure != Error::CoverageMismatch)
+                audit.Closed(failure != Error::FlushFailed);
         }
         assert(failure == audit.Finish().error);
     }
