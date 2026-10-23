@@ -69,19 +69,34 @@ CRT locale，也不经过原有的 31 字节截断。无效 UTF-8 或缺失本�
 跳过重复激活，防止对话框覆盖下拉菜单。首次激活、其他调用方和模态设置保留原行为；
 关闭 popup 后恢复原生处理。仅 `czero` 安装这组 hook；CS 和 CZDS 不发布这组 client 记录。
 
+任期回合结束窗口的 ESC 修复还需要 client 的 `CCSCareerRoundEndMenu` 虚表及
+`vgui2::Frame::OnKeyCodePressed(vgui2::KeyCode)`、
+`vgui2::Frame::OnKeyCodeTyped(vgui2::KeyCode)` 的虚槽位，已通过
+[GoldSrc_VibeSignatures #397](https://github.com/HLND2T/GoldSrc_VibeSignatures/issues/397)
+请求补齐。仅修改 RoundEnd 的虚表：ESC 保留待确认窗口，引擎仍切换主菜单；其他按键与
+原有按钮命令照常处理。两个 KeyCode 入口均受保护，包括 Typed 的 app-modal 关闭路径。
+这三项记录已在 `v20261023a` 发布，旧 catalog 无法通过扩展后的 manifest，也无法在
+`czero` 中运行此 DLL；应搭配匹配 catalog 部署。其他游戏不解析或安装这组 hook。
+
+投降确认框的回归还需要 `CCSCareerRoundEndMenu::OnCommand(char const*)`，已通过
+[GoldSrc_VibeSignatures #399](https://github.com/HLND2T/GoldSrc_VibeSignatures/issues/399)
+请求补齐。RoundEnd 虚表中的命令 hook 忽略子确认框转发的通用 `Close` / `Cancel`，
+保留待确认的 Career 选择；业务命令继续由原生处理。这第四项记录已在 `v20261023b`
+发布；最终 DLL 应搭配该版本或更新 catalog，`v20261023a` 不满足扩展后的 manifest。
+
 声明来源为 [scripts/manifests/vgui2extension.json](../../scripts/manifests/vgui2extension.json)。
 以下清单保留 manifest 中的完整 module、名称与 kind，并已对照源码调用核对。
-共 5 个 module、**222 条显式记录**，其中包含 **19 组连续编号补丁**的首条 `_0` 记录。
-每组编号补丁还可能消费后续记录，因此 222 不是每份安装 catalog 的记录总数。
+共 5 个 module、**226 条显式记录**，其中包含 **19 组连续编号补丁**的首条 `_0` 记录。
+每组编号补丁还可能消费后续记录，因此 226 不是每份安装 catalog 的记录总数。
 
 | Module | 显式记录数 |
 | --- | ---: |
 | `engine` | 14 |
-| `client` | 33 |
+| `client` | 37 |
 | `gameui` | 165 |
 | `serverbrowser` | 9 |
 | `vgui2` | 1 |
-| 合计 | 222 |
+| 合计 | 226 |
 
 GameSymbol 由 module 与名称共同定位。`engine`、`client`、`gameui`、`serverbrowser`
 中的同名符号是独立记录。下列条件表示 manifest 的 catalog 裁剪与校验范围；
@@ -174,6 +189,10 @@ GameSymbol 由 module 与名称共同定位。`engine`、`client`、`gameui`、`
 | `CounterStrikeViewport::OnTick()` | `virtualFunction` | G24 |
 | `CCareerBaseBox::BringToFront()` | `function` | G24 |
 | `CCareerBaseBox::s_currentBox` | `global` | G24 |
+| `CCSCareerRoundEndMenu` | `vtable` | G24 |
+| `CCSCareerRoundEndMenu::OnCommand(char const*)` | `virtualFunction` | G24 |
+| `vgui2::Frame::OnKeyCodePressed(vgui2::KeyCode)` | `virtualFunction` | G24 |
+| `vgui2::Frame::OnKeyCodeTyped(vgui2::KeyCode)` | `virtualFunction` | G24 |
 | `CounterStrikeViewport.m_pCSBackGround` | `structMember` | G8 |
 | `CounterStrikeViewport::CCSBackGroundPanel.m_offsetX` | `structMember` | G8 |
 | `CounterStrikeViewport::CCSBackGroundPanel.m_offsetY` | `structMember` | G8 |

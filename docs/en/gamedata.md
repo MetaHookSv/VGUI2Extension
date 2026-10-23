@@ -84,20 +84,40 @@ descendant popup. This keeps the dropdown above its owner without changing initi
 activation, other callers or modal setup. Closing the popup resumes native behavior.
 Only `czero` installs these hooks; CS and CZDS do not publish these client records.
 
+The Career round-end ESC fix additionally requires the client `CCSCareerRoundEndMenu`
+vtable and the virtual slots of `vgui2::Frame::OnKeyCodePressed(vgui2::KeyCode)` and
+`vgui2::Frame::OnKeyCodeTyped(vgui2::KeyCode)`, requested in
+[GoldSrc_VibeSignatures #397](https://github.com/HLND2T/GoldSrc_VibeSignatures/issues/397).
+Only the RoundEnd table is hooked: ESC leaves the pending choice intact while the
+engine toggles GameUI; other keys and the original button commands are forwarded.
+Both key-code paths are protected, including the Typed app-modal close path.
+These three records are published in `v20261023a`. An older catalog fails the
+extended manifest and cannot run this DLL on `czero`; deploy it with the matching
+catalog. Other games do not resolve or install these hooks.
+
+The surrender-confirmation regression additionally requires
+`CCSCareerRoundEndMenu::OnCommand(char const*)`, requested in
+[GoldSrc_VibeSignatures #399](https://github.com/HLND2T/GoldSrc_VibeSignatures/issues/399).
+Its RoundEnd-table hook ignores generic `Close` / `Cancel` commands that a child
+confirmation can forward, preserving the pending Career choice. Business commands
+retain their native handlers. This fourth record is published in `v20261023b`;
+deploy the final DLL with that catalog or newer. `v20261023a` does not satisfy
+the extended manifest.
+
 The declaration is [scripts/manifests/vgui2extension.json](../../scripts/manifests/vgui2extension.json).
 The list below follows its exact module, name and kind and has been checked against the
-source calls. It contains **222 explicit records** across 5 modules, including the
+source calls. It contains **226 explicit records** across 5 modules, including the
 initial `_0` records of **19 numbered patch sets**. Each numbered set can consume
-additional records; 222 is not the total size of every installed catalog.
+additional records; 226 is not the total size of every installed catalog.
 
 | Module | Explicit entries |
 | --- | ---: |
 | `engine` | 14 |
-| `client` | 33 |
+| `client` | 37 |
 | `gameui` | 165 |
 | `serverbrowser` | 9 |
 | `vgui2` | 1 |
-| Total | 222 |
+| Total | 226 |
 
 A GameSymbol is identified by its module and name. Identical names in `engine`, `client`,
 `gameui` and `serverbrowser` refer to separate records. Conditions below describe the
@@ -193,6 +213,10 @@ Sources: [ClientVGUI.cpp](../../src/ClientVGUI.cpp) and [privatefuncs.cpp](../..
 | `CounterStrikeViewport::OnTick()` | `virtualFunction` | G24 |
 | `CCareerBaseBox::BringToFront()` | `function` | G24 |
 | `CCareerBaseBox::s_currentBox` | `global` | G24 |
+| `CCSCareerRoundEndMenu` | `vtable` | G24 |
+| `CCSCareerRoundEndMenu::OnCommand(char const*)` | `virtualFunction` | G24 |
+| `vgui2::Frame::OnKeyCodePressed(vgui2::KeyCode)` | `virtualFunction` | G24 |
+| `vgui2::Frame::OnKeyCodeTyped(vgui2::KeyCode)` | `virtualFunction` | G24 |
 | `CounterStrikeViewport.m_pCSBackGround` | `structMember` | G8 |
 | `CounterStrikeViewport::CCSBackGroundPanel.m_offsetX` | `structMember` | G8 |
 | `CounterStrikeViewport::CCSBackGroundPanel.m_offsetY` | `structMember` | G8 |
