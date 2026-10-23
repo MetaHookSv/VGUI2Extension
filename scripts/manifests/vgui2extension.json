@@ -558,7 +558,11 @@
         "client": {
           "CounterStrikeViewport::OnTick()": "virtualFunction",
           "CCareerBaseBox::BringToFront()": "function",
-          "CCareerBaseBox::s_currentBox": "global"
+          "CCareerBaseBox::s_currentBox": "global",
+          "CCSCareerRoundEndMenu": "vtable",
+          "CCSCareerRoundEndMenu::OnCommand(char const*)": "virtualFunction",
+          "vgui2::Frame::OnKeyCodePressed(vgui2::KeyCode)": "virtualFunction",
+          "vgui2::Frame::OnKeyCodeTyped(vgui2::KeyCode)": "virtualFunction"
         }
       }
     },
