@@ -620,11 +620,11 @@ void CClientVGUIProxy::Initialize(CreateInterfaceFn* factories, int count)
         return;
     }
 
-    if (gEngfuncs.CheckParm("clientui_use_hdp", NULL))
+    if (gEngfuncs.CheckParm("-clientui_use_hdp", NULL))
     {
         g_IsNativeClientUIHDProportional = true;
     }
-    else if (gEngfuncs.CheckParm("clientui_no_hdp", NULL))
+    else if (gEngfuncs.CheckParm("-clientui_no_hdp", NULL))
     {
         g_IsNativeClientUIHDProportional = false;
     }
