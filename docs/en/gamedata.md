@@ -149,12 +149,12 @@ current `conditionalGroups` entries in order. The `cl_time` exemption is explain
 
 | Condition | gameVersions in the manifest |
 | --- | --- |
-| All | `cof-5936`, `cstrike-10210`, `cstrike-3248`, `cstrike-3647`, `cstrike-4554`, `cstrike-6153`, `cstrike-8684`, `czero-10210`, `czero-8684`, `czeror-10210`, `czeror-8684`, `hl-10210`, `hl-3248`, `hl-3266`, `hl-3329`, `hl-3647`, `hl-4554`, `hl-6153`, `hl-8684`, `svencoop-10257`, `svencoop-8948` |
+| All | `cof-5936`, `cstrike-10210`, `cstrike-3248`, `cstrike-3647`, `cstrike-4554`, `cstrike-6153`, `cstrike-8684`, `cstrikegameui-8684`, `czero-10210`, `czero-8684`, `czeror-10210`, `czeror-8684`, `decay`, `hl-10210`, `hl-3248`, `hl-3266`, `hl-3329`, `hl-3647`, `hl-4554`, `hl-6153`, `hl-8684`, `svencoop-10257`, `svencoop-8948` |
 | G1 | `cof-5936`, `hl-10210`, `hl-3248`, `hl-3266`, `hl-3329`, `hl-3647`, `hl-4554`, `hl-6153`, `hl-8684` |
 | G2 | `cof-5936`, `hl-10210`, `hl-3248`, `hl-3266`, `hl-3329`, `hl-3647`, `hl-4554`, `hl-6153`, `hl-8684`, `svencoop-10257`, `svencoop-8948` |
 | G3 | `cof-5936`, `hl-10210`, `hl-3647`, `hl-4554`, `hl-6153`, `hl-8684`, `svencoop-10257`, `svencoop-8948` |
 | G4 | `cof-5936`, `hl-10210`, `hl-6153`, `hl-8684`, `svencoop-10257`, `svencoop-8948` |
-| G5 | `cof-5936`, `hl-10210`, `hl-8684`, `svencoop-10257`, `svencoop-8948` |
+| G5 | `cof-5936`, `decay`, `hl-10210`, `hl-8684`, `svencoop-10257`, `svencoop-8948` |
 | G6 | `cof-5936`, `hl-3248`, `hl-3266`, `hl-3329`, `hl-3647`, `hl-4554` |
 | G7 | `cof-5936`, `hl-3248`, `hl-3266`, `hl-3329`, `hl-3647`, `hl-4554`, `hl-6153`, `hl-8684`, `svencoop-10257`, `svencoop-8948` |
 | G8 | `cstrike-10210`, `cstrike-3248`, `cstrike-3647`, `cstrike-4554`, `cstrike-6153`, `cstrike-8684`, `czero-10210`, `czero-8684` |
@@ -405,7 +405,8 @@ other engine group (G4) declares just the two required `_0` records.
   including `"'s Server"`. Missing Steam API/name or invalid UTF-8 preserves native
   text. User editing and the launch/apply paths are unchanged. Ship the new catalog
   with the DLL; `v20261017a` does not contain this record.
-- `engine / cl_time` is exempted by the manifest on the ten CS/CZ/CZDS versions in G9.
+- `engine / cl_time` is exempted by the manifest on the CS/CZ/CZDS client identities,
+  `cstrikegameui-8684` and `decay`, which do not publish an engine module.
   This is a catalog validation exemption. The source still performs a required lookup;
   the exemption does not make the runtime symbol optional.
 - `engine / VGUIClient001_CreateInterface` is queried first. When that record is absent,
@@ -416,6 +417,13 @@ other engine group (G4) declares just the two required `_0` records.
   when the SDL2 `SDL_GetWindowWMInfo` path is unavailable.
 - `client / g_iVisibleMouse` is queried optionally for clients without native VGUI2.
   Native client `Panel::Init` and KeyValues `LoadFromFile` are also queried optionally.
+- Half-Life: Decay (ModDB) uses the unversioned `decay` tag introduced in
+  GoldSrc_VibeSignatures `v20261024a`. Its Windows client catalog retains only
+  `g_iVisibleMouse`; engine and UI dependencies come from their matching shared
+  binary identities. The synchronizer accepts `decay` explicitly while continuing
+  to reject other unversioned tags. Default online synchronization requires the
+  Pages index to publish `decay`; availability of the release archive alone is
+  insufficient. Catalog validation does not establish in-game compatibility.
 - Each KeyValues lookup tries the `vgui2::KeyValues::LoadFromFile(...)` name before
   `KeyValues::LoadFromFile(...)`. GameUI and ServerBrowser require one matching record
   in their respective module; the client lookup remains optional.
