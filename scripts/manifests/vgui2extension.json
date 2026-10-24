@@ -15,6 +15,7 @@
     "czero-8684",
     "czeror-10210",
     "czeror-8684",
+    "decay",
     "hl-10210",
     "hl-3248",
     "hl-3266",
@@ -43,7 +44,8 @@
       "czero-10210",
       "czero-8684",
       "czeror-10210",
-      "czeror-8684"
+      "czeror-8684",
+      "decay"
     ]
   },
   "conditionalGroups": [
@@ -202,6 +204,7 @@
     {
       "when": [
         "cof-5936",
+        "decay",
         "hl-10210",
         "hl-8684",
         "svencoop-10257",

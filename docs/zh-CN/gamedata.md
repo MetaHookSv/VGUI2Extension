@@ -125,12 +125,12 @@ GameSymbol 由 module 与名称共同定位。`engine`、`client`、`gameui`、`
 
 | 条件 | Manifest 中的 gameVersions |
 | --- | --- |
-| All | `cof-5936`, `cstrike-10210`, `cstrike-3248`, `cstrike-3647`, `cstrike-4554`, `cstrike-6153`, `cstrike-8684`, `czero-10210`, `czero-8684`, `czeror-10210`, `czeror-8684`, `hl-10210`, `hl-3248`, `hl-3266`, `hl-3329`, `hl-3647`, `hl-4554`, `hl-6153`, `hl-8684`, `svencoop-10257`, `svencoop-8948` |
+| All | `cof-5936`, `cstrike-10210`, `cstrike-3248`, `cstrike-3647`, `cstrike-4554`, `cstrike-6153`, `cstrike-8684`, `cstrikegameui-8684`, `czero-10210`, `czero-8684`, `czeror-10210`, `czeror-8684`, `decay`, `hl-10210`, `hl-3248`, `hl-3266`, `hl-3329`, `hl-3647`, `hl-4554`, `hl-6153`, `hl-8684`, `svencoop-10257`, `svencoop-8948` |
 | G1 | `cof-5936`, `hl-10210`, `hl-3248`, `hl-3266`, `hl-3329`, `hl-3647`, `hl-4554`, `hl-6153`, `hl-8684` |
 | G2 | `cof-5936`, `hl-10210`, `hl-3248`, `hl-3266`, `hl-3329`, `hl-3647`, `hl-4554`, `hl-6153`, `hl-8684`, `svencoop-10257`, `svencoop-8948` |
 | G3 | `cof-5936`, `hl-10210`, `hl-3647`, `hl-4554`, `hl-6153`, `hl-8684`, `svencoop-10257`, `svencoop-8948` |
 | G4 | `cof-5936`, `hl-10210`, `hl-6153`, `hl-8684`, `svencoop-10257`, `svencoop-8948` |
-| G5 | `cof-5936`, `hl-10210`, `hl-8684`, `svencoop-10257`, `svencoop-8948` |
+| G5 | `cof-5936`, `decay`, `hl-10210`, `hl-8684`, `svencoop-10257`, `svencoop-8948` |
 | G6 | `cof-5936`, `hl-3248`, `hl-3266`, `hl-3329`, `hl-3647`, `hl-4554` |
 | G7 | `cof-5936`, `hl-3248`, `hl-3266`, `hl-3329`, `hl-3647`, `hl-4554`, `hl-6153`, `hl-8684`, `svencoop-10257`, `svencoop-8948` |
 | G8 | `cstrike-10210`, `cstrike-3248`, `cstrike-3647`, `cstrike-4554`, `cstrike-6153`, `cstrike-8684`, `czero-10210`, `czero-8684` |
@@ -374,7 +374,8 @@ engine 的两个语言补丁同样是连续编号的：多数引擎把 Steam 语
   保留 Steam 昵称，并按完整 UTF-8 字符截断，使包含 `"'s Server"` 的结果最多为
   63 字节。无法取得 Steam API/昵称或 UTF-8 无效时保留原文字；用户编辑及启动、
   应用流程保持原样。新 catalog 必须与 DLL 一起部署；`v20261017a` 不含此记录。
-- manifest 对 G9 中十个 CS/CZ/CZDS 版本豁免 `engine / cl_time`。
+- manifest 对 CS/CZ/CZDS 客户端身份、`cstrikegameui-8684` 和 `decay`
+  豁免 `engine / cl_time`，这些身份不发布 engine 模块。
   这是 catalog 校验豁免；源码仍执行必需解析，不能将其理解为运行时可选。
 - 先查询 `engine / VGUIClient001_CreateInterface`；缺少该记录时，
   旧版路径改为必需解析 `engine / g_pClientFactory`。其他查询错误会报告错误。
@@ -384,6 +385,11 @@ engine 的两个语言补丁同样是连续编号的：多数引擎把 Steam 语
   SDL2 的 `SDL_GetWindowWMInfo` 路径不可用时使用 `CGame::WindowProc`。
 - 客户端没有原生 VGUI2 时，可选解析 `client / g_iVisibleMouse`。
   原生客户端的 `Panel::Init` 与 KeyValues `LoadFromFile` 也使用可选解析。
+- Half-Life: Decay（ModDB）使用 GoldSrc_VibeSignatures `v20261024a` 新增的
+  无版本 tag `decay`。其 Windows client catalog 仅保留 `g_iVisibleMouse`；
+  engine 与 UI 依赖由匹配的共享二进制身份提供。同步脚本显式允许 `decay`，
+  继续拒绝其他无版本 tag。默认在线同步需要 Pages 索引发布 `decay`，仅有 release
+  发布包仍不足以完成在线同步。Catalog 校验不代表已验证游戏内兼容性。
 - 每个 KeyValues 查询先尝试 `vgui2::KeyValues::LoadFromFile(...)`，
   再尝试 `KeyValues::LoadFromFile(...)`。
   GameUI 与 ServerBrowser 各自 module 必须有一个匹配记录；client 查询仍为可选。
