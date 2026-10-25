@@ -2,6 +2,7 @@
 #include <vgui/IClientPanel.h>
 #include <vgui/IPanel.h>
 #include <vgui/IVGui.h>
+#include <vgui/ILocalize.h>
 #include <vgui_controls/Controls.h>
 #include <vgui_controls/MessageBox.h>
 #include <vgui_controls/QueryBox.h>
@@ -1226,17 +1227,38 @@ void __fastcall ProfileCommand(void* self, int, const char* command);
 
 void ConfirmOperation(void* frame, Operation operation, const Identity& identity)
 {
-    auto token = sidecars.Confirm(Handle(frame), operation, operation == Operation::Create ? identity.rawUtf8 : std::string_view{});
+    const bool   create       = operation == Operation::Create;
+    auto*        localization = vgui::localize();
+    const auto   title        = localization->Find(create ? "#Career_OverwriteConfirmationTitle" : "#Career_DeleteProfileTitle");
+    const auto   format       = localization->Find(create ? "#Career_OverwriteConfirmationText" : "#Career_DeleteProfileText");
+    std::wstring text;
+    if (create)
+    {
+        text = format ? format : L"This will overwrite a saved profile.\nContinue anyway?";
+    }
+    else
+    {
+        std::wstring name;
+        if (!ConvertCareerPlayerNameToUnicode(identity.rawUtf8.c_str(), name))
+        {
+            ShowError(StorageError::InvalidUtf8);
+            return;
+        }
+
+        const auto query = format ? format : L"Are you sure you want to delete %s1?";
+        text.resize(wcslen(query) + name.size() + 1, L'\0');
+        localization->ConstructString(text.data(), static_cast<int>(text.size() * sizeof(wchar_t)), query, 1, name.c_str());
+    }
+
+    auto token = sidecars.Confirm(Handle(frame), operation, create ? identity.rawUtf8 : std::string_view{});
     if (!token)
     {
         ShowError(token.error);
         return;
     }
 
-    const auto command = std::string(operation == Operation::Create ? "CareerStorageCreate " : "CareerStorageDelete ") + token.value;
-    auto*      box     = new vgui::QueryBox(L"Career profile",
-                                            operation == Operation::Create ? L"Overwrite the existing profile with this complete player name?" : L"Delete this profile and its verified legacy copies?",
-                                            nullptr);
+    const auto command = std::string(create ? "CareerStorageCreate " : "CareerStorageDelete ") + token.value;
+    auto*      box     = new vgui::QueryBox(title ? title : (create ? L"Overwrite profile" : L"Delete profile"), text.c_str(), nullptr);
     box->SetParent(VPanel(frame));
     box->AddActionSignalTarget(static_cast<vgui::Panel*>(frame));
     box->SetOKCommand(new KeyValues("Command", "command", command.c_str()));
