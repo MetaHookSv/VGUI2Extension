@@ -8,6 +8,7 @@ set(VGUI2EXTENSION_SOURCES
     "${METAHOOK_SOURCE_PATH}/include/vgui_controls/MemoryBitmap.cpp"
     "${METAHOOK_SOURCE_PATH}/include/SourceSDK/tier0/vcrmode.cpp"
     "src/BaseUI.cpp"
+    "src/BuildModeDialogHooks.cpp"
     "src/ClientVGUI.cpp"
     "src/CounterStrikeViewport.cpp"
     "src/CareerProfileStorage.cpp"

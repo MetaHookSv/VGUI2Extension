@@ -836,6 +836,42 @@
           "prefix": "vgui2_Panel_SetBounds_Const_callsite"
         }
       ]
+    },
+    {
+      "when": [
+        "cof-5936",
+        "cstrikegameui-8684",
+        "hl-10210",
+        "hl-3248",
+        "hl-3266",
+        "hl-3329",
+        "hl-3647",
+        "hl-4554",
+        "hl-6153",
+        "hl-8684",
+        "svencoop-10257",
+        "svencoop-8948"
+      ],
+      "symbols": {
+        "gameui": {
+          "vgui2::BuildModeDialog": "vtable",
+          "vgui2::BuildModeDialog::BuildModeDialog(vgui2::BuildGroup*)": "function",
+          "vgui2::BuildModeDialog::PerformLayout()": "virtualFunction",
+          "vgui2::BuildModeDialog::SetActiveControl(vgui2::Panel*)": "virtualFunction",
+          "vgui2::BuildModeDialog.m_pAddNewControlCombo": "structMember",
+          "vgui2::Frame::GetClientArea(int&, int&, int&, int&)": "virtualFunction",
+          "vgui2::Panel::GetVPanel()": "virtualFunction",
+          "vgui2::PanelListPanel": "vtable",
+          "vgui2::PanelListPanel::PerformLayout()": "virtualFunction",
+          "vgui2::PanelListPanel::GetItemCount()": "virtualFunction",
+          "vgui2::PanelListPanel::GetItemLabel(int)": "virtualFunction",
+          "vgui2::PanelListPanel::GetItemPanel(int)": "virtualFunction",
+          "vgui2::PanelListPanel.m_SortedItems_m_pMemory": "structMember",
+          "vgui2::PanelListPanel.m_SortedItems_m_Size": "structMember",
+          "vgui2::PanelListPanel.m_iFirstColumnWidth": "structMember",
+          "vgui2::PanelListPanel.m_iPanelBuffer": "structMember"
+        }
+      }
     }
   ]
 }

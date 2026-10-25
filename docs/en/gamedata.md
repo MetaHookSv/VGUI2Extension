@@ -104,20 +104,30 @@ retain their native handlers. This fourth record is published in `v20261023b`;
 deploy the final DLL with that catalog or newer. `v20261023a` does not satisfy
 the extended manifest.
 
+The native build editor DPI hooks require `v20261025b` or newer. They hook the
+GameUI constructor and the editor/list vtables, retaining native editing, saving
+and ownership. Only editor lists receive the row/column and scrollbar correction.
+The native editor inherits Frame's scheme handler and already uses proportional
+child fonts, so no shared Frame function is patched. Persisted window dimensions
+remain pixels; only missing defaults and design constants are scaled. List item
+IDs come from the two individually published `m_SortedItems` fields, without
+casting native containers or the dialog to the SDK's private classes.
+
 The declaration is [scripts/manifests/vgui2extension.json](../../scripts/manifests/vgui2extension.json).
 The list below follows its exact module, name and kind and has been checked against the
-source calls. It contains **226 explicit records** across 5 modules, including the
-initial `_0` records of **19 numbered patch sets**. Each numbered set can consume
-additional records; 226 is not the total size of every installed catalog.
+source calls. It contains **256 distinct explicit records** across 5 modules,
+including the initial `_0` records of the conditional numbered patch sets
+(23 declarations). Each numbered set can consume additional records; 256 is not
+the total size of every installed catalog.
 
 | Module | Explicit entries |
 | --- | ---: |
 | `engine` | 14 |
 | `client` | 37 |
-| `gameui` | 165 |
+| `gameui` | 195 |
 | `serverbrowser` | 9 |
 | `vgui2` | 1 |
-| Total | 226 |
+| Total | 256 |
 
 A GameSymbol is identified by its module and name. Identical names in `engine`, `client`,
 `gameui` and `serverbrowser` refer to separate records. Conditions below describe the
@@ -143,7 +153,7 @@ API 115's `mh_gamesymbol_t::vfuncIndex`.
 
 ### Manifest conditions
 
-`All` is the manifest's top-level `gameVersions` list. `G1` through `G26` identify the
+`All` is the manifest's top-level `gameVersions` list. `G1` through `G28` identify the
 current `conditionalGroups` entries in order. The `cl_time` exemption is explained under
 [Runtime conditions and optional records](#runtime-conditions-and-optional-records).
 
@@ -175,7 +185,9 @@ current `conditionalGroups` entries in order. The `cl_time` exemption is explain
 | G23 | `hl-10210` |
 | G24 | `czero-10210`, `czero-8684` |
 | G25 | `hl-10210` |
-| G26 | `hl-10210` |
+| G26 | `hl-10210`, `hl-8684`, `cstrikegameui-8684` |
+| G27 | `cstrikegameui-8684` |
+| G28 | `cof-5936`, `cstrikegameui-8684`, `hl-10210`, `hl-3248`, `hl-3266`, `hl-3329`, `hl-3647`, `hl-4554`, `hl-6153`, `hl-8684`, `svencoop-10257`, `svencoop-8948` |
 
 ## Symbols by module
 
@@ -249,7 +261,8 @@ Sources: [ClientVGUI.cpp](../../src/ClientVGUI.cpp) and [privatefuncs.cpp](../..
 
 ### gameui
 
-Source: [GameUI.cpp](../../src/GameUI.cpp).
+Sources: [GameUI.cpp](../../src/GameUI.cpp) and
+[BuildModeDialogHooks.cpp](../../src/BuildModeDialogHooks.cpp).
 
 | GameSymbol | Kind | Manifest condition |
 | --- | --- | --- |
@@ -327,6 +340,22 @@ Source: [GameUI.cpp](../../src/GameUI.cpp).
 | `vgui2_Panel_SetMinimumSize_Const_callsite_0` | `patch` | G16 |
 | `vgui2_Panel_SetBounds_Const_callsite_0` | `patch` | G16 |
 | `vgui2_Panel_SetBounds_Const_callsite_0` | `patch` | G18 |
+| `vgui2::BuildModeDialog` | `vtable` | G28 |
+| `vgui2::BuildModeDialog::BuildModeDialog(vgui2::BuildGroup*)` | `function` | G28 |
+| `vgui2::BuildModeDialog::PerformLayout()` | `virtualFunction` | G28 |
+| `vgui2::BuildModeDialog::SetActiveControl(vgui2::Panel*)` | `virtualFunction` | G28 |
+| `vgui2::BuildModeDialog.m_pAddNewControlCombo` | `structMember` | G28 |
+| `vgui2::Frame::GetClientArea(int&, int&, int&, int&)` | `virtualFunction` | G28 |
+| `vgui2::Panel::GetVPanel()` | `virtualFunction` | G28 |
+| `vgui2::PanelListPanel` | `vtable` | G28 |
+| `vgui2::PanelListPanel::PerformLayout()` | `virtualFunction` | G28 |
+| `vgui2::PanelListPanel::GetItemCount()` | `virtualFunction` | G28 |
+| `vgui2::PanelListPanel::GetItemLabel(int)` | `virtualFunction` | G28 |
+| `vgui2::PanelListPanel::GetItemPanel(int)` | `virtualFunction` | G28 |
+| `vgui2::PanelListPanel.m_SortedItems_m_pMemory` | `structMember` | G28 |
+| `vgui2::PanelListPanel.m_SortedItems_m_Size` | `structMember` | G28 |
+| `vgui2::PanelListPanel.m_iFirstColumnWidth` | `structMember` | G28 |
+| `vgui2::PanelListPanel.m_iPanelBuffer` | `structMember` | G28 |
 
 ### serverbrowser
 
