@@ -7,6 +7,7 @@
 #include <vgui/IPanel.h>
 #include <vgui/IClientPanel.h>
 #include <vgui/ILocalize.h>
+#include <vgui_controls/Controls.h>
 #include <vgui_controls/Panel.h>
 #include <vgui_controls/Menu.h>
 #include <KeyValues.h>
@@ -61,6 +62,7 @@ static hook_t* g_phook_GameUI_ComboBox_AddItemW                       = NULL;
 static hook_t* g_phook_CBotButton_SetCharacter                        = NULL;
 static hook_t* g_phook_CCareerDifficultyBox_ctor                      = NULL;
 static hook_t* g_phook_CCareerBaseFrame_Activate                      = NULL;
+static hook_t* g_phook_MessageBox_ctor                                = NULL;
 
 static ICareerUI* g_pCareerUI = nullptr;
 
@@ -1513,6 +1515,17 @@ void CGameUIProxy::Initialize(CreateInterfaceFn* factories, int count)
         return;
     }
 
+    if (g_bIsCZero && !g_bIsCZDS)
+    {
+        vgui::localize()->AddFile(g_pFullFileSystem, "vgui2ext/resource/gameui_english.txt");
+        const auto language = GetCurrentGameLanguage();
+        if (language[0] && strcmp(language, "english"))
+        {
+            const auto path = std::string("vgui2ext/resource/gameui_") + language + ".txt";
+            vgui::localize()->AddFile(g_pFullFileSystem, path.c_str());
+        }
+    }
+
     VGUI2ExtensionInternal()->GameUI_Initialize(factories, count);
 }
 
@@ -2531,6 +2544,21 @@ void GameUI_FillAddress_PropertySheet(const mh_dll_info_t&, const mh_dll_info_t&
     gPrivateFuncs.vfunc_index_PropertySheet_ChangeActiveTab   = GamedataResolveVFuncIndex(g_GameUIDllInfo.ImageBase, "gameui", "vgui2::PropertySheet::ChangeActiveTab(int)");
 }
 
+void* __fastcall MessageBox_ctor(void* pthis, int dummy, const char* title, const char* text, void* parent)
+{
+    //Only the native Career data-error dialog uses this exact title/text pair.
+    //Keep unrelated dialogs and missing translations on the original path.
+    auto* localization = vgui::localize();
+    if (localization && title && text && !strcmp(title, "Cannot start game") && !strcmp(text, "WARNING: Game data is corrupt or missing."))
+    {
+        if (localization->Find("#VGUI2Extension_CareerDataErrorTitle"))
+            title = "#VGUI2Extension_CareerDataErrorTitle";
+        if (localization->Find("#VGUI2Extension_CareerDataErrorText"))
+            text = "#VGUI2Extension_CareerDataErrorText";
+    }
+    return gPrivateFuncs.MessageBox_ctor(pthis, dummy, title, text, parent);
+}
+
 void GameUI_FillAddress_MessageBox(const mh_dll_info_t&, const mh_dll_info_t&)
 {
     gPrivateFuncs.MessageBox_ctor = (decltype(gPrivateFuncs.MessageBox_ctor))
@@ -2898,6 +2926,12 @@ void GameUI_InstallHooks(void)
     }
 
     Install_InlineHook(GameUI_Panel_Init);
+    if (g_bIsCZero && !g_bIsCZDS)
+    {
+        Install_InlineHook(MessageBox_ctor);
+        if (!g_phook_MessageBox_ctor)
+            Sys_Error("Could not install GameUI Career data-error localization hook.");
+    }
     Install_InlineHook(CGameConsoleDialog_ctor);
     Install_InlineHook(CCreateMultiplayerGameDialog_ctor);
 
@@ -3034,6 +3068,7 @@ void GameUI_UninstallHooks(void)
     CareerStorage_UninstallHooks();
     VGUI2ExtensionInternal()->UnregisterKeyValuesCallbacks(&s_ContentControlKeyValuesCallbacks);
 
+    Uninstall_Hook(MessageBox_ctor);
     Uninstall_Hook(MissionPackMenu_PerformLayout);
     Uninstall_Hook(GameUI_ComboBox_AddItemW);
     Uninstall_Hook(CBotButton_SetCharacter);
