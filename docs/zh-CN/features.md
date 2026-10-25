@@ -55,6 +55,12 @@ HiDPI 支持为 VGUI2 控件应用 HDProportional 缩放，并通过文件系统
 
 ## Condition Zero 战役档案
 
+原生任务数据缺失或损坏弹窗使用 `VGUI2Extension_CareerDataErrorTitle` 和
+`VGUI2Extension_CareerDataErrorText`。翻译文件位于
+`<mod>/vgui2ext/resource/gameui_<language>.txt`，采用带 BOM 的 UTF-16 LE 编码。
+插件先加载英文，再加载当前游戏语言；随附英文与简体中文。缺失的键保留原生英文提示。
+此本地化仅用于 czero，不包含 Deleted Scenes。
+
 Windows x86 czero 配合已核验的 hl-10210 GameUI，所有新档案均使用 `u8hex-` 加完整 UTF-8
 原名的小写十六进制，包括纯 ASCII 名字。中文名、`A/a`、前 31 字节相同的长名字保持独立身份；
 UI 与 CZP 内仍保留原名。其他构建和 Deleted Scenes 不启用此存储接入。

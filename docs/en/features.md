@@ -62,6 +62,13 @@ When enabled, the following resource directories are added with the `SKIN` tag:
 
 ## Condition Zero career profiles
 
+The native missing/corrupt mission-data dialog uses
+`VGUI2Extension_CareerDataErrorTitle` and `VGUI2Extension_CareerDataErrorText`.
+Translations live in `<mod>/vgui2ext/resource/gameui_<language>.txt` (UTF-16 LE
+with a BOM). English is loaded first, then the current game language; English
+and Simplified Chinese are included. Missing tokens retain the native English
+message. This localization is limited to czero, excluding Deleted Scenes.
+
 Windows x86 czero with the verified hl-10210 GameUI uses `u8hex-` followed by the
 lowercase hex of the complete UTF-8 player name for every new save, including
 ASCII names. Chinese names, `A/a`, and names sharing their first 31 bytes retain
