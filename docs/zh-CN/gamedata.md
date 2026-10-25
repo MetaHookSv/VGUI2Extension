@@ -84,19 +84,25 @@ CRT locale，也不经过原有的 31 字节截断。无效 UTF-8 或缺失本�
 保留待确认的 Career 选择；业务命令继续由原生处理。这第四项记录已在 `v20261023b`
 发布；最终 DLL 应搭配该版本或更新 catalog，`v20261023a` 不满足扩展后的 manifest。
 
+原生构建编辑器 DPI hook 需要 `v20261025b` 或更新版本。它们 hook GameUI 构造入口和
+编辑器/列表虚表，保留原生编辑、保存和所有权行为；行列布局及滚动条修正只作用于编辑器列表。
+原生编辑器继承 Frame 的 scheme 处理，子控件已使用比例字体，因此不修改共享 Frame 函数。
+已保存的窗口尺寸保持像素单位，仅缩放缺失的默认尺寸和设计常量。列表 item ID 通过独立发布的
+两个 `m_SortedItems` 字段读取，不将原生容器或对话框强转为 SDK 私有类。
+
 声明来源为 [scripts/manifests/vgui2extension.json](../../scripts/manifests/vgui2extension.json)。
 以下清单保留 manifest 中的完整 module、名称与 kind，并已对照源码调用核对。
-共 5 个 module、**226 条显式记录**，其中包含 **19 组连续编号补丁**的首条 `_0` 记录。
-每组编号补丁还可能消费后续记录，因此 226 不是每份安装 catalog 的记录总数。
+共 5 个 module、**256 条不同的显式记录**，其中包含条件编号补丁组的首条 `_0` 记录
+（共 23 处声明）。每组编号补丁还可能消费后续记录，因此 256 不是每份安装 catalog 的记录总数。
 
 | Module | 显式记录数 |
 | --- | ---: |
 | `engine` | 14 |
 | `client` | 37 |
-| `gameui` | 165 |
+| `gameui` | 195 |
 | `serverbrowser` | 9 |
 | `vgui2` | 1 |
-| 合计 | 226 |
+| 合计 | 256 |
 
 GameSymbol 由 module 与名称共同定位。`engine`、`client`、`gameui`、`serverbrowser`
 中的同名符号是独立记录。下列条件表示 manifest 的 catalog 裁剪与校验范围；
@@ -120,7 +126,7 @@ GameSymbol 由 module 与名称共同定位。`engine`、`client`、`gameui`、`
 
 ### Manifest 条件
 
-`All` 表示 manifest 顶层的 `gameVersions` 列表；`G1` 至 `G26` 按顺序对应当前
+`All` 表示 manifest 顶层的 `gameVersions` 列表；`G1` 至 `G28` 按顺序对应当前
 `conditionalGroups` 的条目。`cl_time` 的豁免见[运行条件与可选记录](#运行条件与可选记录)。
 
 | 条件 | Manifest 中的 gameVersions |
@@ -151,7 +157,9 @@ GameSymbol 由 module 与名称共同定位。`engine`、`client`、`gameui`、`
 | G23 | `hl-10210` |
 | G24 | `czero-10210`, `czero-8684` |
 | G25 | `hl-10210` |
-| G26 | `hl-10210` |
+| G26 | `hl-10210`, `hl-8684`, `cstrikegameui-8684` |
+| G27 | `cstrikegameui-8684` |
+| G28 | `cof-5936`, `cstrikegameui-8684`, `hl-10210`, `hl-3248`, `hl-3266`, `hl-3329`, `hl-3647`, `hl-4554`, `hl-6153`, `hl-8684`, `svencoop-10257`, `svencoop-8948` |
 
 ## 按 module 列出的符号
 
@@ -225,7 +233,8 @@ GameSymbol 由 module 与名称共同定位。`engine`、`client`、`gameui`、`
 
 ### gameui
 
-源码：[GameUI.cpp](../../src/GameUI.cpp)。
+源码：[GameUI.cpp](../../src/GameUI.cpp) 和
+[BuildModeDialogHooks.cpp](../../src/BuildModeDialogHooks.cpp)。
 
 | GameSymbol | Kind | Manifest 条件 |
 | --- | --- | --- |
@@ -303,6 +312,22 @@ GameSymbol 由 module 与名称共同定位。`engine`、`client`、`gameui`、`
 | `vgui2_Panel_SetMinimumSize_Const_callsite_0` | `patch` | G16 |
 | `vgui2_Panel_SetBounds_Const_callsite_0` | `patch` | G16 |
 | `vgui2_Panel_SetBounds_Const_callsite_0` | `patch` | G18 |
+| `vgui2::BuildModeDialog` | `vtable` | G28 |
+| `vgui2::BuildModeDialog::BuildModeDialog(vgui2::BuildGroup*)` | `function` | G28 |
+| `vgui2::BuildModeDialog::PerformLayout()` | `virtualFunction` | G28 |
+| `vgui2::BuildModeDialog::SetActiveControl(vgui2::Panel*)` | `virtualFunction` | G28 |
+| `vgui2::BuildModeDialog.m_pAddNewControlCombo` | `structMember` | G28 |
+| `vgui2::Frame::GetClientArea(int&, int&, int&, int&)` | `virtualFunction` | G28 |
+| `vgui2::Panel::GetVPanel()` | `virtualFunction` | G28 |
+| `vgui2::PanelListPanel` | `vtable` | G28 |
+| `vgui2::PanelListPanel::PerformLayout()` | `virtualFunction` | G28 |
+| `vgui2::PanelListPanel::GetItemCount()` | `virtualFunction` | G28 |
+| `vgui2::PanelListPanel::GetItemLabel(int)` | `virtualFunction` | G28 |
+| `vgui2::PanelListPanel::GetItemPanel(int)` | `virtualFunction` | G28 |
+| `vgui2::PanelListPanel.m_SortedItems_m_pMemory` | `structMember` | G28 |
+| `vgui2::PanelListPanel.m_SortedItems_m_Size` | `structMember` | G28 |
+| `vgui2::PanelListPanel.m_iFirstColumnWidth` | `structMember` | G28 |
+| `vgui2::PanelListPanel.m_iPanelBuffer` | `structMember` | G28 |
 
 ### serverbrowser
 

@@ -24,6 +24,7 @@
 #include "CareerProfileStorageHooks.h"
 #include "DefaultServerName.h"
 #include "ServerBrowserHistory.h"
+#include "BuildModeDialogHooks.h"
 
 static hook_t* g_phook_ServerBrowser_Panel_Init                       = NULL;
 static hook_t* g_phook_ServerBrowser_KeyValues_LoadFromFile           = NULL;
@@ -2841,6 +2842,7 @@ void GameUI_FillAddress(void)
     GameUI_FillAddress_CareerPlayerName(g_GameUIDllInfo);
     GameUI_FillAddress_DefaultServerName(g_GameUIDllInfo);
     CareerStorage_FillAddress();
+    BuildModeDialog_FillAddress();
 }
 
 bool GameUI_HasExclusiveInput()
@@ -3061,10 +3063,12 @@ void GameUI_InstallHooks(void)
     }
 
     GameUI_PatchPanelSize();
+    BuildModeDialog_InstallHooks();
 }
 
 void GameUI_UninstallHooks(void)
 {
+    BuildModeDialog_UninstallHooks();
     CareerStorage_UninstallHooks();
     VGUI2ExtensionInternal()->UnregisterKeyValuesCallbacks(&s_ContentControlKeyValuesCallbacks);
 
