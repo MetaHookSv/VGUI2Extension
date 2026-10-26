@@ -18,6 +18,7 @@
 #include "exportfuncs.h"
 #include "ComboBoxUnicode.h"
 #include "CareerPopupOrder.h"
+#include "CareerEndMenuInput.h"
 #include <KeyValues.h>
 
 #include "DpiManagerInternal.h"
@@ -71,8 +72,8 @@ static vgui::IClientPanel** g_pCareerCurrentBox                  = nullptr;
 static bool                 g_bInCareerViewportTick              = false;
 
 static void**  g_pCareerRoundEndVTable                                                   = nullptr;
-static DWORD   g_CareerRoundEndKeyPressedSlot                                            = 0;
-static DWORD   g_CareerRoundEndKeyTypedSlot                                              = 0;
+static DWORD   g_CareerEndMenuKeyPressedSlot                                             = 0;
+static DWORD   g_CareerEndMenuKeyTypedSlot                                               = 0;
 static DWORD   g_CareerRoundEndOnCommandSlot                                             = 0;
 static hook_t* g_phook_CareerRoundEnd_OnKeyCodePressed                                   = nullptr;
 static hook_t* g_phook_CareerRoundEnd_OnKeyCodeTyped                                     = nullptr;
@@ -81,28 +82,65 @@ static void(__fastcall* g_pfnCareerRoundEnd_OnKeyCodePressed)(void*, int, vgui::
 static void(__fastcall* g_pfnCareerRoundEnd_OnKeyCodeTyped)(void*, int, vgui::KeyCode)   = nullptr;
 static void(__fastcall* g_pfnCareerRoundEnd_OnCommand)(void*, int, const char*)          = nullptr;
 
-//The engine still handles ESC to toggle GameUI. Closing the Career frame here
-//would lose the user's pending choice without sending career_continue.
+static void**  g_pCareerMatchEndVTable                                                   = nullptr;
+static DWORD   g_CareerMatchEndOnCommandSlot                                             = 0;
+static hook_t* g_phook_CareerMatchEnd_OnKeyCodePressed                                   = nullptr;
+static hook_t* g_phook_CareerMatchEnd_OnKeyCodeTyped                                     = nullptr;
+static hook_t* g_phook_CareerMatchEnd_OnCommand                                          = nullptr;
+static void(__fastcall* g_pfnCareerMatchEnd_OnKeyCodePressed)(void*, int, vgui::KeyCode) = nullptr;
+static void(__fastcall* g_pfnCareerMatchEnd_OnKeyCodeTyped)(void*, int, vgui::KeyCode)   = nullptr;
+static void(__fastcall* g_pfnCareerMatchEnd_OnCommand)(void*, int, const char*)          = nullptr;
+
 static void __fastcall CareerRoundEnd_OnKeyCodePressed(void* pthis, int dummy, vgui::KeyCode code)
 {
-    if (code != vgui::KEY_ESCAPE)
-        g_pfnCareerRoundEnd_OnKeyCodePressed(pthis, dummy, code);
+    ForwardCareerEndMenuKey(g_pfnCareerRoundEnd_OnKeyCodePressed, pthis, dummy, code, vgui::KEY_ESCAPE);
 }
 
 static void __fastcall CareerRoundEnd_OnKeyCodeTyped(void* pthis, int dummy, vgui::KeyCode code)
 {
-    if (code != vgui::KEY_ESCAPE)
-        g_pfnCareerRoundEnd_OnKeyCodeTyped(pthis, dummy, code);
+    ForwardCareerEndMenuKey(g_pfnCareerRoundEnd_OnKeyCodeTyped, pthis, dummy, code, vgui::KEY_ESCAPE);
 }
 
 static void __fastcall CareerRoundEnd_OnCommand(void* pthis, int dummy, const char* command)
 {
-    //A child surrender confirmation can also forward Frame's generic ESC
-    //commands to RoundEnd. Only business commands may finish the pending choice.
-    if (command && (!stricmp(command, "Close") || !stricmp(command, "Cancel")))
-        return;
+    ForwardCareerEndMenuCommand(g_pfnCareerRoundEnd_OnCommand, pthis, dummy, command);
+}
 
-    g_pfnCareerRoundEnd_OnCommand(pthis, dummy, command);
+static void __fastcall CareerMatchEnd_OnKeyCodePressed(void* pthis, int dummy, vgui::KeyCode code)
+{
+    ForwardCareerEndMenuKey(g_pfnCareerMatchEnd_OnKeyCodePressed, pthis, dummy, code, vgui::KEY_ESCAPE);
+}
+
+static void __fastcall CareerMatchEnd_OnKeyCodeTyped(void* pthis, int dummy, vgui::KeyCode code)
+{
+    ForwardCareerEndMenuKey(g_pfnCareerMatchEnd_OnKeyCodeTyped, pthis, dummy, code, vgui::KEY_ESCAPE);
+}
+
+static void __fastcall CareerMatchEnd_OnCommand(void* pthis, int dummy, const char* command)
+{
+    ForwardCareerEndMenuCommand(g_pfnCareerMatchEnd_OnCommand, pthis, dummy, command);
+}
+
+static void UninstallCareerEndMenuHooks()
+{
+    Uninstall_Hook(CareerMatchEnd_OnCommand);
+    Uninstall_Hook(CareerMatchEnd_OnKeyCodeTyped);
+    Uninstall_Hook(CareerMatchEnd_OnKeyCodePressed);
+    Uninstall_Hook(CareerRoundEnd_OnCommand);
+    Uninstall_Hook(CareerRoundEnd_OnKeyCodeTyped);
+    Uninstall_Hook(CareerRoundEnd_OnKeyCodePressed);
+    g_pCareerMatchEndVTable              = nullptr;
+    g_pfnCareerMatchEnd_OnKeyCodePressed = nullptr;
+    g_pfnCareerMatchEnd_OnKeyCodeTyped   = nullptr;
+    g_pfnCareerMatchEnd_OnCommand        = nullptr;
+    g_CareerMatchEndOnCommandSlot        = 0;
+    g_pCareerRoundEndVTable              = nullptr;
+    g_pfnCareerRoundEnd_OnKeyCodePressed = nullptr;
+    g_pfnCareerRoundEnd_OnKeyCodeTyped   = nullptr;
+    g_pfnCareerRoundEnd_OnCommand        = nullptr;
+    g_CareerEndMenuKeyPressedSlot        = 0;
+    g_CareerEndMenuKeyTypedSlot          = 0;
+    g_CareerRoundEndOnCommandSlot        = 0;
 }
 
 struct CareerPopupPanels
@@ -1123,12 +1161,16 @@ void NativeClientUI_FillAddress(const mh_dll_info_t& RealDllInfo)
 
         g_pCareerRoundEndVTable = (void**)GamedataResolvePtr(
             RealDllInfo.ImageBase, "client", "CCSCareerRoundEndMenu", MH_GAMESYMBOL_KIND_VTABLE);
-        g_CareerRoundEndKeyPressedSlot = GamedataResolveVFuncIndex(
+        g_CareerEndMenuKeyPressedSlot = GamedataResolveVFuncIndex(
             RealDllInfo.ImageBase, "client", "vgui2::Frame::OnKeyCodePressed(vgui2::KeyCode)");
-        g_CareerRoundEndKeyTypedSlot = GamedataResolveVFuncIndex(
+        g_CareerEndMenuKeyTypedSlot = GamedataResolveVFuncIndex(
             RealDllInfo.ImageBase, "client", "vgui2::Frame::OnKeyCodeTyped(vgui2::KeyCode)");
         g_CareerRoundEndOnCommandSlot = GamedataResolveVFuncIndex(
             RealDllInfo.ImageBase, "client", "CCSCareerRoundEndMenu::OnCommand(char const*)");
+        g_pCareerMatchEndVTable = (void**)GamedataResolvePtr(
+            RealDllInfo.ImageBase, "client", "CCSCareerMatchEndMenu", MH_GAMESYMBOL_KIND_VTABLE);
+        g_CareerMatchEndOnCommandSlot = GamedataResolveVFuncIndex(
+            RealDllInfo.ImageBase, "client", "CCSCareerMatchEndMenu::OnCommand(char const*)");
     }
 }
 
@@ -1181,38 +1223,40 @@ void NativeClientUI_InstallHooks(void)
 
         if (!g_phook_CareerRoundEnd_OnKeyCodePressed)
             g_phook_CareerRoundEnd_OnKeyCodePressed = g_pMetaHookAPI->VFTHookEx(
-                g_pCareerRoundEndVTable, g_CareerRoundEndKeyPressedSlot, CareerRoundEnd_OnKeyCodePressed,
+                g_pCareerRoundEndVTable, g_CareerEndMenuKeyPressedSlot, CareerRoundEnd_OnKeyCodePressed,
                 (void**)&g_pfnCareerRoundEnd_OnKeyCodePressed);
         if (!g_phook_CareerRoundEnd_OnKeyCodeTyped)
             g_phook_CareerRoundEnd_OnKeyCodeTyped = g_pMetaHookAPI->VFTHookEx(
-                g_pCareerRoundEndVTable, g_CareerRoundEndKeyTypedSlot, CareerRoundEnd_OnKeyCodeTyped,
+                g_pCareerRoundEndVTable, g_CareerEndMenuKeyTypedSlot, CareerRoundEnd_OnKeyCodeTyped,
                 (void**)&g_pfnCareerRoundEnd_OnKeyCodeTyped);
         if (!g_phook_CareerRoundEnd_OnCommand)
             g_phook_CareerRoundEnd_OnCommand = g_pMetaHookAPI->VFTHookEx(
                 g_pCareerRoundEndVTable, g_CareerRoundEndOnCommandSlot, CareerRoundEnd_OnCommand,
                 (void**)&g_pfnCareerRoundEnd_OnCommand);
-        if (!g_phook_CareerRoundEnd_OnKeyCodePressed || !g_phook_CareerRoundEnd_OnKeyCodeTyped || !g_phook_CareerRoundEnd_OnCommand)
+        if (!g_phook_CareerMatchEnd_OnKeyCodePressed)
+            g_phook_CareerMatchEnd_OnKeyCodePressed = g_pMetaHookAPI->VFTHookEx(
+                g_pCareerMatchEndVTable, g_CareerEndMenuKeyPressedSlot, CareerMatchEnd_OnKeyCodePressed,
+                (void**)&g_pfnCareerMatchEnd_OnKeyCodePressed);
+        if (!g_phook_CareerMatchEnd_OnKeyCodeTyped)
+            g_phook_CareerMatchEnd_OnKeyCodeTyped = g_pMetaHookAPI->VFTHookEx(
+                g_pCareerMatchEndVTable, g_CareerEndMenuKeyTypedSlot, CareerMatchEnd_OnKeyCodeTyped,
+                (void**)&g_pfnCareerMatchEnd_OnKeyCodeTyped);
+        if (!g_phook_CareerMatchEnd_OnCommand)
+            g_phook_CareerMatchEnd_OnCommand = g_pMetaHookAPI->VFTHookEx(
+                g_pCareerMatchEndVTable, g_CareerMatchEndOnCommandSlot, CareerMatchEnd_OnCommand,
+                (void**)&g_pfnCareerMatchEnd_OnCommand);
+        if (!g_phook_CareerRoundEnd_OnKeyCodePressed || !g_phook_CareerRoundEnd_OnKeyCodeTyped || !g_phook_CareerRoundEnd_OnCommand ||
+            !g_phook_CareerMatchEnd_OnKeyCodePressed || !g_phook_CareerMatchEnd_OnKeyCodeTyped || !g_phook_CareerMatchEnd_OnCommand)
         {
-            Uninstall_Hook(CareerRoundEnd_OnCommand);
-            Uninstall_Hook(CareerRoundEnd_OnKeyCodeTyped);
-            Uninstall_Hook(CareerRoundEnd_OnKeyCodePressed);
-            Sys_Error("Could not install client Career round-end ESC hooks.");
+            UninstallCareerEndMenuHooks();
+            Sys_Error("Could not install client Career end-menu ESC hooks.");
         }
     }
 }
 
 void NativeClientUI_UninstallHooks(void)
 {
-    Uninstall_Hook(CareerRoundEnd_OnCommand);
-    Uninstall_Hook(CareerRoundEnd_OnKeyCodeTyped);
-    Uninstall_Hook(CareerRoundEnd_OnKeyCodePressed);
-    g_pCareerRoundEndVTable              = nullptr;
-    g_pfnCareerRoundEnd_OnKeyCodePressed = nullptr;
-    g_pfnCareerRoundEnd_OnKeyCodeTyped   = nullptr;
-    g_pfnCareerRoundEnd_OnCommand        = nullptr;
-    g_CareerRoundEndKeyPressedSlot       = 0;
-    g_CareerRoundEndKeyTypedSlot         = 0;
-    g_CareerRoundEndOnCommandSlot        = 0;
+    UninstallCareerEndMenuHooks();
     Uninstall_Hook(CounterStrikeViewport_OnTick);
     Uninstall_Hook(CCareerBaseBox_BringToFront);
     g_pCareerCurrentBox     = nullptr;
