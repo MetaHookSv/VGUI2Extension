@@ -73,7 +73,7 @@ CRT locale，也不经过原有的 31 字节截断。无效 UTF-8 或缺失本�
 `vgui2::Frame::OnKeyCodePressed(vgui2::KeyCode)`、
 `vgui2::Frame::OnKeyCodeTyped(vgui2::KeyCode)` 的虚槽位，已通过
 [GoldSrc_VibeSignatures #397](https://github.com/HLND2T/GoldSrc_VibeSignatures/issues/397)
-请求补齐。仅修改 RoundEnd 的虚表：ESC 保留待确认窗口，引擎仍切换主菜单；其他按键与
+请求补齐。修改 RoundEnd 的虚表：ESC 保留待确认窗口，引擎仍切换主菜单；其他按键与
 原有按钮命令照常处理。两个 KeyCode 入口均受保护，包括 Typed 的 app-modal 关闭路径。
 这三项记录已在 `v20261023a` 发布，旧 catalog 无法通过扩展后的 manifest，也无法在
 `czero` 中运行此 DLL；应搭配匹配 catalog 部署。其他游戏不解析或安装这组 hook。
@@ -84,6 +84,14 @@ CRT locale，也不经过原有的 31 字节截断。无效 UTF-8 或缺失本�
 保留待确认的 Career 选择；业务命令继续由原生处理。这第四项记录已在 `v20261023b`
 发布；最终 DLL 应搭配该版本或更新 catalog，`v20261023a` 不满足扩展后的 manifest。
 
+MatchEnd 的 ESC 修复还需要 client 的 `CCSCareerMatchEndMenu` 虚表与
+`CCSCareerMatchEndMenu::OnCommand(char const*)` 虚槽位。相同的按键和通用命令保护安装在
+MatchEnd 自己的虚表上，切换 GameUI 时保留当前音乐和待确认选择；完成、重试、Credits
+继续交给原生处理。两个 Frame 按键槽位与 RoundEnd 共用，不修改共享 Frame 实现或音乐处理。
+这两项记录已通过 [GoldSrc_VibeSignatures #409](https://github.com/HLND2T/GoldSrc_VibeSignatures/issues/409)
+请求补齐，已在 `v20261026a` 发布。在 `czero` 使用此 DLL 时，应部署该版本或更新的
+catalog；旧版本无法通过扩展后的 manifest 校验。
+
 原生构建编辑器 DPI hook 需要 `v20261025b` 或更新版本。它们 hook GameUI 构造入口和
 编辑器/列表虚表，保留原生编辑、保存和所有权行为；行列布局及滚动条修正只作用于编辑器列表。
 原生编辑器继承 Frame 的 scheme 处理，子控件已使用比例字体，因此不修改共享 Frame 函数。
@@ -92,17 +100,17 @@ CRT locale，也不经过原有的 31 字节截断。无效 UTF-8 或缺失本�
 
 声明来源为 [scripts/manifests/vgui2extension.json](../../scripts/manifests/vgui2extension.json)。
 以下清单保留 manifest 中的完整 module、名称与 kind，并已对照源码调用核对。
-共 5 个 module、**256 条不同的显式记录**，其中包含条件编号补丁组的首条 `_0` 记录
-（共 23 处声明）。每组编号补丁还可能消费后续记录，因此 256 不是每份安装 catalog 的记录总数。
+共 5 个 module、**258 条不同的显式记录**，其中包含条件编号补丁组的首条 `_0` 记录
+（共 23 处声明）。每组编号补丁还可能消费后续记录，因此 258 不是每份安装 catalog 的记录总数。
 
 | Module | 显式记录数 |
 | --- | ---: |
 | `engine` | 14 |
-| `client` | 37 |
+| `client` | 39 |
 | `gameui` | 195 |
 | `serverbrowser` | 9 |
 | `vgui2` | 1 |
-| 合计 | 256 |
+| 合计 | 258 |
 
 GameSymbol 由 module 与名称共同定位。`engine`、`client`、`gameui`、`serverbrowser`
 中的同名符号是独立记录。下列条件表示 manifest 的 catalog 裁剪与校验范围；
@@ -199,6 +207,8 @@ GameSymbol 由 module 与名称共同定位。`engine`、`client`、`gameui`、`
 | `CCareerBaseBox::s_currentBox` | `global` | G24 |
 | `CCSCareerRoundEndMenu` | `vtable` | G24 |
 | `CCSCareerRoundEndMenu::OnCommand(char const*)` | `virtualFunction` | G24 |
+| `CCSCareerMatchEndMenu` | `vtable` | G24 |
+| `CCSCareerMatchEndMenu::OnCommand(char const*)` | `virtualFunction` | G24 |
 | `vgui2::Frame::OnKeyCodePressed(vgui2::KeyCode)` | `virtualFunction` | G24 |
 | `vgui2::Frame::OnKeyCodeTyped(vgui2::KeyCode)` | `virtualFunction` | G24 |
 | `CounterStrikeViewport.m_pCSBackGround` | `structMember` | G8 |

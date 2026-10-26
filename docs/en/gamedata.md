@@ -88,7 +88,7 @@ The Career round-end ESC fix additionally requires the client `CCSCareerRoundEnd
 vtable and the virtual slots of `vgui2::Frame::OnKeyCodePressed(vgui2::KeyCode)` and
 `vgui2::Frame::OnKeyCodeTyped(vgui2::KeyCode)`, requested in
 [GoldSrc_VibeSignatures #397](https://github.com/HLND2T/GoldSrc_VibeSignatures/issues/397).
-Only the RoundEnd table is hooked: ESC leaves the pending choice intact while the
+The RoundEnd table is hooked: ESC leaves the pending choice intact while the
 engine toggles GameUI; other keys and the original button commands are forwarded.
 Both key-code paths are protected, including the Typed app-modal close path.
 These three records are published in `v20261023a`. An older catalog fails the
@@ -104,6 +104,16 @@ retain their native handlers. This fourth record is published in `v20261023b`;
 deploy the final DLL with that catalog or newer. `v20261023a` does not satisfy
 the extended manifest.
 
+The MatchEnd ESC fix also requires the client `CCSCareerMatchEndMenu` vtable and
+`CCSCareerMatchEndMenu::OnCommand(char const*)` virtual slot. It applies the same
+key and generic-command guards to MatchEnd's own table, preserving the current
+music and pending choice while GameUI toggles. Finish, retry and Credits retain
+their native handlers. Both Frame key slots are shared with RoundEnd; no shared
+Frame implementation or music handler is patched. These two MatchEnd records,
+requested in [GoldSrc_VibeSignatures #409](https://github.com/HLND2T/GoldSrc_VibeSignatures/issues/409),
+are published in `v20261026a`. Deploy that catalog or newer with this DLL on
+`czero`; older catalogs fail the extended manifest.
+
 The native build editor DPI hooks require `v20261025b` or newer. They hook the
 GameUI constructor and the editor/list vtables, retaining native editing, saving
 and ownership. Only editor lists receive the row/column and scrollbar correction.
@@ -115,19 +125,19 @@ casting native containers or the dialog to the SDK's private classes.
 
 The declaration is [scripts/manifests/vgui2extension.json](../../scripts/manifests/vgui2extension.json).
 The list below follows its exact module, name and kind and has been checked against the
-source calls. It contains **256 distinct explicit records** across 5 modules,
+source calls. It contains **258 distinct explicit records** across 5 modules,
 including the initial `_0` records of the conditional numbered patch sets
-(23 declarations). Each numbered set can consume additional records; 256 is not
+(23 declarations). Each numbered set can consume additional records; 258 is not
 the total size of every installed catalog.
 
 | Module | Explicit entries |
 | --- | ---: |
 | `engine` | 14 |
-| `client` | 37 |
+| `client` | 39 |
 | `gameui` | 195 |
 | `serverbrowser` | 9 |
 | `vgui2` | 1 |
-| Total | 256 |
+| Total | 258 |
 
 A GameSymbol is identified by its module and name. Identical names in `engine`, `client`,
 `gameui` and `serverbrowser` refer to separate records. Conditions below describe the
@@ -227,6 +237,8 @@ Sources: [ClientVGUI.cpp](../../src/ClientVGUI.cpp) and [privatefuncs.cpp](../..
 | `CCareerBaseBox::s_currentBox` | `global` | G24 |
 | `CCSCareerRoundEndMenu` | `vtable` | G24 |
 | `CCSCareerRoundEndMenu::OnCommand(char const*)` | `virtualFunction` | G24 |
+| `CCSCareerMatchEndMenu` | `vtable` | G24 |
+| `CCSCareerMatchEndMenu::OnCommand(char const*)` | `virtualFunction` | G24 |
 | `vgui2::Frame::OnKeyCodePressed(vgui2::KeyCode)` | `virtualFunction` | G24 |
 | `vgui2::Frame::OnKeyCodeTyped(vgui2::KeyCode)` | `virtualFunction` | G24 |
 | `CounterStrikeViewport.m_pCSBackGround` | `structMember` | G8 |
