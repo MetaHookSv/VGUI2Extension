@@ -13,7 +13,7 @@ CI workflows and release archives are described in [Automated builds](ci-cd.md).
 - CMake 3.21+, Git and Python 3, available on `PATH`
 - SDL2 and SDL3 headers, from a MetaHook source tree or its install tree
 - Network access on first configure to fetch the MetaHook SDK when no local path is
-  supplied, prepare VC-LTL 5.3.1 and synchronize gamedata
+  supplied, and synchronize gamedata
 
 ## Build
 
@@ -47,8 +47,8 @@ dependency source trees:
 ```bat
 scripts\build-VGUI2Extension-x86-Release.bat ^
   "-DMETAHOOK_SOURCE_PATH=D:/MetaHook" ^
-  "-DSDL2_INCLUDE_DIRS=D:/MetaHook/thirdparty/sdl2-compat-fork/include" ^
-  "-DSDL3_INCLUDE_DIRS=D:/MetaHook/thirdparty/SDL3_fork/include"
+  "-DSDL2_INCLUDE_DIRS=D:/MetaHook/thirdparty/sdl2-compat/include" ^
+  "-DSDL3_INCLUDE_DIRS=D:/MetaHook/thirdparty/SDL3/include"
 ```
 
 All three parameters accept same-named environment variables on first configure.
@@ -63,7 +63,6 @@ SDK downloading. SDL paths accept semicolon-separated directory lists; quote the
 | `VGUI2EXTENSION_BUILD_TESTS` | `OFF` | Build language registry and IME message regression tests |
 | `VGUI2EXTENSION_SYNC_GAMEDATA` | `ON` | Synchronize, prune and validate the plugin's gamedata |
 | `VGUI2EXTENSION_GAMEDATA_DIR` | `<build>/assets/svencoop/metahook/gamedata/vgui2extension` | Catalog output directory |
-| `VGUI2EXTENSION_DEPENDENCY_CACHE_DIR` | `thirdparty/cache` | VC-LTL download and extraction cache |
 
 ## gamedata
 
@@ -85,12 +84,9 @@ conditions, see [gamedata](gamedata.md). Update the manifest when symbol require
 
 ## Dependencies and build conventions
 
-- CMake downloads the MetaHook SDK and VC-LTL 5.3.1 automatically. The SDK version is
+- CMake downloads the MetaHook SDK automatically. The SDK version is
   recorded in [cmake/Dependencies.cmake](../../cmake/Dependencies.cmake).
-- VC-LTL is verified after download. Debug and Release share its cache under
-  `thirdparty/cache/`; use `-DVGUI2EXTENSION_DEPENDENCY_CACHE_DIR=<path>` on first configure
-  to choose another directory.
-- For offline builds, prepare the SDK, VC-LTL and gamedata caches with an online build first.
+- For offline builds, prepare the SDK and gamedata caches with an online build first.
   A local SDK path alone does not cover every download.
 - External SDK sources are left unchanged. Both Debug and Release include a PDB for debugging.
 

@@ -21,7 +21,6 @@ endif()
 
 include(cmake/Dependencies.cmake)
 vgui2extension_prepare_dependencies()
-include("${VC_LTL_Root}/VC-LTL helper for cmake.cmake")
 include(cmake/Sources.cmake)
 include(cmake/SourceGroups.cmake)
 add_library(VGUI2Extension SHARED ${VGUI2EXTENSION_SOURCES})

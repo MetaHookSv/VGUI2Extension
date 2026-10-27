@@ -19,7 +19,7 @@ This file provides guidance and important rules working with code in this reposi
 
 ### When notes are insufficient: source entry points (query and read on demand)
 
-- Build: `CMakeLists.txt`, `cmake/Sources.cmake` (explicit compile list), `cmake/Dependencies.cmake`, `cmake/VCLTL.cmake`, `scripts/build-VGUI2Extension-x86-{Debug,Release}.bat`
+- Build: `CMakeLists.txt`, `cmake/Sources.cmake` (explicit compile list), `cmake/Dependencies.cmake`, `scripts/build-VGUI2Extension-x86-{Debug,Release}.bat`
 - Plugin sources: `src/`; lifecycle entry `src/plugins.cpp`, callback dispatch `src/VGUI2ExtensionInternal.cpp`
 - Public API / interfaces: `include/Interface/` (`IVGUI2Extension.h`, `IDpiManager.h`, `VGUI/` for `IInput2.h`, `IScheme2.h`, `ISurface2.h`). These five public interface headers take precedence over MetaHook's historical copies and are installed by this repository.
 - Assets and localization: `assets/` (`svencoop/vgui2ext/`, `platform/`), installed to the prefix root
@@ -35,6 +35,6 @@ This file provides guidance and important rules working with code in this reposi
 - Resolve private symbols through the host gamedata API; do not add scan fallbacks for symbols that already exist, and do not judge coverage across modules by symbol name alone.
 - When gamedata usage changes, update `scripts/manifests/vgui2extension.json` in the same change, including module, Windows-version conditions and consecutive numbered patches.
 - Match the naming, indentation and comment style of the original files in `src/`.
-- Do not modify the external SDK or third-party sources. VC-LTL comes from a hash-verified binary cache; this repository has no third-party submodules, only the `thirdparty/cache` directory.
+- Do not modify the external SDK or third-party sources. This repository has no `thirdparty` directory or third-party submodules.
 - Regression tests compile with assertions enabled even in Release (`/UNDEBUG`); configuration and documentation text are not assertion targets.
 - Verification distinguishes compile, simulated tests and an actual game run. Claims about IME behavior or per-engine compatibility must not be made without real in-game verification.

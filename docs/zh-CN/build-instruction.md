@@ -11,7 +11,7 @@ CI 工作流与发布归档见[自动化构建](ci-cd.md)。
 - Windows、Visual Studio 2022 的 C++ 桌面开发工具、x86 MSVC 工具链和 Windows SDK
 - CMake 3.21+、Git 和 Python 3，且均位于 `PATH`
 - 来自 MetaHook 源码树或安装树的 SDL2、SDL3 头文件
-- 首次配置需要网络，用于在未指定本地路径时获取 MetaHook SDK、准备 VC-LTL 5.3.1 和同步 gamedata
+- 首次配置需要网络，用于在未指定本地路径时获取 MetaHook SDK 和同步 gamedata
 
 ## 构建
 
@@ -43,8 +43,8 @@ SDL 头文件可取自上文的 MetaHook 安装目录，也可直接使用其已
 ```bat
 scripts\build-VGUI2Extension-x86-Release.bat ^
   "-DMETAHOOK_SOURCE_PATH=D:/MetaHook" ^
-  "-DSDL2_INCLUDE_DIRS=D:/MetaHook/thirdparty/sdl2-compat-fork/include" ^
-  "-DSDL3_INCLUDE_DIRS=D:/MetaHook/thirdparty/SDL3_fork/include"
+  "-DSDL2_INCLUDE_DIRS=D:/MetaHook/thirdparty/sdl2-compat/include" ^
+  "-DSDL3_INCLUDE_DIRS=D:/MetaHook/thirdparty/SDL3/include"
 ```
 
 三个参数均支持首次配置时的同名环境变量。修改已缓存的值请使用 `-D参数名=值`；
@@ -58,7 +58,6 @@ scripts\build-VGUI2Extension-x86-Release.bat ^
 | `VGUI2EXTENSION_BUILD_TESTS` | `OFF` | 构建语言注册表和 IME 消息回归测试 |
 | `VGUI2EXTENSION_SYNC_GAMEDATA` | `ON` | 同步、裁剪并校验插件 gamedata |
 | `VGUI2EXTENSION_GAMEDATA_DIR` | `<build>/assets/svencoop/metahook/gamedata/vgui2extension` | catalog 输出目录 |
-| `VGUI2EXTENSION_DEPENDENCY_CACHE_DIR` | `thirdparty/cache` | VC-LTL 下载与解压缓存 |
 
 ## gamedata
 
@@ -77,11 +76,9 @@ catalog 要求、完整 GameSymbols 清单、module 归属与版本条件见 [ga
 
 ## 依赖与构建约定
 
-- CMake 自动下载 MetaHook SDK 和 VC-LTL 5.3.1。SDK 版本见
+- CMake 自动下载 MetaHook SDK。SDK 版本见
   [cmake/Dependencies.cmake](../../cmake/Dependencies.cmake)。
-- VC-LTL 下载后自动校验，Debug 与 Release 共用 `thirdparty/cache/` 下的缓存；
-  首次配置时可用 `-DVGUI2EXTENSION_DEPENDENCY_CACHE_DIR=<路径>` 更改缓存目录。
-- 离线构建前，先联网构建一次以准备 SDK、VC-LTL 和 gamedata 缓存；仅指定本地 SDK 路径不足以覆盖所有下载。
+- 离线构建前，先联网构建一次以准备 SDK 和 gamedata 缓存；仅指定本地 SDK 路径不足以覆盖所有下载。
 - 外部 SDK 源码保持不变，Debug 和 Release 均包含用于调试的 PDB。
 
 ## 回归测试

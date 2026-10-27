@@ -145,7 +145,7 @@ All private symbols come from the host gamedata catalog through the helpers in `
 - **Runtime components**: `GameUI.dll`, `ServerBrowser.dll`, `vgui2.dll`, SDL2, and Win32
   IME/user32.
 - **Build**: MetaHook SDK (path or FetchContent of the latest `main`), the shared HLSDK/SourceSDK/VGUI sources,
-  C++20, static CRT and VC-LTL 5.3.1. SDL2/SDL3 are include-only inputs and are not built or
+  C++20 and static CRT. SDL2/SDL3 are include-only inputs and are not built or
   packaged here; Capstone/GLEW are leftovers of the original MSBuild prerequisites.
 
 ## Runtime behaviour and switches
@@ -195,8 +195,7 @@ All private symbols come from the host gamedata catalog through the helpers in `
 
 ## Build and data flow
 
-`scripts/build-VGUI2Extension-x86-{Debug,Release}.bat` → CMake (MSVC x86, C++20, static CRT,
-VC-LTL 5.3.1) → compile the DLL → install. The explicit compile list in `cmake/Sources.cmake` keeps
+`scripts/build-VGUI2Extension-x86-{Debug,Release}.bat` → CMake (MSVC x86, C++20, static CRT) → compile the DLL → install. The explicit compile list in `cmake/Sources.cmake` keeps
 the 129 units of the original project (22 plugin units and 107 shared SDK units); the MetaHook SDK is
 consumed from `METAHOOK_SOURCE_PATH` or fetched from the latest `main`, and both SDL include arguments are
 required.
