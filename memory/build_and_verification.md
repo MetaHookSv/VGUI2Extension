@@ -6,6 +6,16 @@ permalink: vgui2extension/build-and-verification
 
 # Build and verification
 
+## Zombie Panic missing images and border ABI (2026-11-07)
+
+- Trigger: zp 10210 constructs its scoreboard using `GetImage("ui/icons/scoreboard/icon_dono0", false)->SetSize(32, 32)`, although that image is absent from the installed resources.
+- Root cause: native VGUI returns a Bitmap for the missing image, but our scheme manager deleted invalid Bitmaps and returned NULL. The client's unchecked call then dereferenced zero. Restoring the native getter in a diagnostic process bypassed this failure and exposed a separate `IBorder` virtual-slot mismatch.
+- Fix: cache and return invalid Bitmaps, preserving native missing-image behavior; their existing `Paint` implementation safely skips invalid textures. Remove `ParseSideSettings` from the MetaHook public `IBorder` interface so native slot 6/7 dispatch reaches `GetName`/`SetName`; keep parsing as a private nonvirtual `Border` helper.
+- Regression: `border_abi_tests` calls slots 6/7 with the native calling convention, fails on the old header, and passes on the fixed header. Aggregate Debug/Win32 build, all 11 plugin CTests, and pinned formatting checks for both components passed.
+- Runtime verification: deployed the rebuilt aggregate to Zombie Panic Mod and used CDB without runtime patches. The missing image returned a VGUI2Extension Bitmap and the original client `Start()` returned successfully. Both prior crash paths were traversed without access violations or runtime stack-check failures.
+- Limit: halflife-mcp startup then stopped at a different Renderer error: `GameStudioRenderer_StudioDrawModel` is missing from the matched client gamedata snapshot. No successful main-menu/map/visual regression is claimed. Test processes exited.
+- Evidence: aggregate `build/x86/Debug/deployment/zp-fixed-start-verification.log` and the game's `fatalerror-20261107-192620-718-16304.log`. Applies to scheme replacements serving native GoldSrc clients, not only zp.
+
 ## Build structure
 
 The root CMake uses MSVC x86, C++20, Debug/Release, a static CRT.

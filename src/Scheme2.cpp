@@ -1114,12 +1114,8 @@ IImage* CSchemeManager::GetImage(const char* imageName, bool hardwareFiltered)
         return NULL;
     }
 
-    if (imageName[0] && !pBitmap->IsValid())
-    {
-        delete pBitmap;
-        return NULL;
-    }
-
+    // Native VGUI returns a Bitmap even when the texture is missing. Clients may
+    // use it without a null check; invalid Bitmaps already skip painting safely.
     searchBitmap.bitmap = pBitmap;
     m_Bitmaps.Insert(searchBitmap);
     return pBitmap;
